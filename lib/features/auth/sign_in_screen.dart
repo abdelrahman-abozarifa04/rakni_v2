@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/reset_password_screen.dart';
 import 'package:rakni_v2/features/auth/create_account_step1_screen.dart';
+import 'package:rakni_v2/features/main/main_shell.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -150,7 +151,15 @@ class _SignInScreenState extends State<SignInScreen> {
 
               // Sign In Button
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainShell(),
+                    ),
+                    (route) => false,
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: AppColors.primary,

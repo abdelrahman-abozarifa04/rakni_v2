@@ -21,7 +21,7 @@ class OnboardingScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 40),
                   SvgPicture.asset(
-                    'assets/images/Rakni_logo_dark.svg',
+                    'assets/images/rakni_logo_white.svg',
                     height: 50,
                   ),
                   const SizedBox(height: 40),
@@ -49,14 +49,15 @@ class OnboardingScreen extends StatelessWidget {
               ),
               
               // Middle section: Car Image
-              Expanded(
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/images/onbording_car.svg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
+      Expanded(
+  child: Center(
+    child: Image.asset(
+      'assets/images/onbording_car.png',
+      height: MediaQuery.of(context).size.height * 0.4, 
+      fit: BoxFit.contain,
+    ),
+  ),
+),
 
               // Bottom section: Button, Login Link, Page Indicator
               Column(
@@ -143,7 +144,7 @@ class OnboardingScreen extends StatelessWidget {
       width: 8,
       height: 8,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.secondary : AppColors.textSecondary.withOpacity(0.3),
+        color: isActive ? AppColors.secondary : AppColors.textSecondary.withValues(alpha: 0.3),
         shape: BoxShape.circle,
       ),
     );

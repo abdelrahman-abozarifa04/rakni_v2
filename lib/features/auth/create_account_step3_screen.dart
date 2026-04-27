@@ -130,7 +130,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       dropdownColor: AppColors.fieldColor,
-                      value: _selectedGender,
+                      initialValue: _selectedGender,
                       hint: const Text(
                         'Select your gender',
                         style: TextStyle(color: AppColors.hintColor, fontSize: 14),

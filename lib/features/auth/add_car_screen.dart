@@ -10,153 +10,91 @@ class AddCarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: SvgPicture.asset(
-          'assets/images/rakni_logo_white.svg',
-          height: 32,
-        ),
-        leading: TextButton.icon(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary, size: 20),
-          label: const Text(
-            'Back',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.only(left: 16),
-            alignment: Alignment.centerLeft,
-          ),
-        ),
-        leadingWidth: 100,
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 40),
-              SvgPicture.asset(
-                'assets/images/add_car_photo.svg',
-                height: 200,
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            // ── Logo ──────────────────────────────────────────
+            Center(
+              child: SvgPicture.asset(
+                'assets/images/rakni_logo_white.svg',
+                height: 45,
               ),
-              const SizedBox(height: 32),
-              const Text(
-                'Add Your Car',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Add your car details to enjoy all features of Rakni.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 40),
-              
-              const Text(
-                'Car Plate Number',
-                style: TextStyle(color: AppColors.white, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              _buildTextField(hintText: 'Enter car plate number'),
-              const SizedBox(height: 24),
-              
-              const Text(
-                'Car Model',
-                style: TextStyle(color: AppColors.white, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              _buildTextField(hintText: 'Enter car model (e.g. Toyota Camry)'),
-              const SizedBox(height: 40),
-              
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddCarScreen2(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                  minimumSize: const Size(double.infinity, 56),
-                ),
-                child: const Text(
-                  'Add Car',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  // TODO: Handle Skip
-                },
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  minimumSize: const Size(double.infinity, 56),
-                ),
-                child: const Text(
-                  'Skip for now',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+            ),
+            const SizedBox(height: 60),
 
-  Widget _buildTextField({required String hintText}) {
-    return TextField(
-      style: const TextStyle(color: AppColors.white, fontSize: 14),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(color: AppColors.hintColor, fontSize: 14),
-        filled: true,
-        fillColor: AppColors.fieldColor,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1),
+            // ── Header Text ───────────────────────────────────
+            const Text(
+              'Parking made easy..',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Add your car to start now',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
+            ),
+
+            const Spacer(),
+
+            // ── Car Graphic & Action Button ────────────────────
+            Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // The Car Image (Top View)
+                  Image.asset(
+                    'assets/images/add_car_photo.png',
+                    height: 360,
+                    fit: BoxFit.contain,
+                  ),
+
+                  // The Lime Green Circular Button
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddCarScreen2(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 130,
+                      height: 140,
+                      decoration: const BoxDecoration(
+                        color: AppColors.secondary, // Your Lime Green
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      child: const Center(
+                        child: Text(
+                          'ADD YOUR\nCAR TO\nSTART',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.primary, // Dark color
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(flex: 2),
+          ],
         ),
       ),
     );

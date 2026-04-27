@@ -11,233 +11,113 @@ class MapScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Simulated Map Background
+          // Simulated map background
           Positioned.fill(
             child: Container(
-              color: const Color(0xFF1E1E1E), // Slightly different shade for map
+              color: const Color(0xFF1A1A1A),
               child: Opacity(
-                opacity: 0.1,
+                opacity: 0.08,
                 child: Center(
                   child: SvgPicture.asset(
                     'assets/images/map_Icon.svg',
-                    height: 200,
-                    colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+                    height: 300,
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.white, BlendMode.srcIn),
                   ),
                 ),
               ),
             ),
           ),
-          
-          // Simulated Map Markers
+
+          // Parking markers
           Positioned(
-            top: 300,
-            left: 100,
-            child: SvgPicture.asset(
-              'assets/images/Map_mark.svg',
-              height: 40,
-            ),
+            top: 280,
+            left: 90,
+            child: _ParkingMarker(label: 'P1', spots: 42),
           ),
           Positioned(
-            top: 400,
-            right: 120,
-            child: SvgPicture.asset(
-              'assets/images/Map_mark.svg',
-              height: 48, // A bit larger to simulate being selected
-            ),
+            top: 360,
+            right: 100,
+            child: _ParkingMarker(label: 'P2', spots: 18),
           ),
           Positioned(
-            top: 250,
-            right: 80,
-            child: SvgPicture.asset(
-              'assets/images/Map_mark.svg',
-              height: 40,
-            ),
+            top: 180,
+            right: 60,
+            child: _ParkingMarker(label: 'P3', spots: 76),
           ),
 
-          // Top Bar (Search + Filter)
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: AppColors.fieldColor.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.fieldStroke),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/search_Icon.svg',
-                            height: 20,
-                            colorFilter: const ColorFilter.mode(AppColors.hintColor, BlendMode.srcIn),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Search by address or place',
-                            style: TextStyle(
-                              color: AppColors.hintColor,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Current Location FAB
+          // Top search area
           Positioned(
-            bottom: 230,
-            right: 16,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.fieldColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.fieldStroke),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.fieldColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.fieldStroke),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                      )
+                    ],
                   ),
-                ],
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  'assets/images/curent_location_icon.svg',
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(AppColors.secondary, BlendMode.srcIn),
-                ),
-              ),
-            ),
-          ),
-
-          // Bottom Card
-          Positioned(
-            bottom: 16,
-            left: 16,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.fieldColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.fieldStroke),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
+                      const SizedBox(width: 14),
+                      SvgPicture.asset(
+                        'assets/images/search_Icon.svg',
+                        height: 18,
+                        colorFilter: const ColorFilter.mode(
+                            AppColors.hintColor, BlendMode.srcIn),
+                      ),
+                      const SizedBox(width: 10),
                       const Expanded(
                         child: Text(
-                          'Rakni Parking',
+                          'Search for a parking spot...',
                           style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              color: AppColors.hintColor, fontSize: 14),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: AppColors.secondary, size: 16),
-                          const SizedBox(width: 4),
-                          const Text(
-                            '4.5',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '6th of October',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+
+          // Current location FAB
+          Positioned(
+            bottom: 24,
+            right: 20,
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondary.withValues(alpha: 0.4),
+                      blurRadius: 12,
                     ),
+                  ],
+                ),
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/images/curent_location_icon.svg',
+                    height: 22,
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.primary, BlendMode.srcIn),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildInfoChip(Icons.route, '2 km'),
-                      const SizedBox(width: 12),
-                      _buildInfoChip(Icons.access_time, '10 mins'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.secondary),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Details',
-                            style: TextStyle(
-                              color: AppColors.secondary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Book Now',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -245,19 +125,52 @@ class MapScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildInfoChip(IconData icon, String text) {
-    return Row(
+class _ParkingMarker extends StatelessWidget {
+  final String label;
+  final int spots;
+
+  const _ParkingMarker({required this.label, required this.spots});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: AppColors.secondary, size: 16),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.secondary,
+            borderRadius: BorderRadius.circular(8),
           ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Text(
+                '$spots free',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SvgPicture.asset(
+          'assets/images/Map_mark.svg',
+          height: 20,
+          colorFilter:
+              const ColorFilter.mode(AppColors.secondary, BlendMode.srcIn),
         ),
       ],
     );
