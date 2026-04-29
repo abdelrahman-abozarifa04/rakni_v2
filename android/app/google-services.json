@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "863311891829",
+    "project_id": "rakni-v2",
+    "storage_bucket": "rakni-v2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863311891829:android:30d8fe36304d456e3a173c",
+        "android_client_info": {
+          "package_name": "com.example.rakni_v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "863311891829-p6jsav01vofidkcjti8j3j9p1m71b0aa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rakni_v2",
+            "certificate_hash": "f421e41ba17deee2733ae7253adf730ea5adb533"
+          }
+        },
+        {
+          "client_id": "863311891829-1fmt6ipr4h6vo1efrbjp1j4vromn9gnj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-4qMeZwEbzVnSqjBBPnvE4zgCQV9Mkz0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "863311891829-1fmt6ipr4h6vo1efrbjp1j4vromn9gnj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "863311891829-li86tccvdk67pvt78b71jqg3apf844ol.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rakniteam.rakniV2"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863311891829:android:2cc7ec5a1aebd5ac3a173c",
+        "android_client_info": {
+          "package_name": "com.rakniteam.rakni_v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "863311891829-r31mne4gu07c5ak7vpi054dpe167e71s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rakniteam.rakni_v2",
+            "certificate_hash": "f421e41ba17deee2733ae7253adf730ea5adb533"
+          }
+        },
+        {
+          "client_id": "863311891829-1fmt6ipr4h6vo1efrbjp1j4vromn9gnj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-4qMeZwEbzVnSqjBBPnvE4zgCQV9Mkz0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "863311891829-1fmt6ipr4h6vo1efrbjp1j4vromn9gnj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "863311891829-li86tccvdk67pvt78b71jqg3apf844ol.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rakniteam.rakniV2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

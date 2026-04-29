@@ -4,7 +4,9 @@ import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/add_car_screen_2.dart';
 
 class AddCarScreen extends StatelessWidget {
-  const AddCarScreen({super.key});
+  final String? uid;
+
+  const AddCarScreen({super.key, this.uid});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +65,7 @@ class AddCarScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AddCarScreen2(),
+                          builder: (context) => AddCarScreen2(uid: uid),
                         ),
                       );
                     },
@@ -71,7 +73,7 @@ class AddCarScreen extends StatelessWidget {
                       width: 130,
                       height: 140,
                       decoration: const BoxDecoration(
-                        color: AppColors.secondary, // Your Lime Green
+                        color: AppColors.secondary,
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(20),
@@ -80,7 +82,7 @@ class AddCarScreen extends StatelessWidget {
                           'ADD YOUR\nCAR TO\nSTART',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.primary, // Dark color
+                            color: AppColors.primary,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             height: 1.2,

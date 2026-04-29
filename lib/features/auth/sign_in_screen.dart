@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/reset_password_screen.dart';
 import 'package:rakni_v2/features/auth/create_account_step1_screen.dart';
@@ -14,6 +15,72 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  Future<void> _signIn() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar('Please enter your email and password.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await AuthService().signInWithEmailAndPassword(email, password);
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainShell()),
+        (route) => false,
+      );
+    } catch (e) {
+      _showSnackBar(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      await AuthService().signInWithGoogle();
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainShell()),
+        (route) => false,
+      );
+    } catch (e) {
+      _showSnackBar(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +98,7 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
         ),
         centerTitle: false,
-        automaticallyImplyLeading: false, // We can add back button if needed
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -40,7 +107,6 @@ class _SignInScreenState extends State<SignInScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 32),
-              // Logo
               Center(
                 child: SvgPicture.asset(
                   'assets/images/rakni_logo_white.svg',
@@ -48,8 +114,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              
-              // Welcome text
               const Text(
                 'Welcome Back',
                 textAlign: TextAlign.center,
@@ -81,7 +145,9 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               const SizedBox(height: 8),
               _buildTextField(
+                controller: _emailController,
                 hintText: 'Enter your email',
+                keyboardType: TextInputType.emailAddress,
                 prefixIcon: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: SvgPicture.asset(
@@ -103,6 +169,7 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               const SizedBox(height: 8),
               _buildTextField(
+                controller: _passwordController,
                 hintText: 'Enter your password',
                 obscureText: _obscurePassword,
                 prefixIcon: const Icon(Icons.lock_outline, color: AppColors.hintColor, size: 20),
@@ -112,25 +179,18 @@ class _SignInScreenState extends State<SignInScreen> {
                     color: AppColors.hintColor,
                     size: 20,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
-              
+
               const SizedBox(height: 12),
-              // Forgot password
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const ResetPasswordScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
                     );
                   },
                   style: TextButton.styleFrom(
@@ -140,10 +200,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   child: const Text(
                     'Forgot password?',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                 ),
               ),
@@ -151,69 +208,50 @@ class _SignInScreenState extends State<SignInScreen> {
 
               // Sign In Button
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MainShell(),
-                    ),
-                    (route) => false,
-                  );
-                },
+                onPressed: _isLoading ? null : _signIn,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Sign In',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                      )
+                    : const Text(
+                        'Sign In',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
               ),
-              
+
               const SizedBox(height: 32),
-              
-              // Divider
               Row(
                 children: [
-                  const Expanded(
-                    child: Divider(color: AppColors.fieldStroke, thickness: 1),
-                  ),
+                  const Expanded(child: Divider(color: AppColors.fieldStroke, thickness: 1)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
                       'or',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                     ),
                   ),
-                  const Expanded(
-                    child: Divider(color: AppColors.fieldStroke, thickness: 1),
-                  ),
+                  const Expanded(child: Divider(color: AppColors.fieldStroke, thickness: 1)),
                 ],
               ),
-              
               const SizedBox(height: 32),
 
               // Google Button
               OutlinedButton(
-                onPressed: () {},
+                onPressed: _isLoading ? null : _signInWithGoogle,
                 style: OutlinedButton.styleFrom(
                   backgroundColor: AppColors.fieldColor,
                   side: const BorderSide(color: AppColors.fieldStroke),
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -221,7 +259,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     Image.network(
                       'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
                       height: 20,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, color: Colors.white),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.g_mobiledata, color: Colors.white),
                     ),
                     const SizedBox(width: 12),
                     const Text(
@@ -235,27 +274,20 @@ class _SignInScreenState extends State<SignInScreen> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 48),
-              
-              // Sign up text
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     "Don't have an account? ",
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const CreateAccountStep1Screen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const CreateAccountStep1Screen()),
                       );
                     },
                     child: const Text(
@@ -278,13 +310,17 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required String hintText,
     bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
     Widget? prefixIcon,
     Widget? suffixIcon,
   }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
+      keyboardType: keyboardType,
       style: const TextStyle(color: AppColors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: hintText,
