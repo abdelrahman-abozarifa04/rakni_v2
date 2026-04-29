@@ -19,7 +19,7 @@ class RakniBottomNavBar extends StatelessWidget {
     _NavItemData(svgPath: 'assets/images/home_Icon.svg', label: 'Home'),
     _NavItemData(svgPath: 'assets/images/map_Icon.svg', label: 'Map'),
     _NavItemData(svgPath: 'assets/images/booking_Icon.svg', label: 'Bookings'),
-    _NavItemData(svgPath: 'assets/images/mycar_icon.svg', label: 'My Car'),
+    _NavItemData(svgPath: 'assets/images/vehicle.svg', label: 'vehicles'),
     _NavItemData(svgPath: 'assets/images/profile_Icon.svg', label: 'Profile'),
   ];
 

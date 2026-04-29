@@ -7,6 +7,7 @@ class VehicleModel {
   final String model;
   final String color;
   final bool isDefault;
+  final String? imageUrl; // Firebase Storage download URL (nullable)
   final DateTime? createdAt;
 
   VehicleModel({
@@ -16,6 +17,7 @@ class VehicleModel {
     required this.model,
     required this.color,
     required this.isDefault,
+    this.imageUrl,
     this.createdAt,
   });
 
@@ -29,6 +31,7 @@ class VehicleModel {
       model: data['model'] ?? '',
       color: data['color'] ?? '',
       isDefault: data['isDefault'] ?? false,
+      imageUrl: data['imageUrl'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
@@ -41,6 +44,7 @@ class VehicleModel {
       'model': model,
       'color': color,
       'isDefault': isDefault,
+      if (imageUrl != null) 'imageUrl': imageUrl,
       if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
     };
   }
@@ -53,6 +57,7 @@ class VehicleModel {
     String? model,
     String? color,
     bool? isDefault,
+    String? imageUrl,
     DateTime? createdAt,
   }) {
     return VehicleModel(
@@ -62,12 +67,13 @@ class VehicleModel {
       model: model ?? this.model,
       color: color ?? this.color,
       isDefault: isDefault ?? this.isDefault,
+      imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
     );
   }
 
   @override
   String toString() {
-    return 'VehicleModel(id: $id, brand: $brand, plateNumber: $plateNumber, isDefault: $isDefault)';
+    return 'VehicleModel(id: $id, brand: $brand, plateNumber: $plateNumber, isDefault: $isDefault, imageUrl: $imageUrl)';
   }
 }

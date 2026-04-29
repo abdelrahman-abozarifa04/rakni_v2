@@ -2,25 +2,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // ضفنا دي عشان نتحكم في ألوان الـ Status Bar
 import 'package:rakni_v2/core/services/firebase_options.dart';
-import 'package:rakni_v2/features/splash/splash_screen.dart';
 
 import 'core/services/auth_gate.dart';
 
 Future<void> main() async {
-  print('--- App Starting ---');
   // 1. التأكد من تهيئة أدوات فلاتر
   WidgetsFlutterBinding.ensureInitialized();
-  print('--- WidgetsFlutterBinding Initialized ---');
 
   // 2. تهيئة Firebase باستخدام الإعدادات اللي ولدتها الـ CLI
   try {
-    print('--- Initializing Firebase ---');
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('--- Firebase Initialized ---');
   } catch (e) {
-    print('--- Firebase Initialization Error: $e ---');
+    // Firebase Initialization Error
   }
 
   // 3. (اختياري) جعل الـ Status Bar شفاف ليناسب تصميم الـ Dark Mode بتاعك
@@ -31,7 +26,6 @@ Future<void> main() async {
     ),
   );
 
-  print('--- Running App ---');
   runApp(const MyApp());
 }
 

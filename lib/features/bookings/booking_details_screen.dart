@@ -26,7 +26,7 @@ class BookingDetailsScreen extends StatelessWidget {
     final isActive = status == 'Active';
     final badgeColor = isActive
         ? AppColors.secondary
-        : AppColors.textSecondary.withOpacity(0.3);
+        : AppColors.textSecondary.withValues(alpha: 0.3);
     final badgeTextColor = isActive ? Colors.black : AppColors.textSecondary;
 
     return Scaffold(

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/user_model.dart';
 import '../models/car_model.dart';
 import '../models/vehicle_model.dart';
@@ -9,6 +10,7 @@ import '../models/transaction_model.dart';
 import '../models/notification_model.dart';
 import '../models/review_model.dart';
 import '../models/wallet_model.dart';
+import '../utils/image_utils.dart';
 
 
 /// Singleton service that provides a typed interface to Cloud Firestore.
@@ -141,6 +143,30 @@ class FirestoreService {
     }
   }
 
+  /// Adds a vehicle, optionally converting [imageFile] to a Base64 data URI.
+  Future<void> addVehicleWithImage(
+    String uid,
+    VehicleModel vehicle, {
+    XFile? imageFile,
+  }) async {
+    try {
+      String? imageUrl;
+
+      if (imageFile != null) {
+        imageUrl = await ImageUtils.xFileToBase64(imageFile);
+      }
+
+      final payload = {
+        ...vehicle.toFirestore(),
+        'imageUrl': imageUrl,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+      await _users.doc(uid).collection('vehicles').add(payload);
+    } catch (e) {
+      throw Exception('Error adding vehicle with image: $e');
+    }
+  }
+
   /// Streams vehicles for a specific user.
   Stream<List<VehicleModel>> streamVehicles(String uid) {
     return _users.doc(uid).collection('vehicles').snapshots().map((snapshot) {
@@ -154,6 +180,44 @@ class FirestoreService {
       await _users.doc(uid).collection('vehicles').doc(vehicleId).delete();
     } catch (e) {
       throw Exception('Error deleting vehicle: $e');
+    }
+  }
+
+  /// Updates a vehicle in `users/{uid}/vehicles/{vehicleId}`.
+  Future<void> updateVehicle(String uid, String vehicleId, VehicleModel vehicle) async {
+    try {
+      final payload = {
+        ...vehicle.toFirestore(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      await _users.doc(uid).collection('vehicles').doc(vehicleId).update(payload);
+    } catch (e) {
+      throw Exception('Error updating vehicle: $e');
+    }
+  }
+
+  /// Updates a vehicle, optionally converting [imageFile] to a Base64 data URI.
+  Future<void> updateVehicleWithImage(
+    String uid,
+    String vehicleId,
+    VehicleModel vehicle, {
+    XFile? imageFile,
+  }) async {
+    try {
+      String? imageUrl = vehicle.imageUrl;
+
+      if (imageFile != null) {
+        imageUrl = await ImageUtils.xFileToBase64(imageFile);
+      }
+
+      final payload = {
+        ...vehicle.toFirestore(),
+        'imageUrl': imageUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      await _users.doc(uid).collection('vehicles').doc(vehicleId).update(payload);
+    } catch (e) {
+      throw Exception('Error updating vehicle with image: $e');
     }
   }
 

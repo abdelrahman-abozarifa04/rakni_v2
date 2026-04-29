@@ -92,7 +92,7 @@ class BookingsScreen extends StatelessWidget {
     final isActive = status == 'Active';
     final badgeColor = isActive
         ? AppColors.secondary
-        : AppColors.textSecondary.withOpacity(0.3);
+        : AppColors.textSecondary.withValues(alpha: 0.3);
     final badgeTextColor = isActive ? Colors.black : AppColors.textSecondary;
 
     return GestureDetector(
@@ -192,7 +192,7 @@ class BookingsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                        color: AppColors.textSecondary.withOpacity(0.3),
+                        color: AppColors.textSecondary.withValues(alpha: 0.3),
                         width: 1),
                   ),
                 ),
@@ -233,7 +233,7 @@ class BookingsScreen extends StatelessWidget {
                     Container(
                       width: 1,
                       height: 50,
-                      color: AppColors.textSecondary.withOpacity(0.3),
+                      color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                     Expanded(
                       child: InkWell(

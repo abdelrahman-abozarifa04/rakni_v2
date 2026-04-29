@@ -1,13 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/user_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
+import 'package:rakni_v2/core/utils/image_utils.dart';
 import 'package:rakni_v2/features/profile/personal_details_screen.dart';
 import 'package:rakni_v2/features/profile/my_vehicles_screen.dart';
 import 'package:rakni_v2/features/profile/payment_methods_screen.dart';
@@ -65,11 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isUploading = true);
 
     try {
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('user_avatars/${currentUser!.uid}.jpg');
-      await ref.putFile(File(image.path));
-      final photoUrl = await ref.getDownloadURL();
+      final photoUrl = await ImageUtils.xFileToBase64(image);
 
       await FirestoreService.instance.saveUserData(
         currentUser!.uid,
@@ -174,7 +168,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 radius: 50,
                                 backgroundColor: AppColors.surface,
                                 backgroundImage: _userModel?.photoUrl != null
-                                    ? NetworkImage(_userModel!.photoUrl!)
+                                    ? (ImageUtils.isBase64Image(_userModel!.photoUrl!)
+                                        ? MemoryImage(ImageUtils.base64ToBytes(_userModel!.photoUrl!))
+                                        : NetworkImage(_userModel!.photoUrl!))
                                     : null,
                                 child: _userModel?.photoUrl == null
                                     ? const Icon(Icons.person,

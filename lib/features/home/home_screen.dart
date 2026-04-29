@@ -1,10 +1,158 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:rakni_v2/core/services/favorites_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/home/location_screen.dart';
+import 'package:rakni_v2/features/home/parking_lot_detail_screen.dart';
+import 'package:rakni_v2/features/home/parking_search_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _locationText = 'Getting location...';
+  bool _locationLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLocation();
+  }
+
+  Future<void> _fetchLocation() async {
+    if (mounted) {
+      setState(() {
+        _locationLoading = true;
+        _locationText = 'Getting location...';
+      });
+    }
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _setLocation('Location disabled');
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied) {
+        _setLocation('Location permission needed');
+        return;
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _setLocation('Enable location in settings');
+        return;
+      }
+
+      final position =
+          await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+            ),
+          ).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () async {
+              final lastKnown = await Geolocator.getLastKnownPosition();
+              if (lastKnown != null) return lastKnown;
+              return Position(
+                longitude: 31.2357,
+                latitude: 30.0444,
+                timestamp: DateTime.now(),
+                accuracy: 0,
+                altitude: 0,
+                altitudeAccuracy: 0,
+                heading: 0,
+                headingAccuracy: 0,
+                speed: 0,
+                speedAccuracy: 0,
+              );
+            },
+          );
+
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      final place = placemarks.isNotEmpty ? placemarks.first : null;
+      _setLocation(_formatPlacemark(place));
+    } catch (_) {
+      _setLocation('Cairo, Egypt');
+    }
+  }
+
+  void _setLocation(String value) {
+    if (!mounted) return;
+    setState(() {
+      _locationText = value;
+      _locationLoading = false;
+    });
+  }
+
+  String _formatPlacemark(Placemark? place) {
+    if (place == null) return 'Cairo, Egypt';
+    final area = place.subLocality?.isNotEmpty == true
+        ? place.subLocality
+        : place.locality;
+    final city = place.administrativeArea?.isNotEmpty == true
+        ? place.administrativeArea
+        : place.country;
+    final parts = [
+      area,
+      city,
+    ].whereType<String>().where((part) => part.trim().isNotEmpty).toList();
+    return parts.isEmpty ? 'Cairo, Egypt' : parts.join(', ');
+  }
+
+  Future<void> _selectLocation() async {
+    final selected = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (context) => const LocationScreen()),
+    );
+    if (selected != null && selected.trim().isNotEmpty && mounted) {
+      setState(() {
+        _locationText = selected;
+        _locationLoading = false;
+      });
+    }
+  }
+
+  void _openDetail(
+    String name,
+    String address,
+    int availableSlots,
+    int totalSlots,
+    String pricePerHour,
+    String imagePath,
+    double latitude,
+    double longitude,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ParkingLotDetailScreen(
+          name: name,
+          address: address,
+          availableSlots: availableSlots,
+          totalSlots: totalSlots,
+          pricePerHour: pricePerHour,
+          imagePath: imagePath,
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,20 +161,13 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // ── App Bar ──────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildTopBar(context),
-            ),
-
-            // ── Search Bar ───────────────────────────────────────
+            SliverToBoxAdapter(child: _buildTopBar(context)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: _buildSearchBar(),
               ),
             ),
-
-            // ── Section: Nearby Parking ──────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
@@ -39,36 +180,70 @@ class HomeScreen extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: const [
-                    _NearbyParkingCard(
-                      name: 'Mall of Arabia',
-                      distance: '0.8 km',
-                      available: 42,
-                      price: 'EGP 10/hr',
-                      imagePath: 'assets/images/mall_of_arabia.png',
+                  children: [
+                    GestureDetector(
+                      onTap: () => _openDetail(
+                        'Mall of Arabia',
+                        '6th of October, Giza',
+                        42,
+                        120,
+                        'EGP 10/hr',
+                        'assets/images/mall_of_arabia.png',
+                        30.0131,
+                        31.2089,
+                      ),
+                      child: const _NearbyParkingCard(
+                        name: 'Mall of Arabia',
+                        distance: '0.8 km',
+                        available: 42,
+                        price: 'EGP 10/hr',
+                        imagePath: 'assets/images/mall_of_arabia.png',
+                      ),
                     ),
-                    SizedBox(width: 14),
-                    _NearbyParkingCard(
-                      name: 'Cairo Festival City',
-                      distance: '2.1 km',
-                      available: 18,
-                      price: 'EGP 15/hr',
-                      imagePath: 'assets/images/cfc_mall.png',
+                    const SizedBox(width: 14),
+                    GestureDetector(
+                      onTap: () => _openDetail(
+                        'Cairo Festival City',
+                        'New Cairo, Cairo',
+                        18,
+                        80,
+                        'EGP 15/hr',
+                        'assets/images/cfc_mall.png',
+                        30.0280,
+                        31.4028,
+                      ),
+                      child: const _NearbyParkingCard(
+                        name: 'Cairo Festival City',
+                        distance: '2.1 km',
+                        available: 18,
+                        price: 'EGP 15/hr',
+                        imagePath: 'assets/images/cfc_mall.png',
+                      ),
                     ),
-                    SizedBox(width: 14),
-                    _NearbyParkingCard(
-                      name: 'City Stars',
-                      distance: '3.5 km',
-                      available: 76,
-                      price: 'EGP 8/hr',
-                      imagePath: 'assets/images/mall_of_arabia.png',
+                    const SizedBox(width: 14),
+                    GestureDetector(
+                      onTap: () => _openDetail(
+                        'City Stars',
+                        'Nasr City, Cairo',
+                        76,
+                        200,
+                        'EGP 8/hr',
+                        'assets/images/mall_of_arabia.png',
+                        30.0740,
+                        31.3453,
+                      ),
+                      child: const _NearbyParkingCard(
+                        name: 'City Stars',
+                        distance: '3.5 km',
+                        available: 76,
+                        price: 'EGP 8/hr',
+                        imagePath: 'assets/images/mall_of_arabia.png',
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-
-            // ── Section: Quick Actions ───────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 16),
@@ -103,8 +278,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // ── Section: My Active Session ───────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
@@ -117,25 +290,22 @@ class HomeScreen extends StatelessWidget {
                 child: _ActiveSessionCard(),
               ),
             ),
-
-            // ── Section: Featured Malls ──────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
                 child: _buildSectionHeader('Featured Malls', 'See all'),
               ),
             ),
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
-                  children: const [
+                  children: [
                     _FeaturedMallTile(
                       name: 'Mall of Arabia',
                       address: '6th of October, Giza',
                       slots: '42 spots available',
                       imagePath: 'assets/images/mall_of_arabia.png',
-                      isFavorite: true,
                     ),
                     SizedBox(height: 12),
                     _FeaturedMallTile(
@@ -143,13 +313,11 @@ class HomeScreen extends StatelessWidget {
                       address: 'New Cairo, Cairo',
                       slots: '18 spots available',
                       imagePath: 'assets/images/cfc_mall.png',
-                      isFavorite: false,
                     ),
                   ],
                 ),
               ),
             ),
-
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
@@ -164,12 +332,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LocationScreen()),
-                );
-              },
+              onTap: _selectLocation,
               behavior: HitTestBehavior.opaque,
               child: Row(
                 children: [
@@ -177,13 +340,25 @@ class HomeScreen extends StatelessWidget {
                     'assets/images/curent_location_icon.svg',
                     height: 18,
                     colorFilter: const ColorFilter.mode(
-                        AppColors.secondary, BlendMode.srcIn),
+                      AppColors.secondary,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   const SizedBox(width: 6),
-                  const Flexible(
+                  if (_locationLoading)
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.secondary,
+                      ),
+                    ),
+                  if (_locationLoading) const SizedBox(width: 8),
+                  Flexible(
                     child: Text(
-                      'New Cairo, Cairo',
-                      style: TextStyle(
+                      _locationText,
+                      style: const TextStyle(
                         color: AppColors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -192,8 +367,11 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.textSecondary, size: 18),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textSecondary,
+                    size: 18,
+                  ),
                 ],
               ),
             ),
@@ -206,8 +384,11 @@ class HomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.fieldStroke),
             ),
-            child: const Icon(Icons.notifications_none_rounded,
-                color: AppColors.white, size: 20),
+            child: const Icon(
+              Icons.notifications_none_rounded,
+              color: AppColors.white,
+              size: 20,
+            ),
           ),
         ],
       ),
@@ -215,42 +396,45 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: AppColors.fieldColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.fieldStroke),
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ParkingSearchScreen()),
       ),
-      child: Row(
-        children: [
-          const SizedBox(width: 14),
-          Image.asset(
-            'assets/images/search_Icon.png',
-            height: 18,
-            color: AppColors.hintColor,
-            colorBlendMode: BlendMode.srcIn,
-            errorBuilder: (context, error, stackTrace) => const Icon(Icons.search, color: AppColors.hintColor),
-          ),
-          const SizedBox(width: 10),
-          const Expanded(
-            child: Text(
-              'Search for a parking spot...',
-              style: TextStyle(color: AppColors.hintColor, fontSize: 14),
-              overflow: TextOverflow.ellipsis,
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: AppColors.fieldColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.fieldStroke),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 14),
+            const Icon(Icons.search, color: AppColors.hintColor, size: 20),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Search for a parking spot...',
+                style: TextStyle(color: AppColors.hintColor, fontSize: 14),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.all(6),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(8),
+            Container(
+              margin: const EdgeInsets.all(6),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: AppColors.secondary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.tune_rounded,
+                color: AppColors.primary,
+                size: 18,
+              ),
             ),
-            child: const Icon(Icons.tune_rounded,
-                color: AppColors.primary, size: 18),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -316,13 +500,22 @@ class _NearbyParkingCard extends StatelessWidget {
                 Image.asset(
                   imagePath,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[800], child: const Icon(Icons.image_not_supported, color: Colors.white24)),
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[800],
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: Colors.white24,
+                    ),
+                  ),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.secondary,
                       borderRadius: BorderRadius.circular(8),
@@ -362,20 +555,26 @@ class _NearbyParkingCard extends StatelessWidget {
                       'assets/images/location_Icon.svg',
                       height: 11,
                       colorFilter: const ColorFilter.mode(
-                          AppColors.textSecondary, BlendMode.srcIn),
+                        AppColors.textSecondary,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     const SizedBox(width: 3),
                     Text(
                       distance,
                       style: const TextStyle(
-                          color: AppColors.textSecondary, fontSize: 11),
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
                     ),
                     const Spacer(),
                     SvgPicture.asset(
                       'assets/images/hour_Icon.svg',
                       height: 11,
                       colorFilter: const ColorFilter.mode(
-                          AppColors.secondary, BlendMode.srcIn),
+                        AppColors.secondary,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     const SizedBox(width: 3),
                     Text(
@@ -419,8 +618,10 @@ class _QuickAction extends StatelessWidget {
             SvgPicture.asset(
               svgPath,
               height: 26,
-              colorFilter:
-              const ColorFilter.mode(AppColors.secondary, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                AppColors.secondary,
+                BlendMode.srcIn,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -473,7 +674,9 @@ class _ActiveSessionCard extends StatelessWidget {
                 'assets/images/Map_mark.svg',
                 height: 22,
                 colorFilter: const ColorFilter.mode(
-                    AppColors.secondary, BlendMode.srcIn),
+                  AppColors.secondary,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
@@ -483,7 +686,7 @@ class _ActiveSessionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mall of Arabia – P2',
+                  'Mall of Arabia - P2',
                   style: TextStyle(
                     color: AppColors.white,
                     fontSize: 14,
@@ -492,9 +695,11 @@ class _ActiveSessionCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Started 42 min ago  ·  EGP 7.00',
+                  'Started 42 min ago  .  EGP 7.00',
                   style: TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12),
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -520,20 +725,45 @@ class _ActiveSessionCard extends StatelessWidget {
   }
 }
 
-class _FeaturedMallTile extends StatelessWidget {
+class _FeaturedMallTile extends StatefulWidget {
   final String name;
   final String address;
   final String slots;
   final String imagePath;
-  final bool isFavorite;
 
   const _FeaturedMallTile({
     required this.name,
     required this.address,
     required this.slots,
     required this.imagePath,
-    required this.isFavorite,
   });
+
+  @override
+  State<_FeaturedMallTile> createState() => _FeaturedMallTileState();
+}
+
+class _FeaturedMallTileState extends State<_FeaturedMallTile> {
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorite();
+  }
+
+  Future<void> _loadFavorite() async {
+    try {
+      final favorite = await FavoritesService.instance.isFavorite(widget.name);
+      if (mounted) setState(() => _isFavorite = favorite);
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFavorite() async {
+    try {
+      await FavoritesService.instance.toggleFavorite(widget.name);
+      if (mounted) setState(() => _isFavorite = !_isFavorite);
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -550,9 +780,12 @@ class _FeaturedMallTile extends StatelessWidget {
           SizedBox(
             width: 90,
             child: Image.asset(
-              imagePath,
+              widget.imagePath,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[800], child: const Icon(Icons.broken_image, color: Colors.white12)),
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[800],
+                child: const Icon(Icons.broken_image, color: Colors.white12),
+              ),
             ),
           ),
           Expanded(
@@ -566,7 +799,7 @@ class _FeaturedMallTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          name,
+                          widget.name,
                           style: const TextStyle(
                             color: AppColors.white,
                             fontSize: 13,
@@ -576,14 +809,20 @@ class _FeaturedMallTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SvgPicture.asset(
-                        'assets/images/makefavorate_Icon.svg',
-                        height: 18,
-                        colorFilter: ColorFilter.mode(
-                          isFavorite
-                              ? AppColors.secondary
-                              : AppColors.hintColor,
-                          BlendMode.srcIn,
+                      GestureDetector(
+                        onTap: _toggleFavorite,
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            _isFavorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: _isFavorite
+                                ? AppColors.secondary
+                                : AppColors.hintColor,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ],
@@ -594,14 +833,18 @@ class _FeaturedMallTile extends StatelessWidget {
                         'assets/images/location_Icon.svg',
                         height: 12,
                         colorFilter: const ColorFilter.mode(
-                            AppColors.textSecondary, BlendMode.srcIn),
+                          AppColors.textSecondary,
+                          BlendMode.srcIn,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          address,
+                          widget.address,
                           style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 11),
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -610,13 +853,15 @@ class _FeaturedMallTile extends StatelessWidget {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.secondary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      slots,
+                      widget.slots,
                       style: const TextStyle(
                         color: AppColors.secondary,
                         fontSize: 10,

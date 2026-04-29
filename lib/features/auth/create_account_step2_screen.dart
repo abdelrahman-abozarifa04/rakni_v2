@@ -64,14 +64,17 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
           _uid = cred.user?.uid;
           _sendOtp();
         } catch (_) {
+          if (!mounted) return;
           _showSnackBar('Email is already registered. Please sign in.');
           Navigator.pop(context);
         }
       } else {
+        if (!mounted) return;
         _showSnackBar(e.message ?? 'Failed to initialize account.');
         Navigator.pop(context);
       }
     } catch (e) {
+      if (!mounted) return;
       _showSnackBar('An unexpected error occurred.');
       Navigator.pop(context);
     }

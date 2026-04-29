@@ -188,17 +188,7 @@ class _MapScreenState extends State<MapScreen> {
     if (mounted) setState(() { _markers ..clear() ..addAll(updated); });
   }
 
-  void _addUserMarker() {
-    if (_userPosition == null) return;
-    const id = MarkerId('user');
-    _markers[id] = Marker(
-      markerId: id,
-      position: _userPosition!,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: const InfoWindow(title: 'You are here'),
-    );
-    if (mounted) setState(() {});
-  }
+
 
   // ── garage bottom sheet ─────────────────────────────────────────
   void _showGarageSheet(_Garage garage) {

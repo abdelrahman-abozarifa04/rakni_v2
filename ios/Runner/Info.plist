@@ -81,5 +81,9 @@
 	<string>This app needs access to location when open to show your position on the map and find nearby garages.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to location to show your position on the map and find nearby garages.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to your photo library to let you upload a profile picture and vehicle images.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to your camera to let you take a photo for your profile or vehicle.</string>
 </dict>
 </plist>
