@@ -4,6 +4,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rakni_v2/core/services/favorites_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/features/bookings/bookings_screen.dart';
+import 'package:rakni_v2/features/home/favourites_screen.dart';
 import 'package:rakni_v2/features/home/location_screen.dart';
 import 'package:rakni_v2/features/home/parking_lot_detail_screen.dart';
 import 'package:rakni_v2/features/home/parking_search_screen.dart';
@@ -34,6 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
+      // Geolocator works on web through the browser Geolocation API. It needs
+      // HTTPS in production, while localhost is allowed during development.
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         _setLocation('Location disabled');
@@ -254,25 +258,49 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
-                  children: const [
+                  children: [
                     _QuickAction(
                       svgPath: 'assets/images/Map_mark.svg',
                       label: 'Find\nParking',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ParkingSearchScreen(),
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     _QuickAction(
                       svgPath: 'assets/images/booking_Icon.svg',
                       label: 'Reserve\nSpot',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ParkingSearchScreen(),
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     _QuickAction(
                       svgPath: 'assets/images/makefavorate_Icon.svg',
                       label: 'Favourites',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const FavouritesScreen(),
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     _QuickAction(
                       svgPath: 'assets/images/hour_Icon.svg',
                       label: 'History',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BookingsScreen(),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -599,42 +627,46 @@ class _NearbyParkingCard extends StatelessWidget {
 class _QuickAction extends StatelessWidget {
   final String svgPath;
   final String label;
+  final VoidCallback? onTap;
 
-  const _QuickAction({required this.svgPath, required this.label});
+  const _QuickAction({required this.svgPath, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: AppColors.fieldColor,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.fieldStroke),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              svgPath,
-              height: 26,
-              colorFilter: const ColorFilter.mode(
-                AppColors.secondary,
-                BlendMode.srcIn,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.fieldColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.fieldStroke),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                svgPath,
+                height: 26,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.secondary,
+                  BlendMode.srcIn,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                height: 1.3,
+              const SizedBox(height: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

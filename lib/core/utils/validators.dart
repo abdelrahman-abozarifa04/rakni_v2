@@ -61,4 +61,61 @@ class Validators {
   static bool passwordsMatch(String password, String confirm) {
     return password == confirm;
   }
+
+  /// Validates Egyptian driver's license number (6-8 digits).
+  static String? validateLicenseNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'License number is required.';
+    }
+    final digitsOnly = value.trim().replaceAll(RegExp(r'\D'), '');
+    if (digitsOnly.length < 6 || digitsOnly.length > 8) {
+      return 'License number must be 6-8 digits.';
+    }
+    return null;
+  }
+
+  /// Validates Egyptian license plate format.
+  ///
+  /// Accepts Arabic letters + Arabic/Western digits, or Latin letters + digits.
+  static String? validateEgyptianPlate(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Plate number is required.';
+    }
+    final cleaned = value.trim().replaceAll(RegExp(r'[\s\-]'), '');
+    if (cleaned.length < 5 || cleaned.length > 8) {
+      return 'Plate number must be 5-8 characters (e.g., أبج1234 or ABC1234).';
+    }
+    final arabicPlate = RegExp(
+      r'^[\u0621-\u064A]{1,3}[0-9\u0660-\u0669]{3,4}$',
+    );
+    final latinPlate = RegExp(r'^[A-Za-z]{1,3}[0-9]{3,4}$');
+    if (!arabicPlate.hasMatch(cleaned) && !latinPlate.hasMatch(cleaned)) {
+      return 'Invalid plate format. Use format: أبج1234 or ABC1234.';
+    }
+    return null;
+  }
+
+  /// Validates Egyptian license expiry date (DD/MM/YYYY) and checks not expired.
+  static String? validateLicenseExpiry(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Expiry date is required.';
+    }
+    final parts = value.trim().split('/');
+    if (parts.length != 3) return 'Use format DD/MM/YYYY.';
+    try {
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+      final expiry = DateTime(year, month, day);
+      if (expiry.day != day || expiry.month != month || expiry.year != year) {
+        return 'Invalid date. Use format DD/MM/YYYY.';
+      }
+      if (expiry.isBefore(DateTime.now())) {
+        return 'License is expired. Please renew before registering.';
+      }
+    } catch (_) {
+      return 'Invalid date. Use format DD/MM/YYYY.';
+    }
+    return null;
+  }
 }

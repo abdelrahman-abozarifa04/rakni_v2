@@ -28,11 +28,36 @@ class _Garage {
 // Hardcoded garages
 // ─────────────────────────────────────────────────────────────────
 const List<_Garage> _garages = [
-  _Garage(id: 'g1', name: 'Mall of Arabia Parking', position: LatLng(30.0131, 31.2089), slots: 42),
-  _Garage(id: 'g2', name: 'Cairo Festival City',    position: LatLng(30.0280, 31.4028), slots: 18),
-  _Garage(id: 'g3', name: 'Point 90 Mall',          position: LatLng(30.0074, 31.4711), slots: 76),
-  _Garage(id: 'g4', name: 'Waterway Parking',       position: LatLng(30.0225, 31.4662), slots: 31),
-  _Garage(id: 'g5', name: 'AUC Garage',             position: LatLng(30.0219, 31.4997), slots: 55),
+  _Garage(
+    id: 'g1',
+    name: 'Mall of Arabia Parking',
+    position: LatLng(30.0131, 31.2089),
+    slots: 42,
+  ),
+  _Garage(
+    id: 'g2',
+    name: 'Cairo Festival City',
+    position: LatLng(30.0280, 31.4028),
+    slots: 18,
+  ),
+  _Garage(
+    id: 'g3',
+    name: 'Point 90 Mall',
+    position: LatLng(30.0074, 31.4711),
+    slots: 76,
+  ),
+  _Garage(
+    id: 'g4',
+    name: 'Waterway Parking',
+    position: LatLng(30.0225, 31.4662),
+    slots: 31,
+  ),
+  _Garage(
+    id: 'g5',
+    name: 'AUC Garage',
+    position: LatLng(30.0219, 31.4997),
+    slots: 55,
+  ),
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -114,6 +139,8 @@ class _MapScreenState extends State<MapScreen> {
   // ── location ────────────────────────────────────────────────────
   Future<void> _initLocation() async {
     try {
+      // Geolocator supports web through the browser Geolocation API. The user
+      // will see the normal browser permission prompt on HTTPS/localhost.
       final serviceOn = await Geolocator.isLocationServiceEnabled();
       if (!serviceOn) {
         _showBar('Location services are disabled.');
@@ -133,17 +160,40 @@ class _MapScreenState extends State<MapScreen> {
         return;
       }
       if (perm == LocationPermission.deniedForever) {
-        _showBar('Location permission permanently denied — enable in Settings.');
+        _showBar(
+          'Location permission permanently denied — enable in Settings.',
+        );
         await _rebuildGarageMarkers();
         if (mounted) setState(() => _locationLoading = false);
         return;
       }
 
       // Use balanced accuracy and timeout to avoid hanging
-      final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium),
-      ).timeout(const Duration(seconds: 10), onTimeout: () => Geolocator.getLastKnownPosition().then((p) => p ?? Position(longitude: 31.4997, latitude: 30.0219, timestamp: DateTime.now(), accuracy: 0, altitude: 0, heading: 0, speed: 0, speedAccuracy: 0, altitudeAccuracy: 0, headingAccuracy: 0)));
-      
+      final pos =
+          await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+            ),
+          ).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => Geolocator.getLastKnownPosition().then(
+              (p) =>
+                  p ??
+                  Position(
+                    longitude: 31.4997,
+                    latitude: 30.0219,
+                    timestamp: DateTime.now(),
+                    accuracy: 0,
+                    altitude: 0,
+                    heading: 0,
+                    speed: 0,
+                    speedAccuracy: 0,
+                    altitudeAccuracy: 0,
+                    headingAccuracy: 0,
+                  ),
+            ),
+          );
+
       if (!mounted) return;
       _userPosition = LatLng(pos.latitude, pos.longitude);
 
@@ -185,10 +235,14 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    if (mounted) setState(() { _markers ..clear() ..addAll(updated); });
+    if (mounted) {
+      setState(() {
+        _markers
+          ..clear()
+          ..addAll(updated);
+      });
+    }
   }
-
-
 
   // ── garage bottom sheet ─────────────────────────────────────────
   void _showGarageSheet(_Garage garage) {
@@ -213,22 +267,37 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    setState(() { _polylines.clear(); _routeTarget = null; _routeDistanceKm = null; });
+    setState(() {
+      _polylines.clear();
+      _routeTarget = null;
+      _routeDistanceKm = null;
+    });
 
     try {
       final pp = PolylinePoints();
       final result = await pp.getRouteBetweenCoordinates(
         googleApiKey: _kApiKey,
         request: PolylineRequest(
-          origin: PointLatLng(_userPosition!.latitude, _userPosition!.longitude),
-          destination: PointLatLng(garage.position.latitude, garage.position.longitude),
+          origin: PointLatLng(
+            _userPosition!.latitude,
+            _userPosition!.longitude,
+          ),
+          destination: PointLatLng(
+            garage.position.latitude,
+            garage.position.longitude,
+          ),
           mode: TravelMode.driving,
         ),
       );
 
-      if (result.points.isEmpty) { _showBar('Could not find a route.'); return; }
+      if (result.points.isEmpty) {
+        _showBar('Could not find a route.');
+        return;
+      }
 
-      final pts = result.points.map((p) => LatLng(p.latitude, p.longitude)).toList();
+      final pts = result.points
+          .map((p) => LatLng(p.latitude, p.longitude))
+          .toList();
       const pid = PolylineId('route');
       setState(() {
         _polylines[pid] = Polyline(
@@ -259,13 +328,18 @@ class _MapScreenState extends State<MapScreen> {
     double min = double.infinity;
     for (final g in _garages) {
       final d = _distKm(_userPosition!, g.position);
-      if (d < min) { min = d; nearest = g; }
+      if (d < min) {
+        min = d;
+        nearest = g;
+      }
     }
     if (nearest != null) await _drawRouteTo(nearest);
   }
 
   void _clearRoute() => setState(() {
-    _polylines.clear(); _routeTarget = null; _routeDistanceKm = null;
+    _polylines.clear();
+    _routeTarget = null;
+    _routeDistanceKm = null;
   });
 
   // ── helpers ─────────────────────────────────────────────────────
@@ -273,9 +347,12 @@ class _MapScreenState extends State<MapScreen> {
     const r = 6371.0;
     final dLat = _rad(b.latitude - a.latitude);
     final dLng = _rad(b.longitude - a.longitude);
-    final x = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_rad(a.latitude)) * math.cos(_rad(b.latitude)) *
-            math.sin(dLng / 2) * math.sin(dLng / 2);
+    final x =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_rad(a.latitude)) *
+            math.cos(_rad(b.latitude)) *
+            math.sin(dLng / 2) *
+            math.sin(dLng / 2);
     return r * 2 * math.atan2(math.sqrt(x), math.sqrt(1 - x));
   }
 
@@ -295,12 +372,14 @@ class _MapScreenState extends State<MapScreen> {
 
   void _showBar(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: AppColors.fieldColor,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.fieldColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   // ── build ────────────────────────────────────────────────────────
@@ -333,7 +412,9 @@ class _MapScreenState extends State<MapScreen> {
 
           // ── Search bar ─────────────────────────────────────────
           Positioned(
-            top: 0, left: 0, right: 0,
+            top: 0,
+            left: 0,
+            right: 0,
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -343,7 +424,12 @@ class _MapScreenState extends State<MapScreen> {
                     color: AppColors.fieldColor,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.fieldStroke),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -351,16 +437,25 @@ class _MapScreenState extends State<MapScreen> {
                       SvgPicture.asset(
                         'assets/images/search_Icon.svg',
                         height: 18,
-                        colorFilter: const ColorFilter.mode(AppColors.hintColor, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.hintColor,
+                          BlendMode.srcIn,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
                           controller: _searchController,
-                          style: const TextStyle(color: AppColors.white, fontSize: 14),
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                          ),
                           decoration: const InputDecoration(
                             hintText: 'Search for a parking spot...',
-                            hintStyle: TextStyle(color: AppColors.hintColor, fontSize: 14),
+                            hintStyle: TextStyle(
+                              color: AppColors.hintColor,
+                              fontSize: 14,
+                            ),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                             isDense: true,
@@ -372,7 +467,11 @@ class _MapScreenState extends State<MapScreen> {
                           onTap: _searchController.clear,
                           child: const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 12),
-                            child: Icon(Icons.close, color: AppColors.hintColor, size: 18),
+                            child: Icon(
+                              Icons.close,
+                              color: AppColors.hintColor,
+                              size: 18,
+                            ),
                           ),
                         ),
                     ],
@@ -385,10 +484,15 @@ class _MapScreenState extends State<MapScreen> {
           // ── Locating indicator ─────────────────────────────────
           if (_locationLoading)
             Positioned(
-              top: 80, left: 0, right: 0,
+              top: 80,
+              left: 0,
+              right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.fieldColor,
                     borderRadius: BorderRadius.circular(20),
@@ -398,11 +502,21 @@ class _MapScreenState extends State<MapScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.secondary,
+                        ),
                       ),
                       SizedBox(width: 8),
-                      Text('Locating you…', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      Text(
+                        'Locating you…',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -412,38 +526,65 @@ class _MapScreenState extends State<MapScreen> {
           // ── Route info card ────────────────────────────────────
           if (_routeTarget != null)
             Positioned(
-              bottom: 90, left: 20, right: 80,
+              bottom: 90,
+              left: 20,
+              right: 80,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.fieldColor,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.fieldStroke),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 10)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.route_rounded, color: AppColors.secondary, size: 18),
+                    const Icon(
+                      Icons.route_rounded,
+                      color: AppColors.secondary,
+                      size: 18,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: RichText(
                         text: TextSpan(
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
                           children: [
                             const TextSpan(text: 'Routing to: '),
                             TextSpan(
                               text: _routeTarget!.name,
-                              style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             if (_routeDistanceKm != null)
-                              TextSpan(text: '  •  ${_routeDistanceKm!.toStringAsFixed(1)} km'),
+                              TextSpan(
+                                text:
+                                    '  •  ${_routeDistanceKm!.toStringAsFixed(1)} km',
+                              ),
                           ],
                         ),
                       ),
                     ),
                     GestureDetector(
                       onTap: _clearRoute,
-                      child: const Icon(Icons.close, color: AppColors.hintColor, size: 18),
+                      child: const Icon(
+                        Icons.close,
+                        color: AppColors.hintColor,
+                        size: 18,
+                      ),
                     ),
                   ],
                 ),
@@ -452,21 +593,31 @@ class _MapScreenState extends State<MapScreen> {
 
           // ── FAB ───────────────────────────────────────────────
           Positioned(
-            bottom: 24, right: 20,
+            bottom: 24,
+            right: 20,
             child: GestureDetector(
               onTap: _goToNearest,
               child: Container(
-                width: 52, height: 52,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
                   color: AppColors.secondary,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: AppColors.secondary.withValues(alpha: 0.4), blurRadius: 12)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondary.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                    ),
+                  ],
                 ),
                 child: Center(
                   child: SvgPicture.asset(
                     'assets/images/curent_location_icon.svg',
                     height: 22,
-                    colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),
@@ -500,8 +651,12 @@ class _GarageSheet extends StatelessWidget {
         children: [
           Center(
             child: Container(
-              width: 36, height: 4,
-              decoration: BoxDecoration(color: AppColors.fieldStroke, borderRadius: BorderRadius.circular(2)),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.fieldStroke,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -510,12 +665,20 @@ class _GarageSheet extends StatelessWidget {
               Expanded(
                 child: Text(
                   garage.name,
-                  style: const TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close, color: AppColors.hintColor, size: 20),
+                child: const Icon(
+                  Icons.close,
+                  color: AppColors.hintColor,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -523,12 +686,21 @@ class _GarageSheet extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 8, height: 8,
-                decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle),
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.secondary,
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: 8),
-              Text('${garage.slots} spots available',
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text(
+                '${garage.slots} spots available',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -546,10 +718,15 @@ class _GarageSheet extends StatelessWidget {
               backgroundColor: AppColors.secondary,
               foregroundColor: AppColors.primary,
               minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
-            child: const Text('Get Directions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+            child: const Text(
+              'Get Directions',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),
@@ -576,7 +753,13 @@ class _Chip extends StatelessWidget {
         children: [
           Icon(icon, color: AppColors.secondary, size: 14),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );

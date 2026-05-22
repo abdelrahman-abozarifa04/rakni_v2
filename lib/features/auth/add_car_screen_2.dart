@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
+import 'package:rakni_v2/core/utils/validators.dart';
 import 'package:rakni_v2/features/main/main_shell.dart';
 
 class AddCarScreen2 extends StatefulWidget {
@@ -53,6 +54,11 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
       _showSnackBar('Please fill in all fields.');
       return;
     }
+    final plateError = Validators.validateEgyptianPlate(plate);
+    if (plateError != null) {
+      _showSnackBar(plateError);
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -93,7 +99,11 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -140,27 +150,36 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
               const Text(
                 'Enter your vehicle details',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 15,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
               ),
               const SizedBox(height: 32),
 
               // ── Form Fields ──────────────────────────────────
               _buildLabel('Car Brand'),
-              _buildTextField(controller: _brandController, hintText: 'e.g., Toyota, BMW, Mercedes'),
+              _buildTextField(
+                controller: _brandController,
+                hintText: 'e.g., Toyota, BMW, Mercedes',
+              ),
               const SizedBox(height: 20),
               _buildLabel('Plate Number'),
-              _buildTextField(controller: _plateController, hintText: 'ABC 1234'),
+              _buildTextField(
+                controller: _plateController,
+                hintText: 'e.g. أبج١٢٣٤ or ABC1234',
+              ),
 
               const SizedBox(height: 20),
               _buildLabel('Model'),
-              _buildTextField(controller: _modelController, hintText: 'e.g., Camry, Civic, X5'),
+              _buildTextField(
+                controller: _modelController,
+                hintText: 'e.g., Camry, Civic, X5',
+              ),
 
               const SizedBox(height: 20),
               _buildLabel('Color'),
-              _buildTextField(controller: _colorController, hintText: 'e.g., Black, Silver, White'),
+              _buildTextField(
+                controller: _colorController,
+                hintText: 'e.g., Black, Silver, White',
+              ),
               const SizedBox(height: 60),
 
               // ── Bottom Button ───────────────────────────────
@@ -169,7 +188,9 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   minimumSize: const Size(double.infinity, 56),
                   elevation: 0,
                 ),
@@ -177,11 +198,17 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
                       )
                     : const Text(
                         'Add Car',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
               ),
               const SizedBox(height: 24),
@@ -206,7 +233,10 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
     );
   }
 
-  Widget _buildTextField({required TextEditingController controller, required String hintText}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+  }) {
     return TextField(
       controller: controller,
       style: const TextStyle(color: AppColors.white, fontSize: 14),
@@ -215,7 +245,10 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
         hintStyle: const TextStyle(color: AppColors.hintColor, fontSize: 14),
         filled: true,
         fillColor: AppColors.fieldColor,
-        contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 18,
+          horizontal: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.fieldStroke),

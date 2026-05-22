@@ -1,158 +1,89 @@
 import 'package:cloud_functions/cloud_functions.dart';
 
-/// Singleton service that wraps the three OTP Cloud Functions.
-///
-/// Usage:
-///   final otp = OtpService();
-///   await otp.sendVerificationOTP(email: email, uid: uid);
-///   final ok = await otp.verifyOTP(email: email, code: code, type: OtpType.verification);
+enum OtpType { signupVerification, passwordReset }
+
+class OtpVerificationResult {
+  final bool success;
+  final String? error;
+
+  const OtpVerificationResult({required this.success, this.error});
+}
+
 class OtpService {
-  OtpService._internal();
+  OtpService._();
+  static final instance = OtpService._();
 
-  factory OtpService() => instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
 
-  static final OtpService instance = OtpService._internal();
-
-  /// Cloud Functions region — must match the region used in index.ts.
-  static const String _region = 'europe-west1';
-
-  FirebaseFunctions get _functions =>
-      FirebaseFunctions.instanceFor(region: _region);
-
-  // ---------------------------------------------------------------------------
-  // sendVerificationOTP
-  // ---------------------------------------------------------------------------
-
-  /// Triggers the `sendVerificationOTP` Cloud Function.
-  ///
-  /// Generates a 6-digit code, stores it in `otps/{email}` with
-  /// type = "verification", and emails it to [email].
-  ///
-  /// Throws [Exception] on failure (network error, function error, etc.).
   Future<void> sendVerificationOTP({
     required String email,
     required String uid,
   }) async {
     try {
-      final callable = _functions.httpsCallable('sendVerificationOTP');
-      final result = await callable.call<Map<String, dynamic>>({
-        'email': email.trim().toLowerCase(),
+      await _functions.httpsCallable('sendVerificationOTP').call({
+        'email': email,
         'uid': uid,
       });
-
-      if (result.data['success'] != true) {
-        throw Exception('Failed to send verification OTP.');
-      }
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(_mapFunctionsError(e));
+      throw Exception(e.message ?? 'Failed to send verification OTP');
     } catch (e) {
-      throw Exception('Could not send verification email: $e');
+      throw Exception('An unexpected error occurred while sending OTP');
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // sendPasswordResetOTP
-  // ---------------------------------------------------------------------------
-
-  /// Triggers the `sendPasswordResetOTP` Cloud Function.
-  ///
-  /// Generates a 6-digit code, stores it in `otps/{email}` with
-  /// type = "password_reset", and emails it to [email].
-  ///
-  /// Throws [Exception] on failure.
   Future<void> sendPasswordResetOTP({required String email}) async {
     try {
-      final callable = _functions.httpsCallable('sendPasswordResetOTP');
-      final result = await callable.call<Map<String, dynamic>>({
-        'email': email.trim().toLowerCase(),
+      await _functions.httpsCallable('sendPasswordResetOTP').call({
+        'email': email,
       });
-
-      if (result.data['success'] != true) {
-        throw Exception('Failed to send password reset OTP.');
-      }
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(_mapFunctionsError(e));
+      throw Exception(e.message ?? 'Failed to send password reset OTP');
     } catch (e) {
-      throw Exception('Could not send password reset email: $e');
+      throw Exception('An unexpected error occurred while sending OTP');
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // verifyOTP
-  // ---------------------------------------------------------------------------
-
-  /// Calls the `verifyOTP` Cloud Function and returns `true` if the
-  /// [code] is valid for [email] and the given [type].
-  ///
-  /// Returns `false` on invalid / expired code (no exception thrown —
-  /// callers should show the error message to the user).
-  ///
-  /// Throws [Exception] only on network / function invocation errors.
-  Future<OtpVerifyResult> verifyOTP({
+  Future<OtpVerificationResult> verifyOTP({
     required String email,
     required String code,
     required OtpType type,
   }) async {
     try {
-      final callable = _functions.httpsCallable('verifyOTP');
-      final result = await callable.call<Map<String, dynamic>>({
-        'email': email.trim().toLowerCase(),
-        'code': code.trim(),
-        'type': type.value,
+      final result = await _functions.httpsCallable('verifyOTP').call({
+        'email': email,
+        'code': code,
+        'type': type == OtpType.signupVerification
+            ? 'verification'
+            : 'password_reset',
       });
 
-      final bool success = result.data['success'] == true;
-      final String? error = result.data['error'] as String?;
+      final bool success = result.data['success'] ?? false;
+      final String? error = result.data['error'];
 
-      return OtpVerifyResult(success: success, error: error);
+      return OtpVerificationResult(success: success, error: error);
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(_mapFunctionsError(e));
+      return OtpVerificationResult(success: false, error: e.message);
     } catch (e) {
-      throw Exception('Could not verify OTP: $e');
+      return OtpVerificationResult(
+        success: false,
+        error: 'An unexpected error occurred during OTP verification',
+      );
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
-
-  String _mapFunctionsError(FirebaseFunctionsException e) {
-    switch (e.code) {
-      case 'invalid-argument':
-        return e.message ?? 'Invalid request data.';
-      case 'unauthenticated':
-        return 'You must be signed in to perform this action.';
-      case 'resource-exhausted':
-        return 'Too many requests. Please wait a moment and try again.';
-      case 'internal':
-        return 'A server error occurred. Please try again later.';
-      default:
-        return e.message ?? 'An unexpected error occurred.';
+  Future<void> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
+    try {
+      await _functions.httpsCallable('resetPassword').call({
+        'email': email,
+        'newPassword': newPassword,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to reset password');
+    } catch (e) {
+      throw Exception('An unexpected error occurred while resetting password');
     }
   }
-}
-
-// ---------------------------------------------------------------------------
-// Supporting types
-// ---------------------------------------------------------------------------
-
-/// The two OTP purposes supported by the backend.
-enum OtpType {
-  verification('verification'),
-  passwordReset('password_reset');
-
-  const OtpType(this.value);
-
-  /// The string value stored in Firestore and sent to Cloud Functions.
-  final String value;
-}
-
-/// Result returned by [OtpService.verifyOTP].
-class OtpVerifyResult {
-  const OtpVerifyResult({required this.success, this.error});
-
-  final bool success;
-
-  /// Human-readable error message when [success] is `false`.
-  final String? error;
 }

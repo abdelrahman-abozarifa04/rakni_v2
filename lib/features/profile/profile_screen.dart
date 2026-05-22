@@ -12,6 +12,7 @@ import 'package:rakni_v2/features/profile/payment_methods_screen.dart';
 import 'package:rakni_v2/features/profile/settings_screen.dart';
 import 'package:rakni_v2/features/profile/help_support_screen.dart';
 import 'package:rakni_v2/features/bookings/bookings_screen.dart';
+import 'package:rakni_v2/core/services/auth_gate.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -38,8 +39,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     try {
-      final model =
-          await FirestoreService.instance.getUserModel(currentUser!.uid);
+      final model = await FirestoreService.instance.getUserModel(
+        currentUser!.uid,
+      );
       setState(() {
         _userModel = model;
         _isLoading = false;
@@ -65,10 +67,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final photoUrl = await ImageUtils.xFileToBase64(image);
 
-      await FirestoreService.instance.saveUserData(
-        currentUser!.uid,
-        {'photoUrl': photoUrl},
-      );
+      await FirestoreService.instance.saveUserData(currentUser!.uid, {
+        'photoUrl': photoUrl,
+      });
 
       setState(() {
         if (_userModel != null) {
@@ -101,26 +102,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _signOut() async {
+    final rootContext = context;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const Text('Log Out', style: TextStyle(color: AppColors.white)),
-        content: const Text('Are you sure you want to log out?',
-            style: TextStyle(color: AppColors.textSecondary)),
+        content: const Text(
+          'Are you sure you want to log out?',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(color: AppColors.textSecondary)),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
-              await AuthService().signOut();
+              Navigator.pop(dialogContext);
+              try {
+                await AuthService().signOut();
+                if (!mounted) return;
+                Navigator.of(rootContext).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const AuthGate()),
+                  (route) => false,
+                );
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(rootContext).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to log out: $e'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
             },
-            child: const Text('Log Out',
-                style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Log Out',
+              style: TextStyle(
+                color: AppColors.error,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -145,179 +171,186 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: CircularProgressIndicator(color: AppColors.secondary),
             )
           : _userModel == null
-              ? const Center(
-                  child: Text('User data not found.',
-                      style: TextStyle(color: AppColors.textSecondary)),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      // Avatar Section
-                      Center(
-                        child: Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                            Container(
+          ? const Center(
+              child: Text(
+                'User data not found.',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  // Avatar Section
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.secondary,
+                              width: 2,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundColor: AppColors.surface,
+                            backgroundImage: _userModel?.photoUrl != null
+                                ? (ImageUtils.isBase64Image(
+                                        _userModel!.photoUrl!,
+                                      )
+                                      ? MemoryImage(
+                                          ImageUtils.base64ToBytes(
+                                            _userModel!.photoUrl!,
+                                          ),
+                                        )
+                                      : NetworkImage(_userModel!.photoUrl!))
+                                : null,
+                            child: _userModel?.photoUrl == null
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: AppColors.textSecondary,
+                                  )
+                                : null,
+                          ),
+                        ),
+                        if (_isUploading)
+                          const Positioned.fill(
+                            child: CircularProgressIndicator(
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _isUploading ? null : _pickImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
+                                color: AppColors.secondary,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                    color: AppColors.secondary, width: 2),
-                              ),
-                              child: CircleAvatar(
-                                radius: 50,
-                                backgroundColor: AppColors.surface,
-                                backgroundImage: _userModel?.photoUrl != null
-                                    ? (ImageUtils.isBase64Image(_userModel!.photoUrl!)
-                                        ? MemoryImage(ImageUtils.base64ToBytes(_userModel!.photoUrl!))
-                                        : NetworkImage(_userModel!.photoUrl!))
-                                    : null,
-                                child: _userModel?.photoUrl == null
-                                    ? const Icon(Icons.person,
-                                        size: 50,
-                                        color: AppColors.textSecondary)
-                                    : null,
-                              ),
-                            ),
-                            if (_isUploading)
-                              const Positioned.fill(
-                                child: CircularProgressIndicator(
-                                    color: AppColors.secondary),
-                              ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: _isUploading ? null : _pickImage,
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondary,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: AppColors.background, width: 2),
-                                  ),
-                                  child: const Icon(Icons.camera_alt,
-                                      color: Colors.black, size: 18),
+                                  color: AppColors.background,
+                                  width: 2,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _userModel!.fullName,
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _userModel!.email,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Stats Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatItem('122', 'Total Parked'),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildStatItem('67', 'Bookings'),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildStatItem('4.9', 'Rating'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Profile Options
-                      _buildProfileOption(
-                        icon: Icons.person_outline,
-                        title: 'Personal Details',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PersonalDetailsScreen(
-                              userModel: _userModel!,
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.black,
+                                size: 18,
+                              ),
                             ),
                           ),
-                        ).then((_) => _loadUser()),
-                      ),
-                      _buildProfileOption(
-                        icon: Icons.directions_car_outlined,
-                        title: 'My Vehicles',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const MyVehiclesScreen(),
-                          ),
                         ),
-                      ),
-                      _buildProfileOption(
-                        icon: Icons.receipt_long_outlined,
-                        title: 'My Bookings',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const BookingsScreen(),
-                          ),
-                        ),
-                      ),
-                      _buildProfileOption(
-                        icon: Icons.payment_outlined,
-                        title: 'Payment Methods',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PaymentMethodsScreen(),
-                          ),
-                        ),
-                      ),
-                      _buildProfileOption(
-                        icon: Icons.settings_outlined,
-                        title: 'Settings',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SettingsScreen(),
-                          ),
-                        ),
-                      ),
-                      _buildProfileOption(
-                        icon: Icons.help_outline,
-                        title: 'Help & Support',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const HelpSupportScreen(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildProfileOption(
-                        icon: Icons.logout,
-                        title: 'Log Out',
-                        textColor: AppColors.error,
-                        iconColor: AppColors.error,
-                        onTap: _signOut,
-                        showTrailing: false,
-                      ),
-                      const SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _userModel!.fullName,
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _userModel!.email,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Stats Row
+                  Row(
+                    children: [
+                      Expanded(child: _buildStatItem('122', 'Total Parked')),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildStatItem('67', 'Bookings')),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildStatItem('4.9', 'Rating')),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 32),
+
+                  // Profile Options
+                  _buildProfileOption(
+                    icon: Icons.person_outline,
+                    title: 'Personal Details',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            PersonalDetailsScreen(userModel: _userModel!),
+                      ),
+                    ).then((_) => _loadUser()),
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.directions_car_outlined,
+                    title: 'My Vehicles',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MyVehiclesScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'My Bookings',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BookingsScreen()),
+                    ),
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.payment_outlined,
+                    title: 'Payment Methods',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PaymentMethodsScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.settings_outlined,
+                    title: 'Settings',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    ),
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.help_outline,
+                    title: 'Help & Support',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HelpSupportScreen(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileOption(
+                    icon: Icons.logout,
+                    title: 'Log Out',
+                    textColor: AppColors.error,
+                    iconColor: AppColors.error,
+                    onTap: _signOut,
+                    showTrailing: false,
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
     );
   }
 
@@ -384,8 +417,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         trailing: showTrailing
-            ? const Icon(Icons.arrow_forward_ios,
-                color: AppColors.textSecondary, size: 16)
+            ? const Icon(
+                Icons.arrow_forward_ios,
+                color: AppColors.textSecondary,
+                size: 16,
+              )
             : null,
       ),
     );

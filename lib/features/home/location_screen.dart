@@ -130,6 +130,8 @@ class _LocationScreenState extends State<LocationScreen> {
     });
 
     try {
+      // Geolocator works on web through the browser Geolocation API. It needs
+      // HTTPS in production, while localhost is allowed during development.
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         _setCurrentStatus('Location services are disabled');

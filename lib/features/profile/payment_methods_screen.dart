@@ -63,9 +63,10 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             const Text(
               'Add New Card',
               style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
+                color: AppColors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 20),
             _sheetField(nameCtrl, 'Cardholder Name', Icons.person_outline),
@@ -107,7 +108,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                   backgroundColor: AppColors.secondary,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 onPressed: () {
                   Navigator.pop(ctx);
@@ -118,9 +120,10 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                     ),
                   );
                 },
-                child: const Text('Add Card',
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Add Card',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],
@@ -151,8 +154,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
         ),
       ),
     );
@@ -178,19 +180,24 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
-              color: AppColors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Payment Methods',
-          style:
-              TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline,
-                color: AppColors.secondary, size: 26),
+            icon: const Icon(
+              Icons.add_circle_outline,
+              color: AppColors.secondary,
+              size: 26,
+            ),
             onPressed: _showAddCardSheet,
             tooltip: 'Add Card',
           ),
@@ -266,7 +273,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                       if (m.isDefault)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.secondary.withAlpha(26),
                             borderRadius: BorderRadius.circular(8),
@@ -303,8 +312,11 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                           ),
                         ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline,
-                            color: AppColors.error, size: 20),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
                         onPressed: () {
                           setState(() => _methods.removeAt(i));
                         },
@@ -326,9 +338,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.secondary),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             ),
           ),
 
@@ -336,19 +348,25 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           const Text(
             'Other Payment Options',
             style: TextStyle(
-                color: AppColors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold),
+              color: AppColors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 16),
-          _buildOtherOption(Icons.account_balance_wallet_outlined,
-              'Rakni Wallet', 'SAR 0.00'),
+          _buildOtherOption(
+            Icons.account_balance_wallet_outlined,
+            'Rakni Wallet',
+            'EGP 0.00',
+          ),
+          const SizedBox(height: 12),
+          _buildOtherOption(Icons.apple, 'Apple Pay', 'Connect your Apple Pay'),
           const SizedBox(height: 12),
           _buildOtherOption(
-              Icons.apple, 'Apple Pay', 'Connect your Apple Pay'),
-          const SizedBox(height: 12),
-          _buildOtherOption(Icons.g_mobiledata_outlined, 'Google Pay',
-              'Connect your Google Pay'),
+            Icons.g_mobiledata_outlined,
+            'Google Pay',
+            'Connect your Google Pay',
+          ),
         ],
       ),
     );
@@ -376,19 +394,29 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500)),
-                Text(subtitle,
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 13)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.arrow_forward_ios,
-              color: AppColors.textSecondary, size: 14),
+          const Icon(
+            Icons.arrow_forward_ios,
+            color: AppColors.textSecondary,
+            size: 14,
+          ),
         ],
       ),
     );

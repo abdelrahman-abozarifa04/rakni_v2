@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
-import 'package:rakni_v2/core/services/otp_service.dart';
 import 'package:rakni_v2/features/auth/create_account_step3_screen.dart';
 
 class CreateAccountStep2Screen extends StatefulWidget {
@@ -18,173 +18,193 @@ class CreateAccountStep2Screen extends StatefulWidget {
   });
 
   @override
-  State<CreateAccountStep2Screen> createState() => _CreateAccountStep2ScreenState();
+  State<CreateAccountStep2Screen> createState() =>
+      _CreateAccountStep2ScreenState();
 }
 
 class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-  
-  int _timerSeconds = 60;
-  Timer? _timer;
-  bool _isResending = false;
-  bool _isVerifying = false;
+  // ── state ──────────────────────────────────────────────────────────────
   String? _uid;
+  bool _isSending = false;
+  bool _isChecking = false;
 
+  /// Countdown before the "Resend" button becomes active (seconds).
+  int _resendCooldown = 60;
+  Timer? _cooldownTimer;
+
+  /// Polls Firebase every 4 s to detect emailVerified == true.
+  Timer? _pollTimer;
+
+  // ── lifecycle ──────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
-    _startTimer();
-    // Pre-create the user in Firebase Auth so we have a UID to link the OTP to
-    // and to prepare for the final registration step.
-    _preCreateUser();
-  }
-
-  Future<void> _preCreateUser() async {
-    try {
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: widget.email,
-        password: widget.password,
-      );
-      _uid = userCredential.user?.uid;
-      // Set display name so it can be recovered by AuthGate if needed
-      await userCredential.user?.updateDisplayName(widget.fullName);
-      
-      // Trigger the OTP send now that we have a real UID
-      _sendOtp();
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        // If user already exists, they might be trying to resume or reset.
-        // For simplicity in this demo, we'll just try to sign in.
-        try {
-          final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: widget.email,
-            password: widget.password,
-          );
-          _uid = cred.user?.uid;
-          _sendOtp();
-        } catch (_) {
-          if (!mounted) return;
-          _showSnackBar('Email is already registered. Please sign in.');
-          Navigator.pop(context);
-        }
-      } else {
-        if (!mounted) return;
-        _showSnackBar(e.message ?? 'Failed to initialize account.');
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      _showSnackBar('An unexpected error occurred.');
-      Navigator.pop(context);
-    }
+    _createUserAndSendLink();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
+    _cooldownTimer?.cancel();
+    _pollTimer?.cancel();
     super.dispose();
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    setState(() => _timerSeconds = 60);
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timerSeconds == 0) {
-        timer.cancel();
+  // ── helpers ────────────────────────────────────────────────────────────
+  void _startCooldown() {
+    _cooldownTimer?.cancel();
+    setState(() => _resendCooldown = 60);
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      if (_resendCooldown <= 1) {
+        t.cancel();
+        setState(() => _resendCooldown = 0);
       } else {
-        setState(() => _timerSeconds--);
+        setState(() => _resendCooldown--);
       }
     });
   }
 
-  void _showSnackBar(String message) {
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 4), (_) async {
+      await _checkEmailVerified();
+    });
+  }
+
+  void _showSnackBar(String message, {bool isError = true}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: isError ? Colors.redAccent : AppColors.secondary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
 
-  Future<void> _sendOtp() async {
-    if (_uid == null) return;
-    
-    setState(() => _isResending = true);
+  // ── core logic ─────────────────────────────────────────────────────────
+
+  /// Creates the Firebase Auth user (or re-uses an existing one) then sends
+  /// the verification e-mail and begins polling.
+  Future<void> _createUserAndSendLink() async {
+    setState(() => _isSending = true);
     try {
-      await OtpService().sendVerificationOTP(
-        email: widget.email,
-        uid: _uid!,
-      );
-    } catch (e) {
-      _showSnackBar('Failed to send OTP. Please try again.');
-    } finally {
-      if (mounted) setState(() => _isResending = false);
-    }
-  }
+      UserCredential? cred;
 
-  void _resendCode() {
-    if (_timerSeconds == 0) {
-      _startTimer();
-      _sendOtp();
-    }
-  }
+      try {
+        cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: widget.email,
+          password: widget.password,
+        );
+        await cred.user?.updateDisplayName(widget.fullName);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          // User exists — sign them in so we can resend the link.
+          cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: widget.email,
+            password: widget.password,
+          );
+        } else {
+          rethrow;
+        }
+      }
 
-  Future<void> _verifyAndProceed() async {
-    String otp = _controllers.map((c) => c.text).join();
-    if (otp.length < 6) {
-      _showSnackBar('Please enter the full 6-digit code.');
-      return;
-    }
-    if (_uid == null) {
-      _showSnackBar('Account not ready. Please wait a moment or go back.');
-      return;
-    }
+      _uid = cred.user?.uid;
 
-    setState(() => _isVerifying = true);
-    try {
-      final result = await OtpService().verifyOTP(
-        email: widget.email,
-        code: otp,
-        type: OtpType.verification,
-      );
-
-      if (!mounted) return;
-
-      if (!result.success) {
-        _showSnackBar(result.error ?? 'Invalid or expired code.');
+      // If already verified somehow, skip straight to Step 3.
+      if (cred.user?.emailVerified == true) {
+        _navigateToStep3();
         return;
       }
 
-      // Success! Proceed to Step 3
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CreateAccountStep3Screen(
-            uid: _uid!,
-            fullName: widget.fullName,
-            email: widget.email,
-          ),
-        ),
-        (route) => false, // Clear stack to prevent going back to OTP
-      );
-    } catch (e) {
-      if (!mounted) return;
-      _showSnackBar(e.toString().replaceFirst('Exception: ', ''));
+      await _sendVerificationEmail(cred.user);
+      _startCooldown();
+      _startPolling();
+    } on FirebaseAuthException catch (e) {
+      _showSnackBar(e.message ?? 'Failed to initialise account.');
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      _showSnackBar('An unexpected error occurred.');
+      if (mounted) Navigator.pop(context);
     } finally {
-      if (mounted) setState(() => _isVerifying = false);
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
+  Future<void> _sendVerificationEmail(User? user) async {
+    if (user == null) return;
+    await AuthService.instance.sendEmailVerification();
+  }
+
+  /// Reloads the Firebase user and navigates to Step 3 if verified.
+  Future<void> _checkEmailVerified() async {
+    if (_isChecking) return;
+    setState(() => _isChecking = true);
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      await user?.reload();
+      if (FirebaseAuth.instance.currentUser?.emailVerified == true) {
+        _pollTimer?.cancel();
+        _navigateToStep3();
+      }
+    } catch (_) {
+      // Silently ignore transient network errors — the timer will retry.
+    } finally {
+      if (mounted) setState(() => _isChecking = false);
+    }
+  }
+
+  void _navigateToStep3() {
+    if (!mounted || _uid == null) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CreateAccountStep3Screen(
+          uid: _uid!,
+          fullName: widget.fullName,
+          email: widget.email,
+        ),
+      ),
+      (route) => false,
+    );
+  }
+
+  /// Manual "Resend" button handler.
+  Future<void> _resendEmail() async {
+    if (_resendCooldown > 0 || _isSending) return;
+    setState(() => _isSending = true);
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showSnackBar('Session expired. Please go back and try again.');
+        return;
+      }
+      await _sendVerificationEmail(user);
+      _startCooldown();
+      _showSnackBar('Verification email sent!', isError: false);
+    } on FirebaseAuthException catch (e) {
+      _showSnackBar(e.message ?? 'Could not send email. Try again later.');
+    } catch (_) {
+      _showSnackBar('Could not send email. Try again later.');
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
+
+  /// Lets the user manually trigger the verified check instead of waiting.
+  Future<void> _manualCheck() async {
+    await _checkEmailVerified();
+    if (mounted &&
+        !(FirebaseAuth.instance.currentUser?.emailVerified ?? false)) {
+      _showSnackBar('Email not verified yet. Please check your inbox.');
+    }
+  }
+
+  // ── UI ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,9 +215,19 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
         leadingWidth: 100,
         leading: TextButton.icon(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary, size: 20),
-          label: const Text('Back', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
-          style: TextButton.styleFrom(padding: const EdgeInsets.only(left: 16), alignment: Alignment.centerLeft),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
+          label: const Text(
+            'Back',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          ),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.only(left: 16),
+            alignment: Alignment.centerLeft,
+          ),
         ),
       ),
       body: SafeArea(
@@ -210,44 +240,158 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 24),
-                    const Text('Verify Email', style: TextStyle(color: AppColors.white, fontSize: 28, fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Verify Email',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    const Text('Step 2 of 3', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    const Text(
+                      'Step 2 of 3',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
                     const SizedBox(height: 12),
+
+                    // ── progress bar ──────────────────────────────────
                     Row(
                       children: [
-                        Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppColors.secondary, borderRadius: BorderRadius.circular(2)))),
+                        Expanded(child: _progressSegment(filled: true)),
                         const SizedBox(width: 8),
-                        Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppColors.secondary, borderRadius: BorderRadius.circular(2)))),
+                        Expanded(child: _progressSegment(filled: true)),
                         const SizedBox(width: 8),
-                        Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppColors.fieldStroke, borderRadius: BorderRadius.circular(2)))),
+                        Expanded(child: _progressSegment(filled: false)),
                       ],
                     ),
-                    const SizedBox(height: 40),
-                    Text('We have sent a code to', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                    const SizedBox(height: 4),
-                    Text(widget.email, style: const TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-                    const SizedBox(height: 40),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(6, (index) => _buildOtpField(index)),
+                    const SizedBox(height: 48),
+
+                    // ── email icon ────────────────────────────────────
+                    Center(
+                      child: Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.secondary.withValues(alpha: 0.35),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.mark_email_unread_rounded,
+                          color: AppColors.secondary,
+                          size: 44,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 32),
+
+                    // ── description ───────────────────────────────────
+                    const Text(
+                      'Check your inbox',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'We sent a verification link to',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      widget.email,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Click the link in the email to verify your account. This page will update automatically.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // ── polling indicator ─────────────────────────────
+                    if (_isChecking)
+                      const Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Checking…',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+
+                    // ── resend section ────────────────────────────────
                     Center(
                       child: Column(
                         children: [
                           Text(
-                            _timerSeconds > 0 
-                                ? 'Resend code in ${_timerSeconds}s'
-                                : 'Didn\'t receive the code?',
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                            _resendCooldown > 0
+                                ? 'Resend link in ${_resendCooldown}s'
+                                : "Didn't receive the email?",
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 14,
+                            ),
                           ),
-                          if (_timerSeconds == 0)
+                          if (_resendCooldown == 0)
                             TextButton(
-                              onPressed: _isResending ? null : _resendCode,
-                              child: _isResending 
-                                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary))
-                                  : const Text('Resend Code', style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w600)),
+                              onPressed: _isSending ? null : _resendEmail,
+                              child: _isSending
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.secondary,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Resend Link',
+                                      style: TextStyle(
+                                        color: AppColors.secondary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                             ),
                         ],
                       ),
@@ -256,20 +400,30 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                 ),
               ),
             ),
+
+            // ── bottom button ─────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: ElevatedButton(
-                onPressed: (_isVerifying || _uid == null) ? null : _verifyAndProceed,
+                onPressed: (_isSending || _uid == null) ? null : _manualCheck,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   minimumSize: const Size(double.infinity, 56),
                 ),
-                child: _isVerifying
+                child: _isChecking
                     ? const CircularProgressIndicator(color: AppColors.primary)
-                    : const Text('Verify & Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    : const Text(
+                        "I've verified my email",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -278,39 +432,11 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
     );
   }
 
-  Widget _buildOtpField(int index) {
-    return Container(
-      width: 48,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColors.fieldColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _focusNodes[index].hasFocus ? AppColors.secondary : AppColors.fieldStroke,
-          width: 1,
-        ),
-      ),
-      child: TextField(
-        controller: _controllers[index],
-        focusNode: _focusNodes[index],
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: const TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.w600),
-        decoration: const InputDecoration(counterText: '', border: InputBorder.none),
-        onChanged: (value) {
-          if (value.isNotEmpty && index < 5) {
-            _focusNodes[index + 1].requestFocus();
-          } else if (value.isEmpty && index > 0) {
-            _focusNodes[index - 1].requestFocus();
-          }
-          if (otpComplete) {
-             _verifyAndProceed();
-          }
-        },
-      ),
-    );
-  }
-
-  bool get otpComplete => _controllers.every((c) => c.text.isNotEmpty);
+  Widget _progressSegment({required bool filled}) => Container(
+    height: 4,
+    decoration: BoxDecoration(
+      color: filled ? AppColors.secondary : AppColors.fieldStroke,
+      borderRadius: BorderRadius.circular(2),
+    ),
+  );
 }

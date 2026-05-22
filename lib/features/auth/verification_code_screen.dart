@@ -67,7 +67,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
 
     setState(() => _isVerifying = true);
     try {
-      final result = await OtpService().verifyOTP(
+      final result = await OtpService.instance.verifyOTP(
         email: widget.email,
         code: otp,
         type: widget.type,
@@ -111,9 +111,9 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
     setState(() => _isResending = true);
     try {
       if (widget.type == OtpType.passwordReset) {
-        await OtpService().sendPasswordResetOTP(email: widget.email);
+        await OtpService.instance.sendPasswordResetOTP(email: widget.email);
       } else {
-        await OtpService().sendVerificationOTP(
+        await OtpService.instance.sendVerificationOTP(
           email: widget.email,
           uid: widget.uid!,
         );

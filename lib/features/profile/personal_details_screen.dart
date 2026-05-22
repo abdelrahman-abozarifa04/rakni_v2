@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/user_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
+import 'package:rakni_v2/core/utils/validators.dart';
 
 class PersonalDetailsScreen extends StatefulWidget {
   final UserModel userModel;
@@ -21,7 +22,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   late final TextEditingController _phoneCtrl;
   late final TextEditingController _ageCtrl;
   late final TextEditingController _addressCtrl;
-  late final TextEditingController _nationalIdCtrl;
+  late final TextEditingController _licenseNumberCtrl;
+  late final TextEditingController _licenseExpiryCtrl;
+  late final TextEditingController _licenseCategoryCtrl;
   String _gender = 'Male';
 
   @override
@@ -33,7 +36,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     _phoneCtrl = TextEditingController(text: u.phoneNumber);
     _ageCtrl = TextEditingController(text: u.age);
     _addressCtrl = TextEditingController(text: u.address);
-    _nationalIdCtrl = TextEditingController(text: u.nationalId);
+    _licenseNumberCtrl = TextEditingController(text: u.licenseNumber ?? '');
+    _licenseExpiryCtrl = TextEditingController(text: u.licenseExpiry ?? '');
+    _licenseCategoryCtrl = TextEditingController(text: u.licenseCategory ?? '');
     _gender = (u.gender.isEmpty) ? 'Male' : u.gender;
   }
 
@@ -44,7 +49,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     _phoneCtrl.dispose();
     _ageCtrl.dispose();
     _addressCtrl.dispose();
-    _nationalIdCtrl.dispose();
+    _licenseNumberCtrl.dispose();
+    _licenseExpiryCtrl.dispose();
+    _licenseCategoryCtrl.dispose();
     super.dispose();
   }
 
@@ -60,7 +67,10 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
         'phoneNumber': _phoneCtrl.text.trim(),
         'age': _ageCtrl.text.trim(),
         'address': _addressCtrl.text.trim(),
-        'nationalId': _nationalIdCtrl.text.trim(),
+        'licenseNumber': _licenseNumberCtrl.text.trim(),
+        'licenseExpiry': _licenseExpiryCtrl.text.trim(),
+        'licenseCategory': _licenseCategoryCtrl.text.trim(),
+        'licenseVerified': widget.userModel.licenseVerified,
         'gender': _gender,
       });
       if (mounted) {
@@ -75,7 +85,10 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -92,7 +105,11 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -137,9 +154,28 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
               ),
               const SizedBox(height: 16),
               _buildField(
-                label: 'National ID',
-                controller: _nationalIdCtrl,
-                icon: Icons.badge_outlined,
+                label: 'License Number',
+                controller: _licenseNumberCtrl,
+                icon: Icons.tag_outlined,
+                keyboardType: TextInputType.number,
+                validator: Validators.validateLicenseNumber,
+              ),
+              const SizedBox(height: 16),
+              _buildField(
+                label: 'License Expiry Date',
+                controller: _licenseExpiryCtrl,
+                icon: Icons.calendar_today_outlined,
+                keyboardType: TextInputType.datetime,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return null;
+                  return Validators.validateLicenseExpiry(v);
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildField(
+                label: 'License Category',
+                controller: _licenseCategoryCtrl,
+                icon: Icons.category_outlined,
               ),
               const SizedBox(height: 16),
               _buildField(
@@ -152,7 +188,10 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
 
               // Gender picker
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.fieldColor,
                   borderRadius: BorderRadius.circular(14),
@@ -160,16 +199,26 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.wc_outlined, color: AppColors.textSecondary, size: 20),
+                    const Icon(
+                      Icons.wc_outlined,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _gender,
                           dropdownColor: AppColors.surface,
-                          style: const TextStyle(color: AppColors.white, fontSize: 15),
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 15,
+                          ),
                           items: ['Male', 'Female', 'Other']
-                              .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                              .map(
+                                (g) =>
+                                    DropdownMenuItem(value: g, child: Text(g)),
+                              )
                               .toList(),
                           onChanged: (v) => setState(() => _gender = v!),
                         ),
@@ -197,12 +246,16 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
-                              color: Colors.black, strokeWidth: 2.5),
+                            color: Colors.black,
+                            strokeWidth: 2.5,
+                          ),
                         )
                       : const Text(
                           'Save Changes',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                 ),
               ),
@@ -238,10 +291,15 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
         labelText: label,
         hintText: hint,
         labelStyle: const TextStyle(color: AppColors.textSecondary),
-        hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        hintStyle: const TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 13,
+        ),
         prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 20),
         filled: true,
-        fillColor: readOnly ? AppColors.surface.withAlpha(128) : AppColors.fieldColor,
+        fillColor: readOnly
+            ? AppColors.surface.withAlpha(128)
+            : AppColors.fieldColor,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.fieldStroke),

@@ -4,7 +4,10 @@ class UserModel {
   final String uid;
   final String fullName;
   final String email;
-  final String nationalId;
+  final String? licenseNumber;
+  final String? licenseExpiry;
+  final String? licenseCategory;
+  final bool licenseVerified;
   final String age;
   final String gender;
   final String address;
@@ -17,7 +20,10 @@ class UserModel {
     required this.uid,
     required this.fullName,
     required this.email,
-    required this.nationalId,
+    this.licenseNumber,
+    this.licenseExpiry,
+    this.licenseCategory,
+    this.licenseVerified = false,
     required this.age,
     required this.gender,
     required this.address,
@@ -34,7 +40,10 @@ class UserModel {
       uid: doc.id,
       fullName: data['fullName'] ?? '',
       email: data['email'] ?? '',
-      nationalId: data['nationalId'] ?? '',
+      licenseNumber: data['licenseNumber'] ?? '',
+      licenseExpiry: data['licenseExpiry'] ?? '',
+      licenseCategory: data['licenseCategory'] ?? '',
+      licenseVerified: data['licenseVerified'] ?? false,
       age: data['age'] ?? '',
       gender: data['gender'] ?? '',
       address: data['address'] ?? '',
@@ -50,7 +59,10 @@ class UserModel {
     return {
       'fullName': fullName,
       'email': email,
-      'nationalId': nationalId,
+      'licenseNumber': licenseNumber ?? '',
+      'licenseExpiry': licenseExpiry ?? '',
+      'licenseCategory': licenseCategory ?? '',
+      'licenseVerified': licenseVerified,
       'age': age,
       'gender': gender,
       'address': address,
@@ -66,7 +78,10 @@ class UserModel {
     String? uid,
     String? fullName,
     String? email,
-    String? nationalId,
+    String? licenseNumber,
+    String? licenseExpiry,
+    String? licenseCategory,
+    bool? licenseVerified,
     String? age,
     String? gender,
     String? address,
@@ -79,7 +94,10 @@ class UserModel {
       uid: uid ?? this.uid,
       fullName: fullName ?? this.fullName,
       email: email ?? this.email,
-      nationalId: nationalId ?? this.nationalId,
+      licenseNumber: licenseNumber ?? this.licenseNumber,
+      licenseExpiry: licenseExpiry ?? this.licenseExpiry,
+      licenseCategory: licenseCategory ?? this.licenseCategory,
+      licenseVerified: licenseVerified ?? this.licenseVerified,
       age: age ?? this.age,
       gender: gender ?? this.gender,
       address: address ?? this.address,

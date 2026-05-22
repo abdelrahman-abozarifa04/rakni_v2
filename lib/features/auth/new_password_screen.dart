@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rakni_v2/core/services/otp_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/sign_in_screen.dart';
 
@@ -57,20 +57,25 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: widget.email);
+      // Call the backend Cloud Function to update the password via Admin SDK.
+      // This works without the user being signed in on the client side.
+      await OtpService.instance.resetPassword(
+        email: widget.email,
+        newPassword: newPass,
+      );
+
       if (!mounted) return;
-      _showSnackBar('Password reset email sent to ${widget.email}', isError: false);
-      await Future.delayed(const Duration(seconds: 2));
+      _showSnackBar('Password reset successfully!', isError: false);
+      await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const SignInScreen()),
         (route) => false,
       );
-    } on FirebaseAuthException catch (e) {
-      _showSnackBar(e.message ?? 'An error occurred. Please try again.');
     } catch (e) {
-      _showSnackBar('An unexpected error occurred. Please try again.');
+      if (!mounted) return;
+      _showSnackBar(e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
