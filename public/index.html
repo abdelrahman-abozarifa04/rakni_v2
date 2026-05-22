@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Rakni | Account</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #BDE500;
+      --primary-dim: rgba(189,229,0,0.12);
+      --primary-border: rgba(189,229,0,0.28);
+      --bg: #1A1A1B;
+      --card: #111112;
+      --text: #FFFFFF;
+      --text-dim: rgba(255,255,255,0.58);
+      --text-faint: rgba(255,255,255,0.28);
+      --glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --error: #FF5555;
+      --error-dim: rgba(255,85,85,0.1);
+      --radius: 28px;
+      --radius-sm: 16px;
+      --radius-xs: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient glows */
+    body::before {
+      content: '';
+      position: fixed;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(189,229,0,0.18) 0%, transparent 70%);
+      top: -180px; right: -180px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,180,255,0.1) 0%, transparent 70%);
+      bottom: -140px; left: -140px;
+      pointer-events: none;
+    }
+
+    /* Grid texture */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top accent stripe */
+    .card-accent {
+      height: 3px;
+      background: linear-gradient(90deg, #BDE500 0%, #8fb800 100%);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 48px 44px 44px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+      text-align: center;
+    }
+
+    /* Logo */
+    .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+    .logo-img {
+      width: 174px;
+      height: auto;
+      display: block;
+    }
+
+    /* Icon badge */
+    .icon-badge {
+      width: 72px; height: 72px;
+      margin: 0 auto 24px;
+      background: var(--primary-dim);
+      border: 1.5px solid var(--primary-border);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .icon-badge svg { width: 32px; height: 32px; }
+
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      font-size: 26px; font-weight: 700;
+      letter-spacing: -0.6px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    p.subtitle {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    /* Loader */
+    .loader-ring {
+      width: 52px; height: 52px;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 28px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Input */
+    .input-wrap { position: relative; margin-bottom: 16px; text-align: left; }
+    .input-label {
+      display: block;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    input[type="password"] {
+      width: 100%;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 15px 18px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    input[type="password"]:focus {
+      border-color: var(--primary-border);
+      box-shadow: 0 0 0 3px rgba(189,229,0,0.08);
+    }
+    input[type="password"]::placeholder { color: var(--text-faint); }
+
+    /* Password strength */
+    .strength-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 4px;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--primary);
+      color: #000;
+      font-family: inherit;
+      font-size: 15px; font-weight: 700;
+      border: none; border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      letter-spacing: -0.2px;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(189,229,0,0.28);
+      filter: brightness(1.06);
+    }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+    .btn-ghost:hover:not(:disabled) {
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text);
+      box-shadow: none;
+      filter: none;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 14px 16px;
+      border-radius: var(--radius-xs);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .alert-error {
+      background: var(--error-dim);
+      border: 1px solid rgba(255,85,85,0.2);
+      color: #ff8080;
+    }
+
+    /* Success check animation */
+    .check-circle {
+      width: 80px; height: 80px;
+      background: var(--primary-dim);
+      border: 2px solid var(--primary-border);
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .check-circle svg {
+      width: 36px; height: 36px;
+      stroke: var(--primary);
+    }
+
+    /* Info pill */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text-faint);
+      margin-bottom: 24px;
+    }
+    .pill-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* States */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* Footer */
+    .page-footer {
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-faint);
+      text-align: center;
+    }
+    .page-footer a {
+      color: var(--text-faint);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .page-footer a:hover { color: var(--primary); }
+
+    @media (max-width: 520px) {
+      .card { padding: 36px 24px 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <div class="wrapper">
+    <div class="card-accent"></div>
+    <div class="card">
+
+      <!-- Logo -->
+      <div class="logo-wrap">
+        <img class="logo-img" src="/rakni_logo_white.svg" alt="Rakni" />
+      </div>
+
+      <!-- LOADING STATE -->
+      <div id="state-loading" class="state active">
+        <div class="loader-ring"></div>
+        <h1>Just a moment…</h1>
+        <p class="subtitle">We're securely processing your request.<br/>This only takes a second.</p>
+      </div>
+
+      <!-- SUCCESS STATE (verify or password changed) -->
+      <div id="state-success" class="state">
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="pill"><span class="pill-dot"></span> <span id="pill-text">Account verified</span></div>
+        <h1 id="success-title">Email Verified!</h1>
+        <p class="subtitle" id="success-desc">Your account has been successfully verified. You can now return to the Rakni app and start parking smarter.</p>
+        <button class="btn" onclick="window.close()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Close &amp; Return to App
+        </button>
+      </div>
+
+      <!-- PASSWORD RESET FORM STATE -->
+      <div id="state-reset" class="state">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#BDE500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="10" r="4"/>
+            <path d="M13 10h8M19 7v6"/>
+          </svg>
+        </div>
+        <h1>Set New Password</h1>
+        <p class="subtitle">Enter a strong new password for your Rakni account below.</p>
+
+        <div id="reset-alert" class="alert alert-error" style="display:none;"></div>
+
+        <div class="input-wrap">
+          <label class="input-label" for="new-password">New Password</label>
+          <input type="password" id="new-password" placeholder="At least 8 characters" autocomplete="new-password" oninput="onPwInput(this)"/>
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        </div>
+
+        <div class="input-wrap">
+          <label class="input-label" for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" placeholder="Repeat your password" autocomplete="new-password"/>
+        </div>
+
+        <button id="reset-btn" class="btn" onclick="doReset()">
+          Update Password
+        </button>
+      </div>
+
+      <!-- ERROR STATE -->
+      <div id="state-error" class="state">
+        <div class="icon-badge" style="background:var(--error-dim);border-color:rgba(255,85,85,0.25);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FF5555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+            <circle cx="12" cy="12" r="9"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <circle cx="12" cy="16" r="0.5" fill="#FF5555"/>
+          </svg>
+        </div>
+        <h1 id="error-title">Link Expired</h1>
+        <p class="subtitle" id="error-desc">This link is invalid or has already been used. Please request a new one from the Rakni app.</p>
+        <button class="btn" onclick="window.close()">Return to App</button>
+        <button class="btn btn-ghost" onclick="location.reload()">Try Again</button>
+      </div>
+
+    </div><!-- /card -->
+
+    <div class="page-footer">
+      &copy; 2026 Rakni &mdash; Smart Parking &nbsp;·&nbsp;
+      <a href="mailto:as0144549@gmail.com">Support</a>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, applyActionCode, verifyPasswordResetCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDK4L0cuEu3gx94JJ-iS2HxF98C0S9UUgY',
+      authDomain: 'rakni-v2.firebaseapp.com',
+      projectId: 'rakni-v2',
+      storageBucket: 'rakni-v2.firebasestorage.app',
+      messagingSenderId: '863311891829',
+      appId: '1:863311891829:web:9c89a571264ea24c3a173c'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const params  = new URLSearchParams(location.search);
+    const mode    = params.get('mode');
+    const oobCode = params.get('oobCode');
+
+    function show(id) {
+      ['state-loading','state-success','state-reset','state-error'].forEach(s => {
+        document.getElementById(s).classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+    }
+
+    window.onPwInput = function(input) {
+      const v = input.value;
+      const fill = document.getElementById('strength-fill');
+      let strength = 0;
+      if (v.length >= 8) strength++;
+      if (/[A-Z]/.test(v)) strength++;
+      if (/[0-9]/.test(v)) strength++;
+      if (/[^A-Za-z0-9]/.test(v)) strength++;
+      const colors = ['#FF5555','#FF9933','#FFCC00','#BDE500'];
+      const widths  = ['25%','50%','75%','100%'];
+      fill.style.width = strength > 0 ? widths[strength-1] : '0';
+      fill.style.background = strength > 0 ? colors[strength-1] : '';
+    };
+
+    window.doReset = async function() {
+      const pw  = document.getElementById('new-password').value;
+      const pw2 = document.getElementById('confirm-password').value;
+      const alert = document.getElementById('reset-alert');
+      const btn = document.getElementById('reset-btn');
+
+      alert.style.display = 'none';
+
+      if (pw.length < 6) {
+        alert.textContent = 'Password must be at least 6 characters.';
+        alert.style.display = 'block'; return;
+      }
+      if (pw !== pw2) {
+        alert.textContent = 'Passwords do not match. Please try again.';
+        alert.style.display = 'block'; return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      try {
+        await confirmPasswordReset(auth, oobCode, pw);
+        document.getElementById('success-title').textContent = 'Password Updated!';
+        document.getElementById('success-desc').textContent = 'Your Rakni password has been changed successfully. Return to the app and sign in with your new password.';
+        document.getElementById('pill-text').textContent = 'Password changed';
+        show('state-success');
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Update Password';
+        alert.textContent = err.message || 'Something went wrong. Please try again.';
+        alert.style.display = 'block';
+      }
+    };
+
+    async function init() {
+      if (!mode || !oobCode) { show('state-error'); return; }
+
+      try {
+        if (mode === 'verifyEmail') {
+          await applyActionCode(auth, oobCode);
+          show('state-success');
+        } else if (mode === 'resetPassword') {
+          await verifyPasswordResetCode(auth, oobCode);
+          show('state-reset');
+        } else {
+          show('state-error');
+        }
+      } catch (err) {
+        console.error(err);
+        const title = document.getElementById('error-title');
+        const desc  = document.getElementById('error-desc');
+        if (err.code === 'auth/expired-action-code') {
+          title.textContent = 'Link Expired';
+          desc.textContent  = 'This link has expired. Please request a new one from the Rakni app.';
+        } else if (err.code === 'auth/invalid-action-code') {
+          title.textContent = 'Invalid Link';
+          desc.textContent  = 'This link has already been used or is invalid. Please request a new one.';
+        }
+        show('state-error');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

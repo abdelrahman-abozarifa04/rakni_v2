@@ -16,7 +16,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _locationServices = true;
   bool _darkMode = true;
   String _language = 'English';
-  String _currency = 'SAR';
+  String _currency = 'EGP';
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +27,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
-              color: AppColors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Settings',
-          style:
-              TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: ListView(
@@ -133,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.attach_money_outlined,
             title: 'Currency',
             value: _currency,
-            items: ['SAR', 'USD', 'EUR', 'AED'],
+            items: ['EGP', 'USD', 'EUR', 'SAR', 'AED'],
             onChanged: (v) => setState(() => _currency = v!),
           ),
           const SizedBox(height: 24),
@@ -194,15 +196,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 12)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),
@@ -246,14 +255,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(width: 14),
             Expanded(
-              child: Text(title,
-                  style: TextStyle(
-                      color: textColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500)),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            const Icon(Icons.arrow_forward_ios,
-                color: AppColors.textSecondary, size: 14),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.textSecondary,
+              size: 14,
+            ),
           ],
         ),
       ),
@@ -281,30 +296,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: AppColors.background,
               borderRadius: BorderRadius.circular(10),
             ),
-            child:
-                Icon(icon, color: AppColors.textSecondary, size: 20),
+            child: Icon(icon, color: AppColors.textSecondary, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(title,
-                style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500)),
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               dropdownColor: AppColors.surface,
-              style:
-                  const TextStyle(color: AppColors.secondary, fontSize: 14),
+              style: const TextStyle(color: AppColors.secondary, fontSize: 14),
               items: items
-                  .map((item) =>
-                      DropdownMenuItem(value: item, child: Text(item)))
+                  .map(
+                    (item) => DropdownMenuItem(value: item, child: Text(item)),
+                  )
                   .toList(),
               onChanged: onChanged,
-              icon: const Icon(Icons.expand_more,
-                  color: AppColors.textSecondary, size: 20),
+              icon: const Icon(
+                Icons.expand_more,
+                color: AppColors.textSecondary,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -321,8 +341,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Change Password',
-            style: TextStyle(color: AppColors.white)),
+        title: const Text(
+          'Change Password',
+          style: TextStyle(color: AppColors.white),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -336,8 +358,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -360,8 +384,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _dialogField(TextEditingController ctrl, String label,
-      {bool obscure = false}) {
+  Widget _dialogField(
+    TextEditingController ctrl,
+    String label, {
+    bool obscure = false,
+  }) {
     return TextField(
       controller: ctrl,
       obscureText: obscure,
@@ -386,9 +413,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Delete Account',
-            style: TextStyle(
-                color: AppColors.error, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Delete Account',
+          style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
+        ),
         content: const Text(
           'This action is permanent and cannot be undone. All your data will be deleted.',
           style: TextStyle(color: AppColors.textSecondary),
@@ -396,8 +424,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(

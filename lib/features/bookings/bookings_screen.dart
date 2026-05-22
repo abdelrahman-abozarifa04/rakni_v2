@@ -27,10 +27,7 @@ class BookingsScreen extends StatelessWidget {
               const SizedBox(height: 4),
               const Text(
                 'View and manage your parking reservations',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
               const SizedBox(height: 24),
               Expanded(
@@ -44,7 +41,7 @@ class BookingsScreen extends StatelessWidget {
                       date: 'Apr 25, 2026',
                       time: '09:00 AM - 05:00 PM',
                       vehicle: 'Toyota Camry - ABC 1234',
-                      total: '\$40',
+                      total: 'EGP 40',
                       status: 'Active',
                     ),
                     const SizedBox(height: 16),
@@ -55,7 +52,7 @@ class BookingsScreen extends StatelessWidget {
                       date: 'Apr 20, 2026',
                       time: '02:00 PM - 06:00 PM',
                       vehicle: 'Toyota Camry - ABC 1234',
-                      total: '\$12',
+                      total: 'EGP 12',
                       status: 'Completed',
                     ),
                     const SizedBox(height: 16),
@@ -66,7 +63,7 @@ class BookingsScreen extends StatelessWidget {
                       date: 'Apr 18, 2026',
                       time: '10:00 AM - 01:00 PM',
                       vehicle: 'Toyota Camry - ABC 1234',
-                      total: '\$8',
+                      total: 'EGP 8',
                       status: 'Completed',
                     ),
                   ],
@@ -137,7 +134,9 @@ class BookingsScreen extends StatelessWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: badgeColor,
                           borderRadius: BorderRadius.circular(12),
@@ -169,10 +168,7 @@ class BookingsScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'Total',
-                        style: TextStyle(
-                          color: AppColors.white,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: AppColors.white, fontSize: 14),
                       ),
                       Text(
                         total,
@@ -192,8 +188,9 @@ class BookingsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                        color: AppColors.textSecondary.withValues(alpha: 0.3),
-                        width: 1),
+                      color: AppColors.textSecondary.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
                 ),
                 child: Row(
@@ -257,7 +254,7 @@ class BookingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),
@@ -271,10 +268,7 @@ class BookingsScreen extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           text,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 13,
-          ),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
       ],
     );

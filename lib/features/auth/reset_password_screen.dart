@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rakni_v2/core/services/otp_service.dart';
+import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
-import 'verification_code_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -34,22 +33,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Future<void> _sendResetCode() async {
+  Future<void> _sendResetLink() async {
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailController.text.trim();
     setState(() => _isLoading = true);
 
     try {
-      // Send OTP via Cloud Function — no email link, fully in-app
-      await OtpService().sendPasswordResetOTP(email: email);
+      await AuthService.instance.sendPasswordResetEmail(email);
 
       if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => VerificationCodeScreen(email: email),
-        ),
+      _showSnackBar(
+        'Password reset link sent. Please check your email.',
+        isError: false,
       );
     } catch (e) {
       if (!mounted) return;
@@ -69,9 +65,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         leadingWidth: 100,
         leading: TextButton.icon(
           onPressed: _isLoading ? null : () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary, size: 20),
-          label: const Text('Back', style: TextStyle(color: AppColors.textSecondary, fontSize: 16, fontWeight: FontWeight.w400)),
-          style: TextButton.styleFrom(padding: const EdgeInsets.only(left: 16), alignment: Alignment.centerLeft),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
+          label: const Text(
+            'Back',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.only(left: 16),
+            alignment: Alignment.centerLeft,
+          ),
         ),
       ),
       body: SafeArea(
@@ -83,60 +93,140 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 32),
-                const Text('Reset Password', style: TextStyle(color: AppColors.white, fontSize: 28, fontWeight: FontWeight.w600)),
+                const Text(
+                  'Reset Password',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Enter your email and we\'ll send you a 6-digit reset code',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                  'Enter your email and we\'ll send you a password reset link',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 48),
-                const Text('Email', style: TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                const Text(
+                  'Email',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   style: const TextStyle(color: AppColors.white, fontSize: 14),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) return 'Please enter your email address';
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your email address';
+                    }
                     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                    if (!emailRegex.hasMatch(value.trim())) return 'Please enter a valid email address';
+                    if (!emailRegex.hasMatch(value.trim())) {
+                      return 'Please enter a valid email address';
+                    }
                     return null;
                   },
                   decoration: InputDecoration(
                     hintText: 'Enter your email',
-                    hintStyle: const TextStyle(color: AppColors.hintColor, fontSize: 14),
+                    hintStyle: const TextStyle(
+                      color: AppColors.hintColor,
+                      fontSize: 14,
+                    ),
                     filled: true,
                     fillColor: AppColors.fieldColor,
                     prefixIcon: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: SvgPicture.asset(
                         'assets/images/Email_Icon.svg',
-                        colorFilter: const ColorFilter.mode(AppColors.hintColor, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.hintColor,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.secondary, width: 1)),
-                    errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.redAccent, width: 1)),
-                    focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.redAccent, width: 1)),
-                    errorStyle: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 16,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.fieldStroke,
+                        width: 1,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.fieldStroke,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.secondary,
+                        width: 1,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Colors.redAccent,
+                        width: 1,
+                      ),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Colors.redAccent,
+                        width: 1,
+                      ),
+                    ),
+                    errorStyle: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _sendResetCode,
+                  onPressed: _isLoading ? null : _sendResetLink,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     foregroundColor: AppColors.primary,
-                    disabledBackgroundColor: AppColors.secondary.withValues(alpha: 0.6),
+                    disabledBackgroundColor: AppColors.secondary.withValues(
+                      alpha: 0.6,
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     elevation: 0,
                   ),
                   child: _isLoading
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
-                      : const Text('Send Code', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primary,
+                          ),
+                        )
+                      : const Text(
+                          'Send Reset Link',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ],
             ),

@@ -1,24 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // ضفنا دي عشان نتحكم في ألوان الـ Status Bar
-import 'package:rakni_v2/core/services/firebase_options.dart';
+import 'package:flutter/services.dart'; 
+import 'package:rakni_v2/firebase_options.dart';
 
 import 'core/services/auth_gate.dart';
 
 Future<void> main() async {
-  // 1. التأكد من تهيئة أدوات فلاتر
+
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. تهيئة Firebase باستخدام الإعدادات اللي ولدتها الـ CLI
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    // Firebase Initialization Error
+
   }
 
-  // 3. (اختياري) جعل الـ Status Bar شفاف ليناسب تصميم الـ Dark Mode بتاعك
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -37,23 +36,24 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Rakni',
       debugShowCheckedModeBanner: false,
-      
-      // إعدادات الثيم الأساسية لمشروع Rakni
+
+    
       theme: ThemeData(
-        useMaterial3: true, // تفعيل Material 3 لأحدث أشكال الـ Widgets
+        useMaterial3: true, 
         fontFamily: 'SF Pro Display',
-        
-        // توحيد لون الخلفية في التطبيق كله
+
+
         scaffoldBackgroundColor: const Color(0xFF0E0E12),
-        
-        // إعدادات افتراضية للـ ColorScheme عشان تتوافق مع Firebase UI لاحقاً
+
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFD0FD3E), // لون الـ Secondary (الليموني) بتاعك
+          seedColor: const Color(
+            0xFFD0FD3E,
+          ), 
           brightness: Brightness.dark,
         ),
       ),
-      
-      home:  AuthGate(),
+
+      home: AuthGate(),
     );
   }
 }

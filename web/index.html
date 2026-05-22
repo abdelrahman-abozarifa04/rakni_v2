@@ -1,46 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Rakni helps drivers find, reserve, and manage parking across Cairo.">
+  <meta name="theme-color" content="#BDE500">
 
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="rakni_v2">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Rakni">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>rakni_v2</title>
+  <link rel="icon" type="image/png" href="favicon.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.ico">
   <link rel="manifest" href="manifest.json">
+
+  <title>Rakni</title>
+
+  <style>
+    :root {
+      --rakni-bg: #2A2A2B;
+      --rakni-surface: #3A3B3B;
+      --rakni-lime: #BDE500;
+      --rakni-muted: #99A1AF;
+      --rakni-white: #FFFFFF;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: var(--rakni-bg);
+      color: var(--rakni-white);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #rakni-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(189, 229, 0, 0.10), transparent 28rem),
+        var(--rakni-bg);
+      transition: opacity 220ms ease, visibility 220ms ease;
+    }
+
+    #rakni-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-card {
+      display: flex;
+      min-width: 180px;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 28px 30px;
+      border: 1px solid #3D434C;
+      border-radius: 18px;
+      background: rgba(58, 59, 59, 0.82);
+      box-shadow: 0 22px 80px rgba(0, 0, 0, 0.32);
+    }
+
+    .loader-logo {
+      width: 174px;
+      height: auto;
+      display: block;
+    }
+
+    .loader-spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(153, 161, 175, 0.24);
+      border-top-color: var(--rakni-lime);
+      border-radius: 50%;
+      animation: spin 850ms linear infinite;
+    }
+
+    .loader-text {
+      color: var(--rakni-muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="rakni-loader" aria-label="Loading Rakni">
+    <div class="loader-card">
+      <img class="loader-logo" src="rakni_logo_white.svg" alt="Rakni">
+      <div class="loader-spinner" aria-hidden="true"></div>
+      <div class="loader-text">Finding your spot...</div>
+    </div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI" defer></script>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var loader = document.getElementById('rakni-loader');
+      if (loader) {
+        loader.classList.add('hidden');
+        window.setTimeout(function () {
+          loader.remove();
+        }, 260);
+      }
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

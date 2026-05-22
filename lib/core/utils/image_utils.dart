@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageUtils {
@@ -13,10 +13,21 @@ class ImageUtils {
     return 'data:image/jpeg;base64,$base64String';
   }
 
-  static Future<String> fileToBase64(File file) async {
+  static Future<String> uploadXFileToStorage({
+    required XFile file,
+    required String path,
+    String contentType = 'image/jpeg',
+  }) async {
     final bytes = await file.readAsBytes();
-    final base64String = base64Encode(bytes);
-    return 'data:image/jpeg;base64,$base64String';
+    final ref = FirebaseStorage.instance.ref(path);
+
+    // Web cannot use dart:io File handles, so always upload bytes with putData.
+    // This also works on Android/iOS and keeps one platform-safe upload path.
+    final task = await ref.putData(
+      bytes,
+      SettableMetadata(contentType: contentType),
+    );
+    return task.ref.getDownloadURL();
   }
 
   static Uint8List base64ToBytes(String base64String) {

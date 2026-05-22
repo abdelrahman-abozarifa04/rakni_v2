@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:rakni_v2/core/services/otp_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Singleton service that wraps [FirebaseAuth] and [GoogleSignIn].
 ///
@@ -14,8 +16,18 @@ class AuthService {
 
   static final AuthService instance = AuthService._internal();
 
+  // Replace this placeholder with the Web Client ID from:
+  // Firebase Console > Authentication > Sign-in method > Google > Web SDK configuration.
+  static const String _webClientId =
+      'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
+    region: 'europe-west1',
+  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb ? _webClientId : null,
+  );
 
   // ---------------------------------------------------------------------------
   // Error handling
@@ -78,10 +90,22 @@ class AuthService {
     }
   }
 
-  /// Creates a new user account with [email] and [password].
-  ///
-  /// After account creation, sends a 6-digit OTP to [email] via Cloud Functions
-  /// instead of Firebase's default link-based verification email.
+  /// Sends a verification email to the user.
+  Future<void> sendEmailVerification() async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) {
+      throw Exception('No signed-in user. Cannot send verification email.');
+    }
+    try {
+      await _functions.httpsCallable('sendVerificationEmailLink').call({
+        'email': user.email,
+        'uid': user.uid,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to send verification email.');
+    }
+  }
+
   Future<UserCredential> createUserWithEmailAndPassword(
     String email,
     String password,
@@ -92,12 +116,9 @@ class AuthService {
         password: password,
       );
 
-      // Immediately send a 6-digit OTP so the user can verify via code entry.
+      // Immediately send a custom verification email via SendGrid.
       if (credential.user != null) {
-        await OtpService().sendVerificationOTP(
-          email: email,
-          uid: credential.user!.uid,
-        );
+        await sendEmailVerification();
       }
 
       return credential;
@@ -107,42 +128,21 @@ class AuthService {
   }
 
   // ---------------------------------------------------------------------------
-  // Email verification (OTP-based)
+  // Password reset
   // ---------------------------------------------------------------------------
 
-  /// Resends a 6-digit verification OTP to the currently signed-in user's email.
-  ///
-  /// Throws an [Exception] if there is no authenticated user.
-  Future<void> sendEmailVerification() async {
-    final user = _auth.currentUser;
-    if (user == null || user.email == null) {
-      throw Exception(
-        'No signed-in user found. Cannot send verification OTP.',
-      );
-    }
-    await OtpService().sendVerificationOTP(
-      email: user.email!,
-      uid: user.uid,
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Password reset (OTP-based)
-  // ---------------------------------------------------------------------------
-
-  /// Sends a 6-digit password-reset OTP to [email] via Cloud Functions.
-  ///
-  /// The caller should then present an OTP input screen, call
-  /// [OtpService().verifyOTP] with type [OtpType.passwordReset], and on
-  /// success prompt the user to set a new password.
+  /// Sends a native Firebase password-reset email to [email].
   Future<void> sendPasswordResetEmail(String email) async {
-    await OtpService().sendPasswordResetOTP(email: email);
+    try {
+      await _functions.httpsCallable('sendPasswordResetEmailLink').call({
+        'email': email,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to send password reset email.');
+    }
   }
 
   /// Updates the password of the currently signed-in user.
-  ///
-  /// Call this AFTER [OtpService.verifyOTP] returns success for a
-  /// password_reset OTP.
   Future<void> updatePassword(String newPassword) async {
     try {
       final user = _auth.currentUser;
@@ -206,6 +206,77 @@ class AuthService {
   }
 
   // ---------------------------------------------------------------------------
+  // Email Link Auth
+  // ---------------------------------------------------------------------------
+
+  static const String _emailKey = 'user_email_for_auth';
+
+  /// Sends a sign-in/verification link to [email].
+  Future<void> sendSignInWithEmailLink(String email) async {
+    try {
+      final actionCodeSettings = ActionCodeSettings(
+        url:
+            'https://rakni-v2.firebaseapp.com', // استخدام نطاق Hosting بدلاً من page.link
+        handleCodeInApp: true,
+        androidPackageName: 'com.rakniteam.rakni_v2',
+        androidInstallApp: true,
+        androidMinimumVersion: '1',
+      );
+
+      await _auth.sendSignInLinkToEmail(
+        email: email,
+        actionCodeSettings: actionCodeSettings,
+      );
+
+      // Save email locally to complete sign-in without asking user again
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_emailKey, email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    }
+  }
+
+  /// Checks if the given [link] is a valid sign-in with email link.
+  bool isSignInWithEmailLink(String link) {
+    return _auth.isSignInWithEmailLink(link);
+  }
+
+  /// Completes the sign-in/verification using the [link].
+  /// Tries to get the email from SharedPreferences if not provided.
+  Future<UserCredential> signInWithEmailLink(
+    String link, {
+    String? email,
+  }) async {
+    try {
+      String? finalEmail = email;
+
+      if (finalEmail == null) {
+        final prefs = await SharedPreferences.getInstance();
+        finalEmail = prefs.getString(_emailKey);
+      }
+
+      if (finalEmail == null) {
+        throw Exception(
+          'Email not found. Please provide the email used for the sign-in link.',
+        );
+      }
+
+      final credential = await _auth.signInWithEmailLink(
+        email: finalEmail,
+        emailLink: link,
+      );
+
+      // Clear the saved email after successful sign-in
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_emailKey);
+
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // State accessors
   // ---------------------------------------------------------------------------
 
@@ -215,4 +286,12 @@ class AuthService {
   /// A stream that emits a [User] whenever the Firebase auth state changes.
   /// Emits `null` when the user signs out.
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  /// Reloads the current user to get the latest emailVerified status.
+  Future<void> reloadUser() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await user.reload();
+    }
+  }
 }
