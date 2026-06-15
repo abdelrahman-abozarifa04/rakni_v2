@@ -8,7 +8,19 @@ import 'package:rakni_v2/features/bookings/bookings_screen.dart';
 import 'package:rakni_v2/features/home/favourites_screen.dart';
 import 'package:rakni_v2/features/home/location_screen.dart';
 import 'package:rakni_v2/features/home/parking_lot_detail_screen.dart';
+import 'package:rakni_v2/features/home/filter_bottom_sheet.dart';
 import 'package:rakni_v2/features/home/parking_search_screen.dart';
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rakni_v2/core/services/booking_service.dart';
+import 'package:rakni_v2/core/services/firestore_service.dart';
+import 'package:rakni_v2/core/models/booking_model.dart';
+import 'package:rakni_v2/core/models/parking_lot_model.dart';
+import 'package:rakni_v2/core/models/vehicle_model.dart';
+import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
+import 'package:rakni_v2/features/booking/active_session_screen.dart';
+import 'package:rakni_v2/features/notifications/notifications_screen.dart';
+import 'package:rakni_v2/core/models/notification_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +32,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _locationText = 'Getting location...';
   bool _locationLoading = true;
+  FilterConfig? _activeFilter;
 
   @override
   void initState() {
@@ -131,28 +144,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _openDetail(
-    String name,
-    String address,
-    int availableSlots,
-    int totalSlots,
-    String pricePerHour,
-    String imagePath,
-    double latitude,
-    double longitude,
-  ) {
+  void _openDetail(ParkingLotModel lot) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ParkingLotDetailScreen(
-          name: name,
-          address: address,
-          availableSlots: availableSlots,
-          totalSlots: totalSlots,
-          pricePerHour: pricePerHour,
-          imagePath: imagePath,
-          latitude: latitude,
-          longitude: longitude,
+          id: lot.id,
+          name: lot.name,
+          address: lot.address,
+          availableSlots: lot.availableSlots,
+          totalSlots: lot.totalSlots,
+          pricePerHour: 'EGP ${lot.pricePerHour.toStringAsFixed(0)}/hr',
+          imagePath: lot.imageUrl ?? 'assets/images/mall_of_arabia.png',
+          latitude: lot.latitude,
+          longitude: lot.longitude,
         ),
       ),
     );
@@ -178,73 +183,62 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildSectionHeader('Nearby Parking', 'See all'),
               ),
             ),
+            // ── Nearby Parking — real-time from Firestore ──────────────────
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 190,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
-                    GestureDetector(
-                      onTap: () => _openDetail(
-                        'Mall of Arabia',
-                        '6th of October, Giza',
-                        42,
-                        120,
-                        'EGP 10/hr',
-                        'assets/images/mall_of_arabia.png',
-                        30.0131,
-                        31.2089,
-                      ),
-                      child: const _NearbyParkingCard(
-                        name: 'Mall of Arabia',
-                        distance: '0.8 km',
-                        available: 42,
-                        price: 'EGP 10/hr',
-                        imagePath: 'assets/images/mall_of_arabia.png',
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    GestureDetector(
-                      onTap: () => _openDetail(
-                        'Cairo Festival City',
-                        'New Cairo, Cairo',
-                        18,
-                        80,
-                        'EGP 15/hr',
-                        'assets/images/cfc_mall.png',
-                        30.0280,
-                        31.4028,
-                      ),
-                      child: const _NearbyParkingCard(
-                        name: 'Cairo Festival City',
-                        distance: '2.1 km',
-                        available: 18,
-                        price: 'EGP 15/hr',
-                        imagePath: 'assets/images/cfc_mall.png',
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    GestureDetector(
-                      onTap: () => _openDetail(
-                        'City Stars',
-                        'Nasr City, Cairo',
-                        76,
-                        200,
-                        'EGP 8/hr',
-                        'assets/images/mall_of_arabia.png',
-                        30.0740,
-                        31.3453,
-                      ),
-                      child: const _NearbyParkingCard(
-                        name: 'City Stars',
-                        distance: '3.5 km',
-                        available: 76,
-                        price: 'EGP 8/hr',
-                        imagePath: 'assets/images/mall_of_arabia.png',
-                      ),
-                    ),
-                  ],
+                child: StreamBuilder<List<ParkingLotModel>>(
+                  stream:
+                      ParkingLotRepository.instance.streamAvailableLots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.secondary,
+                        ),
+                      );
+                    }
+                    final lots = snapshot.data ?? [];
+                    final filtered = _activeFilter != null
+                        ? lots
+                            .where((l) =>
+                                _activeFilter!.matchesPrice(l.pricePerHour))
+                            .toList()
+                        : lots;
+                    if (filtered.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No parking lots available',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      );
+                    }
+                    return ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(width: 14),
+                      itemBuilder: (context, i) {
+                        final lot = filtered[i];
+                        return GestureDetector(
+                          onTap: () => _openDetail(lot),
+                          child: _NearbyParkingCard(
+                            name: lot.name,
+                            distance: '—',
+                            available: lot.availableSlots,
+                            price:
+                                'EGP ${lot.pricePerHour.toStringAsFixed(0)}/hr',
+                            imagePath: lot.imageUrl ??
+                                'assets/images/mall_of_arabia.png',
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ),
@@ -306,17 +300,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
-                child: _buildSectionHeader('Active Session', ''),
+            StreamBuilder<BookingModel?>(
+              stream: BookingService.instance.streamActiveBooking(
+                FirebaseAuth.instance.currentUser?.uid ?? '',
               ),
-            ),
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: _ActiveSessionCard(),
-              ),
+              builder: (context, snapshot) {
+                final activeBooking = snapshot.data;
+                if (activeBooking == null) {
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                }
+                return SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
+                        child: _buildSectionHeader('Active Session', ''),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: _ActiveSessionCard(booking: activeBooking),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -404,19 +412,68 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.fieldColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.fieldStroke),
-            ),
-            child: const Icon(
-              Icons.notifications_none_rounded,
-              color: AppColors.white,
-              size: 20,
-            ),
+          StreamBuilder<List<NotificationModel>?>(
+            stream: () {
+              final uid = FirebaseAuth.instance.currentUser?.uid;
+              if (uid == null) {
+                return Stream<List<NotificationModel>?>.value(null);
+              }
+              return FirestoreService.instance
+                  .streamNotifications(uid)
+                  .map<List<NotificationModel>?>((list) => list);
+            }(),
+            builder: (ctx, snap) {
+              final unreadCount = snap.data
+                  ?.where((n) => !n.isRead)
+                  .length ?? 0;
+              return GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  ),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.fieldColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.fieldStroke),
+                      ),
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
+                    ),
+                    if (unreadCount > 0)
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AppColors.error,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            unreadCount > 9 ? '9+' : '$unreadCount',
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -448,17 +505,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            Container(
-              margin: const EdgeInsets.all(6),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.tune_rounded,
-                color: AppColors.primary,
-                size: 18,
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () async {
+                final result = await FilterBottomSheet.show(context);
+                if (result != null && mounted) {
+                  setState(() => _activeFilter = result);
+                }
+              },
+              child: Container(
+                margin: const EdgeInsets.all(6),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: _activeFilter != null
+                      ? AppColors.secondary
+                      : AppColors.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.tune_rounded,
+                  color: _activeFilter != null
+                      ? AppColors.primary
+                      : AppColors.primary,
+                  size: 18,
+                ),
               ),
             ),
           ],
@@ -673,85 +743,217 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-class _ActiveSessionCard extends StatelessWidget {
-  const _ActiveSessionCard();
+class _ActiveSessionCard extends StatefulWidget {
+  final BookingModel booking;
+  const _ActiveSessionCard({required this.booking});
+
+  @override
+  State<_ActiveSessionCard> createState() => _ActiveSessionCardState();
+}
+
+class _ActiveSessionCardState extends State<_ActiveSessionCard> {
+  Timer? _timer;
+  Duration _elapsed = Duration.zero;
+  bool _isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateElapsed();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) {
+        setState(() {
+          _calculateElapsed();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _calculateElapsed() {
+    _elapsed = DateTime.now().difference(widget.booking.startTime);
+    if (_elapsed.isNegative) _elapsed = Duration.zero;
+  }
+
+  double get _currentCost {
+    final hours = _elapsed.inSeconds / 3600.0;
+    return hours * widget.booking.pricePerHour;
+  }
+
+  Future<void> _navigateToActiveSession() async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
+
+    // Show loading overlay
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: AppColors.secondary),
+      ),
+    );
+
+    try {
+      final lot = await FirestoreService.instance.getParkingLot(widget.booking.parkingLotId);
+      final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      final vehicles = await FirestoreService.instance.streamVehicles(uid).first;
+      final vehicle = vehicles.firstWhere(
+        (v) => v.id == widget.booking.vehicleId,
+        orElse: () => vehicles.isNotEmpty 
+            ? vehicles.first 
+            : VehicleModel(
+                id: widget.booking.vehicleId,
+                brand: 'Vehicle',
+                model: '',
+                plateNumber: widget.booking.vehiclePlate,
+                color: '',
+                isDefault: false,
+              ),
+      );
+
+      if (mounted && context.mounted) {
+        Navigator.pop(context); // Dismiss loading overlay
+        
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ActiveSessionScreen(
+              booking: widget.booking,
+              parkingLot: lot ?? ParkingLotModel(
+                id: widget.booking.parkingLotId,
+                name: widget.booking.lotName,
+                address: widget.booking.lotAddress,
+                latitude: 0,
+                longitude: 0,
+                totalSlots: 0,
+                availableSlots: 0,
+                pricePerHour: widget.booking.pricePerHour,
+              ),
+              vehicle: vehicle,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted && context.mounted) {
+        Navigator.pop(context); // Dismiss loading overlay
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load session: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.secondary.withValues(alpha: 0.15),
-            AppColors.fieldColor,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    final elapsedMinutes = _elapsed.inMinutes;
+    String subtitle;
+    if (_elapsed.inHours > 0) {
+      subtitle = 'Started ${_elapsed.inHours}h ${(_elapsed.inMinutes % 60)}m ago  •  EGP ${_currentCost.toStringAsFixed(2)}';
+    } else {
+      subtitle = 'Started $elapsedMinutes min ago  •  EGP ${_currentCost.toStringAsFixed(2)}';
+    }
+
+    String displayName = widget.booking.lotName.isNotEmpty 
+        ? widget.booking.lotName 
+        : 'Parking Session';
+    if (widget.booking.spotLabel.isNotEmpty) {
+      displayName += ' - ${widget.booking.spotLabel}';
+    }
+
+    return GestureDetector(
+      onTap: _navigateToActiveSession,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.secondary.withValues(alpha: 0.15),
+              AppColors.fieldColor,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.secondary.withValues(alpha: 0.35)),
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/images/Map_mark.svg',
-                height: 22,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.secondary,
-                  BlendMode.srcIn,
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/images/Map_mark.svg',
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.secondary,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mall of Arabia - P2',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Started 42 min ago  .  EGP 7.00',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Text(
-              'End',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _navigateToActiveSession,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'End',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

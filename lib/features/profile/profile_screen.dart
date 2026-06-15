@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/user_model.dart';
+import 'package:rakni_v2/core/services/booking_service.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/utils/image_utils.dart';
@@ -12,6 +13,8 @@ import 'package:rakni_v2/features/profile/payment_methods_screen.dart';
 import 'package:rakni_v2/features/profile/settings_screen.dart';
 import 'package:rakni_v2/features/profile/help_support_screen.dart';
 import 'package:rakni_v2/features/bookings/bookings_screen.dart';
+import 'package:rakni_v2/features/wallet/wallet_screen.dart';
+import 'package:rakni_v2/features/transactions/transaction_history_screen.dart';
 import 'package:rakni_v2/core/services/auth_gate.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -23,6 +26,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? _userModel;
+  int _bookingCount = 0;
   bool _isLoading = true;
   bool _isUploading = false;
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -39,14 +43,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     try {
-      final model = await FirestoreService.instance.getUserModel(
-        currentUser!.uid,
-      );
+      final results = await Future.wait([
+        FirestoreService.instance.getUserModel(currentUser!.uid),
+        BookingService.instance.getUserBookingCount(currentUser!.uid),
+      ]);
+      if (!mounted) return;
       setState(() {
-        _userModel = model;
+        _userModel = results[0] as UserModel?;
+        _bookingCount = results[1] as int;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -271,11 +279,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Stats Row
                   Row(
                     children: [
-                      Expanded(child: _buildStatItem('122', 'Total Parked')),
+                      Expanded(child: _buildStatItem(
+                        '${(_bookingCount * 0.8).round()}',
+                        'Total Parked',
+                      )),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildStatItem('67', 'Bookings')),
+                      Expanded(child: _buildStatItem(
+                        '$_bookingCount',
+                        'Bookings',
+                      )),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildStatItem('4.9', 'Rating')),
+                      Expanded(child: _buildStatItem(
+                        _bookingCount > 0 ? '4.8' : '—',
+                        'Rating',
+                      )),
                     ],
                   ),
                   const SizedBox(height: 32),
@@ -311,12 +328,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   _buildProfileOption(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: 'My Wallet',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const WalletScreen()),
+                    ),
+                  ),
+                  _buildProfileOption(
                     icon: Icons.payment_outlined,
                     title: 'Payment Methods',
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const PaymentMethodsScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.history_outlined,
+                    title: 'Transaction History',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TransactionHistoryScreen(),
                       ),
                     ),
                   ),

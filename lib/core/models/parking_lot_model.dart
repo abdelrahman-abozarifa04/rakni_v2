@@ -75,6 +75,20 @@ class ParkingLotModel {
     );
   }
 
+  /// Converts the model to a plain [Map] for passing between screens
+  /// (avoids re-fetching from Firestore when navigating to detail views).
+  Map<String, dynamic> toMapData() => {
+    'name': name,
+    'address': address,
+    'slots': availableSlots,
+    'totalSlots': totalSlots,
+    'price': 'EGP ${pricePerHour.toStringAsFixed(0)}/hr',
+    'lat': latitude,
+    'lng': longitude,
+    'image': imageUrl ?? 'assets/images/mall_of_arabia.png',
+    'id': id,
+  };
+
   @override
   String toString() {
     return 'ParkingLotModel(id: $id, name: $name, available: $availableSlots/$totalSlots)';

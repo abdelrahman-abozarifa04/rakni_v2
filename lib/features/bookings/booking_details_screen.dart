@@ -1,33 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/models/booking_model.dart';
 
 class BookingDetailsScreen extends StatelessWidget {
-  final String title;
-  final String address;
-  final String date;
-  final String time;
-  final String vehicle;
-  final String total;
-  final String status;
+  final BookingModel booking;
+  final VoidCallback? onCancel;
 
   const BookingDetailsScreen({
     super.key,
-    required this.title,
-    required this.address,
-    required this.date,
-    required this.time,
-    required this.vehicle,
-    required this.total,
-    required this.status,
+    required this.booking,
+    this.onCancel,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isActive = status == 'Active';
-    final badgeColor = isActive
-        ? AppColors.secondary
-        : AppColors.textSecondary.withValues(alpha: 0.3);
-    final badgeTextColor = isActive ? Colors.black : AppColors.textSecondary;
+    final statusLower = booking.status.toLowerCase();
+    final isActive = statusLower == 'active';
+    final isPending = statusLower == 'pending';
+    final isCompleted = statusLower == 'completed';
+
+    Color badgeColor;
+    Color badgeTextColor;
+    String statusText;
+
+    if (isActive) {
+      badgeColor = AppColors.secondary;
+      badgeTextColor = Colors.black;
+      statusText = 'Active';
+    } else if (isPending) {
+      badgeColor = Colors.orange.withValues(alpha: 0.15);
+      badgeTextColor = Colors.orange;
+      statusText = 'Pending';
+    } else if (isCompleted) {
+      badgeColor = AppColors.textSecondary.withValues(alpha: 0.3);
+      badgeTextColor = AppColors.textSecondary;
+      statusText = 'Completed';
+    } else {
+      badgeColor = AppColors.error.withValues(alpha: 0.15);
+      badgeTextColor = AppColors.error;
+      statusText = 'Cancelled';
+    }
+
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    String dateStr;
+    try {
+      dateStr = "${months[booking.startTime.month - 1]} ${booking.startTime.day}, ${booking.startTime.year}";
+    } catch (_) {
+      dateStr = 'Unknown Date';
+    }
+
+    String _formatTimeOfDay(DateTime dt) {
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      final min = dt.minute.toString().padLeft(2, '0');
+      return '${hour.toString().padLeft(2, '0')}:$min $ampm';
+    }
+
+    final timeStr = booking.endTime != null 
+        ? "${_formatTimeOfDay(booking.startTime)} - ${_formatTimeOfDay(booking.endTime!)}"
+        : "${_formatTimeOfDay(booking.startTime)} - Ongoing";
+
+    final title = booking.lotName.isNotEmpty ? booking.lotName : 'Parking Lot';
+    final address = booking.lotAddress.isNotEmpty ? booking.lotAddress : 'Cairo, Egypt';
+    final vehicle = booking.vehiclePlate.isNotEmpty ? booking.vehiclePlate : 'No Plate';
+    final total = 'EGP ${booking.totalAmount.toStringAsFixed(0)}';
+    
+    // User-friendly payment method
+    String paymentMethodStr = 'Wallet';
+    if (booking.paymentMethod.toLowerCase() == 'visa') {
+      paymentMethodStr = 'Visa ending in 1234';
+    } else if (booking.paymentMethod.isNotEmpty) {
+      paymentMethodStr = booking.paymentMethod[0].toUpperCase() + booking.paymentMethod.substring(1);
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -59,7 +105,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  status,
+                  statusText,
                   style: TextStyle(
                       color: badgeTextColor,
                       fontSize: 14,
@@ -116,13 +162,13 @@ class BookingDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   const Divider(color: AppColors.textSecondary, height: 1),
                   const SizedBox(height: 20),
-                  _buildDetailRow('Date', date),
+                  _buildDetailRow('Date', dateStr),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Time', time),
+                  _buildDetailRow('Time', timeStr),
                   const SizedBox(height: 16),
                   _buildDetailRow('Vehicle', vehicle),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Payment Method', 'Visa ending in 1234'),
+                  _buildDetailRow('Payment Method', paymentMethodStr),
                   const SizedBox(height: 20),
                   const Divider(color: AppColors.textSecondary, height: 1),
                   const SizedBox(height: 20),
@@ -149,7 +195,7 @@ class BookingDetailsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            if (isActive) ...[
+            if (isActive || isPending) ...[
               // QR Code placeholder
               Container(
                 width: double.infinity,
@@ -160,11 +206,37 @@ class BookingDetailsScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Text('Scan to enter',
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Scan to enter',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    const Icon(Icons.qr_code_2, size: 120, color: Colors.black),
+                    QrImageView(
+                      data: 'RAKNI-BOOKING-${booking.id}',
+                      version: QrVersions.auto,
+                      size: 200,
+                      errorCorrectionLevel: QrErrorCorrectLevel.M,
+                      backgroundColor: AppColors.white,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Colors.black,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Reservation #${booking.reservationId}',
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -173,7 +245,7 @@ class BookingDetailsScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: onCancel,
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.error),
                     shape: RoundedRectangleBorder(

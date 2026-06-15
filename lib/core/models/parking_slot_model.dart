@@ -6,6 +6,7 @@ class ParkingSlotModel {
   final String slotNumber;
   final bool isAvailable;
   final String type; // e.g., 'regular', 'disabled', 'ev'
+  final String level; // e.g., 'Level 1', 'Level 2'
 
   ParkingSlotModel({
     required this.id,
@@ -13,6 +14,7 @@ class ParkingSlotModel {
     required this.slotNumber,
     required this.isAvailable,
     required this.type,
+    this.level = 'Level 1',
   });
 
   /// Creates a [ParkingSlotModel] from a Firestore [DocumentSnapshot].
@@ -24,6 +26,7 @@ class ParkingSlotModel {
       slotNumber: data['slotNumber'] ?? '',
       isAvailable: data['isAvailable'] ?? true,
       type: data['type'] ?? 'regular',
+      level: data['level'] ?? 'Level 1',
     );
   }
 
@@ -34,6 +37,7 @@ class ParkingSlotModel {
       'slotNumber': slotNumber,
       'isAvailable': isAvailable,
       'type': type,
+      'level': level,
     };
   }
 
@@ -44,6 +48,7 @@ class ParkingSlotModel {
     String? slotNumber,
     bool? isAvailable,
     String? type,
+    String? level,
   }) {
     return ParkingSlotModel(
       id: id ?? this.id,
@@ -51,11 +56,12 @@ class ParkingSlotModel {
       slotNumber: slotNumber ?? this.slotNumber,
       isAvailable: isAvailable ?? this.isAvailable,
       type: type ?? this.type,
+      level: level ?? this.level,
     );
   }
 
   @override
   String toString() {
-    return 'ParkingSlotModel(id: $id, slot: $slotNumber, available: $isAvailable)';
+    return 'ParkingSlotModel(id: $id, slot: $slotNumber, level: $level, available: $isAvailable, type: $type)';
   }
 }

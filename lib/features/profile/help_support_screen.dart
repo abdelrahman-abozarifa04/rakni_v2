@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
+
+  Future<void> _launchUrl(BuildContext context, String urlString) async {
+    final uri = Uri.parse(urlString);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open: $urlString'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +70,10 @@ class HelpSupportScreen extends StatelessWidget {
                   context,
                   icon: Icons.chat_outlined,
                   label: 'Live Chat',
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Opening live chat...'),
-                          backgroundColor: AppColors.secondary),
-                    );
-                  },
+                  onTap: () => _launchUrl(
+                    context,
+                    'https://wa.me/+201000000000',
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -70,13 +82,10 @@ class HelpSupportScreen extends StatelessWidget {
                   context,
                   icon: Icons.email_outlined,
                   label: 'Email Us',
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('support@rakni.app'),
-                          backgroundColor: AppColors.secondary),
-                    );
-                  },
+                  onTap: () => _launchUrl(
+                    context,
+                    'mailto:support@rakni.app',
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -85,13 +94,10 @@ class HelpSupportScreen extends StatelessWidget {
                   context,
                   icon: Icons.phone_outlined,
                   label: 'Call Us',
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('+966 800 RAKNI'),
-                          backgroundColor: AppColors.secondary),
-                    );
-                  },
+                  onTap: () => _launchUrl(
+                    context,
+                    'tel:+201000000000',
+                  ),
                 ),
               ),
             ],
@@ -126,7 +132,7 @@ class HelpSupportScreen extends StatelessWidget {
             icon: Icons.book_outlined,
             title: 'User Guide',
             subtitle: 'How to use Rakni',
-            onTap: () {},
+            onTap: () => _launchUrl(context, 'https://rakni.app/guide'),
           ),
           const SizedBox(height: 8),
           _buildOptionItem(
@@ -140,7 +146,10 @@ class HelpSupportScreen extends StatelessWidget {
             icon: Icons.star_outline,
             title: 'Rate the App',
             subtitle: 'Leave us a review on the store',
-            onTap: () {},
+            onTap: () => _launchUrl(
+              context,
+              'market://details?id=com.rakniteam.rakni_v2',
+            ),
           ),
           const SizedBox(height: 8),
           _buildOptionItem(
@@ -295,7 +304,7 @@ class HelpSupportScreen extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textSecondary.withAlpha(80),
+                  color: AppColors.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -373,7 +382,7 @@ class HelpSupportScreen extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.secondary.withAlpha(26),
+                color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.local_parking,

@@ -22,11 +22,13 @@ class LicenseOcrService {
   LicenseOcrService._();
   static final instance = LicenseOcrService._();
 
-  // SECURITY NOTE:
-  // For production, move this call to a Firebase Cloud Function so the
-  // API key is never exposed in the client app bundle.
-  // For MVP development only:
-  static const String _apiKey = 'AIzaSyCDTtucqRKFNsPq4SsC6Q4PxDa7P5OER4k';
+  // SECURITY: API key must be passed via --dart-define=GEMINI_API_KEY=<key>
+  // Run the app with run_dev.sh (project root) which includes the key.
+  // For production, move this call to a Firebase Cloud Function proxy.
+  static const String _apiKey = String.fromEnvironment(
+    'GEMINI_API_KEY',
+    defaultValue: '',
+  );
   static const String _model = 'gemini-2.5-flash';
   static const String _apiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';

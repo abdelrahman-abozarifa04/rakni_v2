@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/sign_in_screen.dart';
+import 'package:rakni_v2/features/legal/terms_screen.dart';
+import 'package:rakni_v2/features/legal/privacy_policy_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -127,6 +129,59 @@ class OnboardingScreen extends StatelessWidget {
                       _buildPageDot(isActive: false),
                       const SizedBox(width: 8),
                       _buildPageDot(isActive: false),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Terms & Privacy notice
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      const Text(
+                        'By continuing, you agree to our ',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TermsScreen(),
+                          ),
+                        ),
+                        child: const Text(
+                          'Terms',
+                          style: TextStyle(
+                            color: AppColors.secondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        ' & ',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PrivacyPolicyScreen(),
+                          ),
+                        ),
+                        child: const Text(
+                          'Privacy Policy',
+                          style: TextStyle(
+                            color: AppColors.secondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/add_car_screen_2.dart';
+import 'package:rakni_v2/features/main/main_shell.dart';
 
 class AddCarScreen extends StatelessWidget {
   final String? uid;
@@ -96,6 +97,26 @@ class AddCarScreen extends StatelessWidget {
             ),
 
             const Spacer(flex: 2),
+
+            // ── Skip for now ─────────────────────────────────
+            TextButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MainShell()),
+                  (route) => false,
+                );
+              },
+              child: const Text(
+                'Skip for now',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

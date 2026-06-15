@@ -6,6 +6,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
 // ─────────────────────────────────────────────────────────────────
@@ -24,46 +25,16 @@ class _Garage {
   });
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Hardcoded garages
-// ─────────────────────────────────────────────────────────────────
-const List<_Garage> _garages = [
-  _Garage(
-    id: 'g1',
-    name: 'Mall of Arabia Parking',
-    position: LatLng(30.0131, 31.2089),
-    slots: 42,
-  ),
-  _Garage(
-    id: 'g2',
-    name: 'Cairo Festival City',
-    position: LatLng(30.0280, 31.4028),
-    slots: 18,
-  ),
-  _Garage(
-    id: 'g3',
-    name: 'Point 90 Mall',
-    position: LatLng(30.0074, 31.4711),
-    slots: 76,
-  ),
-  _Garage(
-    id: 'g4',
-    name: 'Waterway Parking',
-    position: LatLng(30.0225, 31.4662),
-    slots: 31,
-  ),
-  _Garage(
-    id: 'g5',
-    name: 'AUC Garage',
-    position: LatLng(30.0219, 31.4997),
-    slots: 55,
-  ),
-];
+// NOTE: garages are now loaded from Firestore via ParkingLotRepository
+// in _MapScreenState._loadGaragesFromFirestore()
 
-// ─────────────────────────────────────────────────────────────────
-// API key (same value registered in AndroidManifest / AppDelegate)
-// ─────────────────────────────────────────────────────────────────
-const _kApiKey = 'AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI';
+
+// SECURITY: API key must be passed via --dart-define=MAPS_API_KEY=<key>
+// Run the app with run_dev.sh (project root) which includes the key.
+const _kApiKey = String.fromEnvironment(
+  'MAPS_API_KEY',
+  defaultValue: '',
+);
 
 // ─────────────────────────────────────────────────────────────────
 // Dark-mode map style JSON
@@ -115,20 +86,51 @@ class _MapScreenState extends State<MapScreen> {
   _Garage? _routeTarget;
   double? _routeDistanceKm;
 
+  // Garages loaded from Firestore
+  List<_Garage> _garages = [];
+  StreamSubscription<dynamic>? _garagesSubscription;
+
   // ── lifecycle ───────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadGaragesFromFirestore();
     _initLocation();
   }
 
   @override
   void dispose() {
+    _garagesSubscription?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _mapController?.dispose();
     super.dispose();
+  }
+
+  /// Streams parking lots from Firestore and maps them to [_Garage] objects.
+  void _loadGaragesFromFirestore() {
+    _garagesSubscription =
+        ParkingLotRepository.instance.streamParkingLots().listen(
+      (lots) {
+        if (!mounted) return;
+        setState(() {
+          _garages = lots
+              .map(
+                (lot) => _Garage(
+                  id: lot.id,
+                  name: lot.name,
+                  position: LatLng(lot.latitude, lot.longitude),
+                  slots: lot.availableSlots,
+                ),
+              )
+              .toList();
+        });
+        _rebuildGarageMarkers();
+      },
+      onError: (e) =>
+          debugPrint('[MapScreen] Firestore stream error: $e'),
+    );
   }
 
   void _onSearchChanged() {
@@ -261,6 +263,26 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // ── routing ─────────────────────────────────────────────────────
+  void _drawStraightLineRoute(_Garage garage) async {
+    if (_userPosition == null) return;
+    const pid = PolylineId('route');
+    setState(() {
+      _polylines[pid] = Polyline(
+        polylineId: pid,
+        points: [_userPosition!, garage.position],
+        color: AppColors.secondary,
+        width: 4,
+        patterns: [PatternItem.dash(10), PatternItem.gap(10)],
+      );
+      _routeTarget = garage;
+      _routeDistanceKm = _distKm(_userPosition!, garage.position);
+    });
+
+    final bounds = _boundsOf([_userPosition!, garage.position]);
+    final ctrl = await _controllerCompleter.future;
+    await ctrl.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
+  }
+
   Future<void> _drawRouteTo(_Garage garage) async {
     if (_userPosition == null) {
       _showBar('User location not available yet.');
@@ -291,7 +313,8 @@ class _MapScreenState extends State<MapScreen> {
       );
 
       if (result.points.isEmpty) {
-        _showBar('Could not find a route.');
+        _showBar('No driving route found (too far). Drawing straight path.');
+        _drawStraightLineRoute(garage);
         return;
       }
 
@@ -314,7 +337,9 @@ class _MapScreenState extends State<MapScreen> {
       final ctrl = await _controllerCompleter.future;
       await ctrl.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
     } catch (e) {
-      _showBar('Route error: $e');
+      debugPrint('Routing error: $e');
+      _showBar('No driving route found (too far). Drawing straight path.');
+      _drawStraightLineRoute(garage);
     }
   }
 

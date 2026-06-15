@@ -16,10 +16,10 @@ class AuthService {
 
   static final AuthService instance = AuthService._internal();
 
-  // Replace this placeholder with the Web Client ID from:
-  // Firebase Console > Authentication > Sign-in method > Google > Web SDK configuration.
+  // Web Client ID from Firebase Console > Authentication > Sign-in method > Google.
+  // Sourced from android/app/google-services.json oauth_client with client_type: 3
   static const String _webClientId =
-      'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+      '863311891829-1fmt6ipr4h6vo1efrbjp1j4vromn9gnj.apps.googleusercontent.com';
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(

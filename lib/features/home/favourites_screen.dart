@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
 import 'package:rakni_v2/core/services/favorites_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/features/home/parking_lot_detail_screen.dart';
 
-// TODO: Implement full Favourites screen - load lots by name from FavoritesService,
-// then fetch full ParkingLotModel data from FirestoreService and display as cards
-// navigating to ParkingLotDetailScreen.
 class FavouritesScreen extends StatefulWidget {
   const FavouritesScreen({super.key});
 
@@ -15,6 +14,8 @@ class FavouritesScreen extends StatefulWidget {
 class _FavouritesScreenState extends State<FavouritesScreen> {
   Set<String> _favourites = {};
   bool _loading = true;
+  // Track which tiles are fetching so we can show a per-tile spinner
+  final Set<String> _loadingTiles = {};
 
   @override
   void initState() {
@@ -29,6 +30,54 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
         _favourites = favs;
         _loading = false;
       });
+    }
+  }
+
+  Future<void> _openDetail(String name) async {
+    if (_loadingTiles.contains(name)) return;
+    setState(() => _loadingTiles.add(name));
+
+    try {
+      final results = await ParkingLotRepository.instance.searchLots(name);
+      if (!mounted) return;
+
+      if (results.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Parking lot not found.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+
+      final lot = results.first;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ParkingLotDetailScreen(
+            id: lot.id,
+            name: lot.name,
+            address: lot.address,
+            availableSlots: lot.availableSlots,
+            totalSlots: lot.totalSlots,
+            pricePerHour: 'EGP ${lot.pricePerHour.toStringAsFixed(0)}/hr',
+            imagePath: lot.imageUrl ?? 'assets/images/mall_of_arabia.png',
+            latitude: lot.latitude,
+            longitude: lot.longitude,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load lot: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _loadingTiles.remove(name));
     }
   }
 
@@ -91,53 +140,68 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
           : ListView.separated(
               padding: const EdgeInsets.all(20),
               itemCount: _favourites.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final name = _favourites.elementAt(i);
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.fieldStroke),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.local_parking_rounded,
-                          color: AppColors.secondary,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          name,
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                final isLoadingTile = _loadingTiles.contains(name);
+                return GestureDetector(
+                  onTap: () => _openDetail(name),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.fieldStroke),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.local_parking_rounded,
+                            color: AppColors.secondary,
+                            size: 22,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.favorite_rounded,
-                          color: AppColors.secondary,
-                          size: 22,
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                        onPressed: () async {
-                          await FavoritesService.instance.toggleFavorite(name);
-                          _load();
-                        },
-                      ),
-                    ],
+                        if (isLoadingTile)
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.secondary,
+                            ),
+                          )
+                        else
+                          IconButton(
+                            icon: const Icon(
+                              Icons.favorite_rounded,
+                              color: AppColors.secondary,
+                              size: 22,
+                            ),
+                            onPressed: () async {
+                              await FavoritesService.instance
+                                  .toggleFavorite(name);
+                              _load();
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 );
               },

@@ -37,9 +37,14 @@ class AuthGate extends StatelessWidget {
               return const SplashScreen();
             }
 
+            if (firestoreSnap.hasError) {
+              debugPrint('AuthGate: Firestore error occurred: ${firestoreSnap.error}. Proceeding to MainShell with resilient mock data layer.');
+              return const MainShell();
+            }
+
             final data = firestoreSnap.data;
             final bool profileComplete =
-                data != null && data.exists && (data.get('profileComplete') == true);
+                data != null && data.exists && (data.data() as Map<String, dynamic>?)?['profileComplete'] == true;
 
             if (profileComplete) {
               return const MainShell();

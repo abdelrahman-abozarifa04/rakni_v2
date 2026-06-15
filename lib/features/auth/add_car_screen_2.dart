@@ -63,6 +63,17 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
     setState(() => _isLoading = true);
 
     try {
+      // Check for duplicate plate number before saving
+      if (widget.uid != null) {
+        final isTaken = await FirestoreService.instance
+            .isPlateNumberTaken(widget.uid!, plate);
+        if (isTaken) {
+          _showSnackBar('This plate number is already registered.');
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
+
       // Save car data if uid is provided (registration flow)
       if (widget.uid != null) {
         await FirestoreService().addVehicle(

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/features/legal/privacy_policy_screen.dart';
+import 'package:rakni_v2/features/legal/terms_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,6 +20,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _darkMode = true;
   String _language = 'English';
   String _currency = 'EGP';
+
+  static const String _keyPush = 'setting_push_notifications';
+  static const String _keyEmail = 'setting_email_notifications';
+  static const String _keyReminders = 'setting_parking_reminders';
+  static const String _keyPromo = 'setting_promotions';
+  static const String _keyLocation = 'setting_location_services';
+  static const String _keyDark = 'setting_dark_mode';
+  static const String _keyLang = 'setting_language';
+  static const String _keyCurrency = 'setting_currency';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _pushNotifications = prefs.getBool(_keyPush) ?? true;
+      _emailNotifications = prefs.getBool(_keyEmail) ?? false;
+      _parkingReminders = prefs.getBool(_keyReminders) ?? true;
+      _promotions = prefs.getBool(_keyPromo) ?? false;
+      _locationServices = prefs.getBool(_keyLocation) ?? true;
+      _darkMode = prefs.getBool(_keyDark) ?? true;
+      _language = prefs.getString(_keyLang) ?? 'English';
+      _currency = prefs.getString(_keyCurrency) ?? 'EGP';
+    });
+  }
+
+  Future<void> _saveBool(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+
+  Future<void> _saveString(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +93,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Push Notifications',
             subtitle: 'Receive push alerts on your device',
             value: _pushNotifications,
-            onChanged: (v) => setState(() => _pushNotifications = v),
+            onChanged: (v) {
+              setState(() => _pushNotifications = v);
+              _saveBool(_keyPush, v);
+            },
           ),
           const SizedBox(height: 8),
           _buildToggle(
@@ -58,7 +104,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Email Notifications',
             subtitle: 'Get booking updates via email',
             value: _emailNotifications,
-            onChanged: (v) => setState(() => _emailNotifications = v),
+            onChanged: (v) {
+              setState(() => _emailNotifications = v);
+              _saveBool(_keyEmail, v);
+            },
           ),
           const SizedBox(height: 8),
           _buildToggle(
@@ -66,7 +115,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Parking Reminders',
             subtitle: 'Alert before parking session ends',
             value: _parkingReminders,
-            onChanged: (v) => setState(() => _parkingReminders = v),
+            onChanged: (v) {
+              setState(() => _parkingReminders = v);
+              _saveBool(_keyReminders, v);
+            },
           ),
           const SizedBox(height: 8),
           _buildToggle(
@@ -74,7 +126,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Promotions & Offers',
             subtitle: 'Receive special deals and discounts',
             value: _promotions,
-            onChanged: (v) => setState(() => _promotions = v),
+            onChanged: (v) {
+              setState(() => _promotions = v);
+              _saveBool(_keyPromo, v);
+            },
           ),
           const SizedBox(height: 24),
 
@@ -86,7 +141,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Location Services',
             subtitle: 'Allow app to access your location',
             value: _locationServices,
-            onChanged: (v) => setState(() => _locationServices = v),
+            onChanged: (v) {
+              setState(() => _locationServices = v);
+              _saveBool(_keyLocation, v);
+            },
           ),
           const SizedBox(height: 8),
           _buildNavItem(
@@ -116,7 +174,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Dark Mode',
             subtitle: 'Use dark theme throughout the app',
             value: _darkMode,
-            onChanged: (v) => setState(() => _darkMode = v),
+            onChanged: (v) {
+              setState(() => _darkMode = v);
+              _saveBool(_keyDark, v);
+            },
           ),
           const SizedBox(height: 24),
 
@@ -128,7 +189,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Language',
             value: _language,
             items: ['English', 'العربية', 'French'],
-            onChanged: (v) => setState(() => _language = v!),
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() => _language = v);
+              _saveString(_keyLang, v);
+            },
           ),
           const SizedBox(height: 8),
           _buildDropdown(
@@ -136,7 +201,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Currency',
             value: _currency,
             items: ['EGP', 'USD', 'EUR', 'SAR', 'AED'],
-            onChanged: (v) => setState(() => _currency = v!),
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() => _currency = v);
+              _saveString(_keyCurrency, v);
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // Legal
+          _sectionTitle('Legal'),
+          const SizedBox(height: 12),
+          _buildNavItem(
+            icon: Icons.privacy_tip_outlined,
+            title: 'Privacy Policy',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PrivacyPolicyScreen(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildNavItem(
+            icon: Icons.description_outlined,
+            title: 'Terms of Service',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TermsScreen(),
+              ),
+            ),
           ),
           const SizedBox(height: 24),
 

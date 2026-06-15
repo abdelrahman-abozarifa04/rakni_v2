@@ -265,11 +265,31 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                             if (uid == null) return;
                             setModalState(() => isSaving = true);
                             try {
+                              // Check for duplicate plate number
+                              final plateText = plateCtrl.text.trim();
+                              final isTaken = await FirestoreService.instance
+                                  .isPlateNumberTaken(uid, plateText);
+                              if (isTaken) {
+                                if (ctx.mounted) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'This plate number is already registered.',
+                                      ),
+                                      backgroundColor: AppColors.error,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                                setModalState(() => isSaving = false);
+                                return;
+                              }
+
                               final vehicle = VehicleModel(
                                 id: '',
                                 brand: brandCtrl.text.trim(),
                                 model: modelCtrl.text.trim(),
-                                plateNumber: plateCtrl.text.trim(),
+                                plateNumber: plateText,
                                 color: colorCtrl.text.trim(),
                                 isDefault: false,
                               );
