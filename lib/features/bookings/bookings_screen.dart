@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/services/booking_service.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
+import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
@@ -133,6 +135,18 @@ class _BookingsScreenState extends State<BookingsScreen> {
         lotId: booking.parkingLotId,
         slotId: booking.slotId,
       );
+
+      // Also release on the Django hardware backend (fire-and-forget)
+      ParkingHardwareApiService.instance
+          .releaseSlot(slotId: booking.slotId)
+          .then((ok) {
+        if (!ok) {
+          debugPrint(
+            '[BookingsScreen] Hardware releaseSlot failed for '
+            '${booking.slotId} — Firestore cancel already processed.',
+          );
+        }
+      });
 
       if (context.mounted) {
         Navigator.pop(context); // Dismiss loading overlay

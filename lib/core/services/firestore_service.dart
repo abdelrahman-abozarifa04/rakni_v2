@@ -645,6 +645,7 @@ class FirestoreService {
   }
 
   /// Streams bookings for a specific user in real-time.
+  /// Sorts client-side by startTime DESC to avoid requiring a Firestore composite index.
   Stream<List<BookingModel>> streamUserBookings(String uid) {
     late final StreamController<List<BookingModel>> controller;
     StreamSubscription? subscription;
@@ -654,14 +655,14 @@ class FirestoreService {
         try {
           subscription = _bookings
               .where('userId', isEqualTo: uid)
-              .orderBy('startTime', descending: true)
               .snapshots()
               .listen(
             (snapshot) {
               try {
                 final list = snapshot.docs
                     .map((doc) => BookingModel.fromFirestore(doc))
-                    .toList();
+                    .toList()
+                  ..sort((a, b) => b.startTime.compareTo(a.startTime));
                 controller.add(list);
               } catch (e) {
                 debugPrint('[FirestoreService] Error mapping streamUserBookings: $e');
@@ -686,49 +687,6 @@ class FirestoreService {
     return controller.stream;
   }
 
-  List<BookingModel> _getMockBookings(String uid) {
-    final now = DateTime.now();
-    return [
-      BookingModel(
-        id: 'mock_booking_active',
-        userId: uid,
-        parkingLotId: 'mock_lot_1',
-        slotId: 'slot_1_3',
-        startTime: now.subtract(const Duration(minutes: 45)),
-        endTime: now.add(const Duration(hours: 1, minutes: 15)),
-        totalAmount: 40.0,
-        status: 'active',
-        vehicleId: 'mock_car_1',
-        vehiclePlate: 'أ ج د 5432',
-        pricePerHour: 20.0,
-        reservationId: '9823-4712',
-        level: 'Level 1',
-        spotLabel: 'Spot A-103',
-        paymentMethod: 'wallet',
-        lotName: 'Heliopolis Plaza Parking',
-        lotAddress: '15 El-Ahram St, Heliopolis, Cairo',
-      ),
-      BookingModel(
-        id: 'mock_booking_past',
-        userId: uid,
-        parkingLotId: 'mock_lot_1',
-        slotId: 'slot_1_1',
-        startTime: now.subtract(const Duration(days: 1, hours: 3)),
-        endTime: now.subtract(const Duration(days: 1, hours: 1)),
-        totalAmount: 40.0,
-        status: 'completed',
-        vehicleId: 'mock_car_1',
-        vehiclePlate: 'أ ج د 5432',
-        pricePerHour: 20.0,
-        reservationId: '8214-5930',
-        level: 'Level 1',
-        spotLabel: 'Spot A-101',
-        paymentMethod: 'wallet',
-        lotName: 'Heliopolis Plaza Parking',
-        lotAddress: '15 El-Ahram St, Heliopolis, Cairo',
-      ),
-    ];
-  }
 
   /// Streams the active booking for a user (status == 'active'), limit 1.
   Stream<BookingModel?> streamActiveBooking(String uid) {
@@ -867,7 +825,6 @@ class FirestoreService {
         try {
           subscription = _notifications
               .where('userId', isEqualTo: uid)
-              .orderBy('timestamp', descending: true)
               .snapshots()
               .listen(
             (snapshot) {
@@ -875,21 +832,21 @@ class FirestoreService {
                 final list = snapshot.docs
                     .map((doc) => NotificationModel.fromFirestore(doc))
                     .toList();
-                if (list.isEmpty) {
-                  controller.add(_getMockNotifications(uid));
-                } else {
-                  controller.add(list);
-                }
+                list.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                controller.add(list);
               } catch (e) {
-                controller.add(_getMockNotifications(uid));
+                debugPrint('[FirestoreService] Error mapping streamNotifications: $e');
+                controller.add([]);
               }
             },
             onError: (error) {
-              controller.add(_getMockNotifications(uid));
+              debugPrint('[FirestoreService] streamNotifications onError: $error');
+              controller.add([]);
             },
           );
         } catch (e) {
-          controller.add(_getMockNotifications(uid));
+          debugPrint('[FirestoreService] streamNotifications onListen catch: $e');
+          controller.add([]);
         }
       },
       onCancel: () {
@@ -898,27 +855,6 @@ class FirestoreService {
     );
 
     return controller.stream;
-  }
-
-  List<NotificationModel> _getMockNotifications(String uid) {
-    return [
-      NotificationModel(
-        id: 'noti_1',
-        title: 'Booking Confirmed',
-        body: 'Your spot A-103 is reserved at Heliopolis Plaza.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
-        isRead: true,
-        type: 'booking_reminder',
-      ),
-      NotificationModel(
-        id: 'noti_2',
-        title: 'Welcome to Heliopolis Plaza',
-        body: 'Your vehicle أ ج د 5432 has entered the gate successfully.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 40)),
-        isRead: false,
-        type: 'general',
-      ),
-    ];
   }
 
   /// Marks a notification as read.
@@ -953,7 +889,6 @@ class FirestoreService {
         try {
           subscription = _reviews
               .where('parkingLotId', isEqualTo: lotId)
-              .orderBy('timestamp', descending: true)
               .snapshots()
               .listen(
             (snapshot) {
@@ -961,21 +896,21 @@ class FirestoreService {
                 final list = snapshot.docs
                     .map((doc) => ReviewModel.fromFirestore(doc))
                     .toList();
-                if (list.isEmpty) {
-                  controller.add(_getMockReviews(lotId));
-                } else {
-                  controller.add(list);
-                }
+                list.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                controller.add(list);
               } catch (e) {
-                controller.add(_getMockReviews(lotId));
+                debugPrint('[FirestoreService] Error mapping streamParkingLotReviews: $e');
+                controller.add([]);
               }
             },
             onError: (error) {
-              controller.add(_getMockReviews(lotId));
+              debugPrint('[FirestoreService] streamParkingLotReviews onError: $error');
+              controller.add([]);
             },
           );
         } catch (e) {
-          controller.add(_getMockReviews(lotId));
+          debugPrint('[FirestoreService] streamParkingLotReviews onListen catch: $e');
+          controller.add([]);
         }
       },
       onCancel: () {
@@ -984,29 +919,6 @@ class FirestoreService {
     );
 
     return controller.stream;
-  }
-
-  List<ReviewModel> _getMockReviews(String lotId) {
-    return [
-      ReviewModel(
-        id: 'rev_1',
-        userId: 'user_1',
-        userName: 'Sherif Ahmed',
-        parkingLotId: lotId,
-        rating: 5.0,
-        comment: 'Very clean parking lot with excellent EV charging facilities!',
-        timestamp: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-      ReviewModel(
-        id: 'rev_2',
-        userId: 'user_2',
-        userName: 'Mariam Ali',
-        parkingLotId: lotId,
-        rating: 4.0,
-        comment: 'Easy entry/exit system. Highly recommended.',
-        timestamp: DateTime.now().subtract(const Duration(days: 5)),
-      ),
-    ];
   }
 
   // ---------------------------------------------------------------------------
@@ -1052,7 +964,6 @@ class FirestoreService {
         try {
           subscription = _transactions
               .where('userId', isEqualTo: uid)
-              .orderBy('timestamp', descending: true)
               .snapshots()
               .listen(
             (snapshot) {
@@ -1060,21 +971,21 @@ class FirestoreService {
                 final list = snapshot.docs
                     .map((doc) => TransactionModel.fromFirestore(doc))
                     .toList();
-                if (list.isEmpty) {
-                  controller.add(_getMockTransactions(uid));
-                } else {
-                  controller.add(list);
-                }
+                list.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                controller.add(list);
               } catch (e) {
-                controller.add(_getMockTransactions(uid));
+                debugPrint('[FirestoreService] Error mapping streamUserTransactions: $e');
+                controller.add([]);
               }
             },
-            onError: (_) {
-              controller.add(_getMockTransactions(uid));
+            onError: (error) {
+              debugPrint('[FirestoreService] streamUserTransactions onError: $error');
+              controller.add([]);
             },
           );
         } catch (e) {
-          controller.add(_getMockTransactions(uid));
+          debugPrint('[FirestoreService] streamUserTransactions onListen catch: $e');
+          controller.add([]);
         }
       },
       onCancel: () {
@@ -1083,38 +994,5 @@ class FirestoreService {
     );
 
     return controller.stream;
-  }
-
-  List<TransactionModel> _getMockTransactions(String uid) {
-    final now = DateTime.now();
-    return [
-      TransactionModel(
-        id: 'tx_1',
-        bookingId: 'mock_booking_active',
-        userId: uid,
-        amount: 40.0,
-        paymentMethod: 'wallet',
-        timestamp: now.subtract(const Duration(minutes: 45)),
-        status: 'success',
-      ),
-      TransactionModel(
-        id: 'tx_2',
-        bookingId: 'mock_booking_past',
-        userId: uid,
-        amount: 40.0,
-        paymentMethod: 'wallet',
-        timestamp: now.subtract(const Duration(days: 1, hours: 3)),
-        status: 'success',
-      ),
-      TransactionModel(
-        id: 'tx_3',
-        bookingId: '',
-        userId: uid,
-        amount: 100.0,
-        paymentMethod: 'card',
-        timestamp: now.subtract(const Duration(days: 3)),
-        status: 'success',
-      ),
-    ];
   }
 }

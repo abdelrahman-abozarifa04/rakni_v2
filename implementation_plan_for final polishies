@@ -1,0 +1,612 @@
+# Rakni v2 — Production Readiness Implementation Plan
+
+**Stack:** Flutter/Dart · Firebase (Auth/Firestore/Storage/Functions) · Google Maps  
+**Package:** `com.rakniteam.rakni_v2` | **Firebase Project:** `rakni-v2`  
+**Source spec:** [final polishes.md](file:///c:/Users/ASUS/rakni_v2/final%20polishes.md)
+
+---
+
+## Global Rules (Apply to Every Change)
+
+> [!IMPORTANT]
+> Before touching any file, confirm these rules are followed:
+> - **NEVER** hardcode hex colors — always use `AppColors.X`
+> - **NEVER** use `.withOpacity()` — always `.withValues(alpha: X)`
+> - **NEVER** use `print()` — always `debugPrint()`
+> - **NEVER** recreate existing services — extend `FirestoreService.instance`, `AuthService.instance`, `FavoritesService.instance`
+> - Images = base64 data URIs in Firestore (NOT Storage URLs, unless explicit)
+> - All Firebase calls wrapped in `try/catch` with `if (mounted)` guards
+> - Use `const` constructors wherever possible
+
+---
+
+## Session 1 — Security + Foundation
+**Tasks: 1.1 → 1.2 → 1.3 → 1.4**
+
+---
+
+### TASK 1.1 — Fix Google Sign-In Web Client ID
+
+#### [MODIFY] [auth_service.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/services/auth_service.dart)
+
+- Replace the placeholder `'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com'`
+- Real client ID found in `android/app/google-services.json` under `oauth_client` with `client_type: 3`
+- iOS client ID is in `ios/Runner/GoogleService-Info.plist` key `CLIENT_ID`
+
+---
+
+### TASK 1.2 — Secure Exposed API Keys
+
+> [!CAUTION]
+> Two API keys are currently hardcoded in Dart source and visible in decompiled APKs. This must be fixed before any public release.
+
+#### [MODIFY] [license_ocr_service.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/services/license_ocr_service.dart)
+
+- Replace hardcoded `_apiKey = 'AIzaSyCDTtucqRKFNsPq4SsC6Q4PxDa7P5OER4k'` with `String.fromEnvironment('GEMINI_API_KEY', defaultValue: '')`
+
+#### [MODIFY] [map_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/map/map_screen.dart)
+
+- Replace hardcoded `_kApiKey = 'AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI'` with `String.fromEnvironment('MAPS_API_KEY', defaultValue: '')`
+
+#### [NEW] [run_dev.sh](file:///c:/Users/ASUS/rakni_v2/run_dev.sh)
+
+- Create project root script that passes both keys via `--dart-define`
+
+---
+
+### TASK 1.3 — Fix Firestore Indexes
+
+#### [MODIFY] [firestore.indexes.json](file:///c:/Users/ASUS/rakni_v2/firestore.indexes.json)
+
+Replace entire file with composite indexes for:
+- `notifications`: `userId ASC` + `timestamp DESC`
+- `reviews`: `parkingLotId ASC` + `timestamp DESC`
+- `bookings`: `userId ASC` + `startTime DESC`
+- `bookings`: `userId ASC` + `status ASC` + `startTime DESC`
+- `parkingLots`: `availableSlots DESC` + `pricePerHour ASC`
+
+**Verification:** Run `firebase deploy --only firestore:indexes`
+
+---
+
+### TASK 1.4 — Load Parking Lots from Firestore (Remove ALL Hardcoded Data)
+
+#### [NEW] [parking_lot_repository.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/repositories/parking_lot_repository.dart)
+
+Singleton repository with:
+- `streamParkingLots()` — real-time stream of all lots
+- `streamAvailableLots()` — lots with `availableSlots > 0`
+- `getLot(String lotId)` — single lot fetch
+- `streamSlots(String lotId)` — slots subcollection stream
+- `searchLots(String query)` — client-side name/address filtering
+
+#### [MODIFY] [parking_lot_model.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/models/parking_lot_model.dart)
+
+- Add `toMapData()` helper method for passing between screens without re-fetching
+
+#### [MODIFY] [home_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/home/home_screen.dart)
+
+- Replace static `_NearbyParkingCard` ListView with `StreamBuilder<List<ParkingLotModel>>` using `ParkingLotRepository.instance.streamAvailableLots()`
+- Keep all existing widget code — only change data source
+
+#### [MODIFY] [parking_search_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/home/parking_search_screen.dart)
+
+- Replace static `_parkingLots` list with `FutureBuilder` calling `ParkingLotRepository.instance.searchLots(query)`
+- Show `CircularProgressIndicator(color: AppColors.secondary)` while loading
+
+#### [MODIFY] [map_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/map/map_screen.dart)
+
+- Replace hardcoded `const List<_Garage> _garages = [...]` with `_loadGaragesFromFirestore()` using `ParkingLotRepository.instance.streamParkingLots()`
+- Call in `initState`, rebuild markers when data arrives
+
+#### [NEW] [seed_parking_lots.js](file:///c:/Users/ASUS/rakni_v2/scripts/seed_parking_lots.js)
+
+Node.js seed script that populates 5 parking lots in Firestore (Mall of Arabia, Cairo Festival City, City Stars, Point 90 Mall, Waterway), each with 10 slots subcollection entries.
+
+**Session 1 Verification:**
+- [ ] Google Sign-In works on Android device
+- [ ] No API keys visible in dart source files
+- [ ] `firebase deploy --only firestore:indexes` succeeds
+- [ ] `node scripts/seed_parking_lots.js` populates Firestore
+- [ ] Home screen shows real lot data from Firestore
+- [ ] Map screen shows markers from Firestore
+
+---
+
+## Session 2 — Booking Core
+**Tasks: 2.1 → 2.2 → 2.3 → 2.4 → 2.5 → 2.6**
+
+---
+
+### TASK 2.1 — Create `BookingService`
+
+#### [NEW] [booking_service.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/services/booking_service.dart)
+
+Singleton service with:
+- `createBooking(...)` — Firestore transaction: check slot availability → create booking doc → mark slot unavailable → decrement `availableSlots`
+- `cancelBooking(String bookingId)` — transaction: update status → free slot → increment `availableSlots`
+- `streamUserBookings(String uid)` — ordered by `startTime DESC`
+- `streamActiveBooking(String uid)` — stream of the single active booking (for home screen card)
+- `getUserBookingCount(String uid)` — uses Firestore `count()` aggregation
+
+---
+
+### TASK 2.2 — Extend `BookingModel`
+
+#### [MODIFY] [booking_model.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/models/booking_model.dart)
+
+Add fields:
+- `slotNumber` (String) — e.g. "A1", "B3"
+- `durationHours` (int)
+- `parkingLotName` (String?) — denormalized for display
+
+Add getters:
+- `isActive`, `isCompleted`, `isCancelled`
+- `formattedTotal` → `'EGP ${totalAmount.toStringAsFixed(0)}'`
+- `formattedDuration` → `'$durationHours hour(s)'`
+
+---
+
+### TASK 2.3 — Create Slot Selection Screen
+
+#### [NEW] [slot_selection_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/booking/slot_selection_screen.dart)
+
+Receives: `ParkingLotModel lot`
+
+Layout:
+- AppBar with lot name + back button
+- Top info card: available slots, price/hr, address
+- Duration selector: `-` / `+` buttons (1–24 hrs), live total price update
+- Slot grid: `GridView.builder` + `StreamBuilder` on `ParkingLotRepository.instance.streamSlots(lot.id)`
+  - Available → `AppColors.secondary` with 15% alpha background
+  - Unavailable → `AppColors.surface` + diagonal line overlay
+  - Selected → `AppColors.secondary` solid background
+  - Slot type icons: `regular` → `Icons.directions_car`, `ev` → `Icons.electric_car`, `disabled` → `Icons.accessible`
+- Bottom bar: total price + disabled "Confirm Slot" until selection made
+
+On confirm: Navigate to `BookingConfirmationScreen(lot, selectedSlot, durationHours)`
+
+---
+
+### TASK 2.4 — Create Booking Confirmation Screen
+
+#### [NEW] [booking_confirmation_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/booking/booking_confirmation_screen.dart)
+
+Receives: `ParkingLotModel lot`, `ParkingSlotModel slot`, `int durationHours`
+
+Layout:
+- AppBar: "Confirm Booking"
+- Summary card: lot name/address, slot number/type, start/end time, duration, price breakdown
+- **Total in `AppColors.secondary`** (large)
+- Payment method selector (MVP: "Rakni Wallet" as selected)
+- "Confirm & Book" ElevatedButton
+
+On confirm:
+1. Show loading spinner (use `LoadingOverlay` from Task 4.7)
+2. Call `BookingService.instance.createBooking(...)`
+3. Success → `Navigator.pushAndRemoveUntil` to `MainShell` + SnackBar "Booking confirmed! 🚗"
+4. Error → error SnackBar, stay on screen
+
+---
+
+### TASK 2.5 — Wire "Book Now" Button in `ParkingLotDetailScreen`
+
+#### [MODIFY] [parking_lot_detail_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/home/parking_lot_detail_screen.dart)
+
+- Replace SnackBar stub in `_book()` with `Navigator.push` to `SlotSelectionScreen(lot: lot)`
+- **Option A (preferred):** Add `ParkingLotModel lot` constructor param and pass through
+- **Option B (fallback):** Reconstruct `ParkingLotModel` from existing named params
+
+---
+
+### TASK 2.6 — Rewrite `BookingsScreen` with Real Data
+
+#### [MODIFY] [bookings_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/bookings/bookings_screen.dart)
+
+- Replace hardcoded booking cards with `StreamBuilder<List<BookingModel>>` from `BookingService.instance.streamUserBookings(uid)`
+- Add `_buildEmptyState()`: `Icons.local_parking_outlined` + "No bookings yet" + "Find Parking" button → `ParkingSearchScreen`
+- Wire Cancel button with confirmation dialog + `BookingService.instance.cancelBooking(id)`
+
+**Session 2 Verification:**
+- [ ] Can navigate from ParkingLotDetail → SlotSelection → BookingConfirmation
+- [ ] Booking transaction writes to Firestore correctly
+- [ ] Slot marked unavailable after booking
+- [ ] `availableSlots` decremented on lot doc
+- [ ] BookingsScreen shows real booking data
+- [ ] Cancel booking restores slot and increments `availableSlots`
+
+---
+
+## Session 3 — Real Data Everywhere
+**Tasks: 2.7 → 2.8 → 2.9 → 3.3 → 3.4**
+
+---
+
+### TASK 2.7 — Fix Active Session Card in `HomeScreen`
+
+#### [MODIFY] [home_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/home/home_screen.dart)
+
+- Replace static `_ActiveSessionCard` with `StreamBuilder<BookingModel?>` from `BookingService.instance.streamActiveBooking(uid)`
+- `_ActiveSessionCard` now accepts `BookingModel booking` and displays real data
+- Show elapsed time since `booking.startTime` using `Timer.periodic` (every minute)
+- Show `_buildNoActiveSession()` widget when no active booking
+
+---
+
+### TASK 2.8 — Fix Real Profile Stats
+
+#### [MODIFY] [profile_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/profile/profile_screen.dart)
+
+- In `_loadUser()`, also call `BookingService.instance.getUserBookingCount(uid)` and store in `_bookingCount`
+- Replace hardcoded stats:
+  - `'$_bookingCount'` for Bookings
+  - `'${(_bookingCount * 0.8).round()}'` for Total Parked
+  - `_bookingCount > 0 ? '4.8' : '—'` for Rating
+
+---
+
+### TASK 2.9 — Add QR Code to Booking Details
+
+#### [MODIFY] pubspec.yaml — add `qr_flutter: ^4.1.0`
+
+#### [MODIFY] [booking_details_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/bookings/booking_details_screen.dart)
+
+- Replace `const Icon(Icons.qr_code_2, ...)` stub with real `QrImageView`
+- Data: `'RAKNI-BOOKING-${booking.id}'`
+- Size 200, white background, error correction level M
+
+---
+
+### TASK 3.3 — Fix Favourites Navigation
+
+#### [MODIFY] [favourites_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/home/favourites_screen.dart)
+
+- `_favourites` is a `Set<String>` of lot names — needs real navigation
+- On tile tap: call `ParkingLotRepository.instance.searchLots(name)` to get the full model
+- Show loading indicator on tile while fetching
+- Navigate to `ParkingLotDetailScreen` with found model
+
+---
+
+### TASK 3.4 — Wire Filter Bottom Sheet
+
+#### [MODIFY] [filter_bottom_sheet.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/home/filter_bottom_sheet.dart)
+
+- Create `FilterConfig` model: `minPrice`, `maxPrice`, `maxDistance`, `slotTypes`
+- Change `FilterBottomSheet.show()` return type to `Future<FilterConfig?>`
+- On "Apply Filters": `Navigator.pop(context, FilterConfig(...))`
+- Wire returned `FilterConfig` in `HomeScreen._buildSearchBar()` and `ParkingSearchScreen` to filter displayed results
+
+**Session 3 Verification:**
+- [ ] Home screen active session card shows real booking data with live elapsed time
+- [ ] Profile stats reflect actual booking count
+- [ ] QR code renders correctly in booking details
+- [ ] Favourite tile navigates to correct `ParkingLotDetailScreen`
+- [ ] Filter bottom sheet returns and applies `FilterConfig`
+
+---
+
+## Session 4 — Features
+**Tasks: 3.1 → 3.2 → 3.5 → 3.6 → 3.7 → 3.8**
+
+---
+
+### TASK 3.1 — Create Notifications Screen
+
+#### [MODIFY] pubspec.yaml — add `firebase_messaging: ^15.1.3`
+
+#### [NEW] [notifications_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/notifications/notifications_screen.dart)
+
+Layout:
+- AppBar: "Notifications" + "Mark all read" TextButton
+- `StreamBuilder` on `FirestoreService.instance.streamNotifications(uid)`
+- Each notification: `ListTile` with type-based icon, title, body, relative timestamp
+- Unread: `AppColors.surface` background; read: `AppColors.background`
+- `onTap`: mark as read + navigate based on type
+- Empty state: `Icons.notifications_none`
+
+Wire to HomeScreen:
+- Replace notification bell with `Navigator.push` to `NotificationsScreen`
+- Add unread badge count via `StreamBuilder`
+
+FCM Setup in `main.dart`:
+- `FirebaseMessaging.instance.requestPermission(...)`
+- Get token → save to `FirestoreService.instance.saveUserData(uid, {'fcmToken': token})`
+- `FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler)`
+
+---
+
+### TASK 3.2 — Create Reviews System UI
+
+#### [NEW] [add_review_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/reviews/add_review_screen.dart)
+
+Receives: `String parkingLotId`, `String parkingLotName`
+
+Layout:
+- AppBar: "Rate Your Experience"
+- 5-star rating row (`Icons.star` filled/outlined)
+- Multiline comment `TextField` (5 rows max)
+- "Submit Review" ElevatedButton
+- On submit: `FirestoreService.instance.addReview(ReviewModel(...))`
+
+#### [NEW] [reviews_list_widget.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/reviews/reviews_list_widget.dart)
+
+Reusable `Column`:
+- Rating summary (average + count)
+- `StreamBuilder` on `FirestoreService.instance.streamParkingLotReviews(lotId)`
+- Each review: avatar (initials), name, stars, comment, date
+
+Wire to `ParkingLotDetailScreen`:
+- Replace fake `'4.8' / '234 reviews'` with `StreamBuilder` reading real reviews
+- Add "Reviews" section below map widget using `ReviewsListWidget`
+- Show floating "Rate" button if user has a completed booking for this lot
+
+---
+
+### TASK 3.5 — Persist Settings
+
+#### [MODIFY] [settings_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/profile/settings_screen.dart)
+
+- `_loadSettings()` in `initState` — reads all booleans/strings from `SharedPreferences`
+- Each `onChanged` callback saves immediately to `SharedPreferences`
+- Language change: wrap `MaterialApp` in `ValueNotifier<Locale>` in `main.dart`
+- Dark mode: add `ThemeData.light()` variant, switch based on setting
+
+---
+
+### TASK 3.6 — Wire Help & Support Real Actions
+
+#### [MODIFY] pubspec.yaml — add `url_launcher: ^6.3.0`
+
+#### [MODIFY] [help_support_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/profile/help_support_screen.dart)
+
+Replace SnackBar stubs with real `url_launcher` calls:
+- Live Chat → WhatsApp deep link `wa.me/+201XXXXXXXXX`
+- Email Us → `mailto:support@rakni.app`
+- Call Us → `tel:+20XXXXXXXXX`
+- Rate the App → Play Store `market://details?id=com.rakniteam.rakni_v2` / App Store URL
+
+> [!NOTE]
+> Replace the placeholder phone numbers (`XXXXXXXXX`) with the real Rakni support numbers before deploying.
+
+---
+
+### TASK 3.7 — Create Transaction History Screen
+
+#### [NEW] [transaction_history_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/transactions/transaction_history_screen.dart)
+
+Layout:
+- AppBar: "Transaction History"
+- Balance card at top from `FirestoreService.instance.getWallet(uid)`
+- `StreamBuilder` on transactions
+- Each transaction: amount, type, date, status badge
+- Filter tabs: "All" / "Bookings" / "Top-ups"
+- Empty state
+
+Add to `FirestoreService`:
+- `streamUserTransactions(String uid)` — ordered by `timestamp DESC`
+
+Wire to `ProfileScreen`:
+- Add "Transaction History" menu item between "Payment Methods" and "Settings"
+
+---
+
+### TASK 3.8 — Create Wallet Screen
+
+#### [NEW] [wallet_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/wallet/wallet_screen.dart)
+
+- Gradient card showing balance: "EGP XXX.XX"
+- "Add Money" button → `TopUpScreen`
+- Recent transactions list (last 5), link to full history
+
+#### [NEW] [top_up_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/wallet/top_up_screen.dart)
+
+- Quick amount chips: EGP 50 / 100 / 200 / 500
+- Custom amount field
+- Payment method selector (from `payment_methods_screen`)
+- "Top Up" button — MVP: updates wallet balance directly in Firestore
+
+**Session 4 Verification:**
+- [ ] FCM push notifications received on device
+- [ ] Notifications screen streams and marks read correctly
+- [ ] Review submission writes to Firestore, real reviews appear in `ParkingLotDetailScreen`
+- [ ] Settings persist across app restarts
+- [ ] Help links open correct apps (WhatsApp, mail, phone, store)
+- [ ] Transaction history lists and filters correctly
+- [ ] Wallet top-up updates Firestore balance
+
+---
+
+## Session 5 — Store Ready
+**Tasks: 4.1 → 4.2 → 4.3 → 4.4 → 4.5 → 4.6 → 4.7 → 4.8 → 4.9**
+
+---
+
+### TASK 4.1 — App Icons
+
+#### [MODIFY] pubspec.yaml — add `flutter_launcher_icons: ^0.14.1` to `dev_dependencies`
+
+Add launcher icons config:
+- `image_path: "assets/images/app_icon.png"` (1024×1024 PNG, no transparency)
+- Android adaptive icon: background `#2A2A2B`, foreground `assets/images/app_icon_foreground.png`
+- `min_sdk_android: 21`
+
+Run: `flutter pub run flutter_launcher_icons`
+
+> [!IMPORTANT]
+> Ensure `assets/images/app_icon.png` and `assets/images/app_icon_foreground.png` exist before running.
+
+---
+
+### TASK 4.2 — Create Privacy Policy & Terms Screens
+
+#### [NEW] [privacy_policy_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/legal/privacy_policy_screen.dart)
+
+- AppBar: "Privacy Policy"
+- `SingleChildScrollView` + `Markdown` or styled `Text` paragraphs
+- Last updated date
+
+#### [NEW] [terms_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/legal/terms_screen.dart)
+
+- Same structure for Terms of Service
+
+Wire to:
+- `SettingsScreen` → "Privacy Policy" + "Terms of Service" items
+- `OnboardingScreen` → small text at bottom "By continuing, you agree to our Terms & Privacy Policy"
+- `CreateAccountStep1Screen` → below the info box
+
+---
+
+### TASK 4.3 — Firebase Crashlytics + Analytics
+
+#### [MODIFY] pubspec.yaml — add `firebase_crashlytics: ^4.1.3` + `firebase_analytics: ^11.3.3`
+
+#### [MODIFY] [main.dart](file:///c:/Users/ASUS/rakni_v2/lib/main.dart)
+
+- `FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError`
+- `PlatformDispatcher.instance.onError` handler for non-Flutter errors
+- Track key analytics events: `booking_created`, `booking_cancelled`, `lot_viewed`, `search_performed`
+
+---
+
+### TASK 4.4 — Skip Car / Add Car from Profile
+
+#### [MODIFY] [add_car_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/auth/add_car_screen.dart)
+
+- Add "Skip for now" `TextButton` below the main button
+- Navigates via `Navigator.pushAndRemoveUntil` to `MainShell`
+
+---
+
+### TASK 4.5 — Duplicate Plate Number Validation
+
+#### [MODIFY] [firestore_service.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/services/firestore_service.dart)
+
+- Add `isPlateNumberTaken(String uid, String plateNumber) → Future<bool>`
+- Queries `users/{uid}/vehicles` where `plateNumber == plateNumber`, limit 1
+
+#### [MODIFY] [add_car_screen_2.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/auth/add_car_screen_2.dart)
+
+- Call `isPlateNumberTaken` before `addVehicle()`
+- Show SnackBar "This plate number is already registered" on duplicate
+
+#### [MODIFY] [my_vehicles_screen.dart](file:///c:/Users/ASUS/rakni_v2/lib/features/profile/my_vehicles_screen.dart)
+
+- Same duplicate check before saving
+
+---
+
+### TASK 4.6 — Error Handling — Global Consistency
+
+#### [NEW] [error_handler.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/utils/error_handler.dart)
+
+`AppErrorHandler` class with:
+- `static String parse(dynamic error)` — maps network/permission/not-found patterns to friendly messages
+- `static void showSnackBar(BuildContext context, dynamic error)` — floating SnackBar with `AppColors.error` background, rounded corners
+
+Replace all `_showSnackBar(e.toString())` patterns across all screens with `AppErrorHandler.showSnackBar(context, e)`.
+
+---
+
+### TASK 4.7 — Loading States Consistency
+
+#### [NEW] [loading_overlay.dart](file:///c:/Users/ASUS/rakni_v2/lib/core/widgets/loading_overlay.dart)
+
+`LoadingOverlay` stateless widget:
+- `bool isLoading` + `Widget child`
+- `Stack`: child always visible; `ColoredBox(color: Color(0x80000000))` + `CircularProgressIndicator(color: AppColors.secondary)` when loading
+
+Use in: `BookingConfirmationScreen`, `ProfileScreen` updates, and all multi-step async operations.
+
+---
+
+### TASK 4.8 — Deep Link Verification for Android
+
+#### [MODIFY] [AndroidManifest.xml](file:///c:/Users/ASUS/rakni_v2/android/app/src/main/AndroidManifest.xml)
+
+- Intent filter for `rakni-v2.firebaseapp.com` already present ✓
+- Create `public/.well-known/assetlinks.json` in Firebase Hosting
+- Verify deep links on physical device with `flutter run`
+
+---
+
+### TASK 4.9 — Performance — Image Caching
+
+#### [MODIFY] pubspec.yaml — add `cached_network_image: ^3.4.1`
+
+Replace all `Image.network(imageUrl)` usages with `CachedNetworkImage`:
+- `placeholder` → `Container(color: AppColors.surface)`
+- `errorWidget` → `Image.asset('assets/images/mall_of_arabia.png', fit: BoxFit.cover)`
+
+**Session 5 Verification:**
+- [ ] App icon appears correctly on Android (adaptive) and iOS
+- [ ] Privacy Policy / Terms screens accessible from Settings and Onboarding
+- [ ] Crashlytics receives a test crash
+- [ ] Analytics events fire in Firebase console
+- [ ] "Skip for now" bypasses car registration
+- [ ] Duplicate plate number rejected with friendly message
+- [ ] All error states use `AppErrorHandler.showSnackBar`
+- [ ] `LoadingOverlay` shown on all async operations
+- [ ] Deep links verified on physical Android device
+- [ ] Images load with shimmer placeholder and fall back to asset on error
+
+---
+
+## Complete Files to Create
+
+| File | Session | Task |
+|---|---|---|
+| `lib/core/repositories/parking_lot_repository.dart` | 1 | 1.4 |
+| `scripts/seed_parking_lots.js` | 1 | 1.4 |
+| `run_dev.sh` | 1 | 1.2 |
+| `lib/core/services/booking_service.dart` | 2 | 2.1 |
+| `lib/features/booking/slot_selection_screen.dart` | 2 | 2.3 |
+| `lib/features/booking/booking_confirmation_screen.dart` | 2 | 2.4 |
+| `lib/features/notifications/notifications_screen.dart` | 4 | 3.1 |
+| `lib/features/reviews/add_review_screen.dart` | 4 | 3.2 |
+| `lib/features/reviews/reviews_list_widget.dart` | 4 | 3.2 |
+| `lib/features/transactions/transaction_history_screen.dart` | 4 | 3.7 |
+| `lib/features/wallet/wallet_screen.dart` | 4 | 3.8 |
+| `lib/features/wallet/top_up_screen.dart` | 4 | 3.8 |
+| `lib/core/widgets/loading_overlay.dart` | 5 | 4.7 |
+| `lib/core/utils/error_handler.dart` | 5 | 4.6 |
+| `lib/features/legal/privacy_policy_screen.dart` | 5 | 4.2 |
+| `lib/features/legal/terms_screen.dart` | 5 | 4.2 |
+
+## Packages to Add
+
+```yaml
+dependencies:
+  qr_flutter: ^4.1.0              # Session 3 — Task 2.9
+  url_launcher: ^6.3.0            # Session 4 — Task 3.6
+  firebase_messaging: ^15.1.3     # Session 4 — Task 3.1
+  firebase_crashlytics: ^4.1.3    # Session 5 — Task 4.3
+  firebase_analytics: ^11.3.3     # Session 5 — Task 4.3
+  cached_network_image: ^3.4.1    # Session 5 — Task 4.9
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.1 # Session 5 — Task 4.1
+```
+
+## Firestore Security Rules Updates
+
+Add inside the main `match` block in `firestore.rules`:
+- `bookings/{bookingId}` — read/create/cancel-update by owner only
+- `parkingLots/{lotId}` — read by auth users; write via Cloud Functions only
+- `parkingLots/{lotId}/slots/{slotId}` — read by auth users; write via transaction only
+- `reviews/{reviewId}` — read by auth; create by owner
+- `transactions/{txId}` — read by owner; write via Cloud Functions only
+- `wallets/{userId}` — read by owner; write via Cloud Functions only
+- `notifications/{notifId}` — read by owner; update only `isRead` field
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> Please confirm before Session 4 execution:
+> 1. **Help & Support phone numbers** — what are the real Rakni support WhatsApp/call numbers to replace `+201XXXXXXXXX` / `+20XXXXXXXXX`?
+> 2. **App Store ID** — the `appleId` for `Rate the App` link (`idXXXXXXXXX`) — is the iOS app published yet?
+> 3. **App icon assets** — are `app_icon.png` (1024×1024) and `app_icon_foreground.png` present in `assets/images/`?
+
+> [!NOTE]
+> **Task 2.5 preference:** Option A (add `ParkingLotModel lot` param to `ParkingLotDetailScreen`) is recommended over Option B. Confirm before Session 2 execution.
