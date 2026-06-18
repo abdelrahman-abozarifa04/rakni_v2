@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/create_account_step2_screen.dart';
 import 'package:rakni_v2/features/legal/privacy_policy_screen.dart';
@@ -96,12 +96,12 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
         leadingWidth: 100,
         leading: TextButton.icon(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
             color: AppColors.textSecondary,
             size: 20,
           ),
-          label: const Text(
+          label: Text(
             'Back',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -124,8 +124,8 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Create Account',
                       style: TextStyle(
                         color: AppColors.white,
@@ -133,15 +133,15 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'Step 1 of 3',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -153,7 +153,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Container(
                             height: 4,
@@ -163,7 +163,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Container(
                             height: 4,
@@ -175,8 +175,8 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 40),
-                    const Text(
+                    SizedBox(height: 40),
+                    Text(
                       'Full Name',
                       style: TextStyle(
                         color: AppColors.white,
@@ -184,18 +184,18 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _nameController,
                       hintText: 'Enter your full name',
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.person_outline,
                         color: AppColors.hintColor,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
+                    SizedBox(height: 20),
+                    Text(
                       'Email',
                       style: TextStyle(
                         color: AppColors.white,
@@ -203,19 +203,19 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _emailController,
                       hintText: 'Enter your email',
                       keyboardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.mail_outline,
                         color: AppColors.hintColor,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
+                    SizedBox(height: 20),
+                    Text(
                       'Create Password',
                       style: TextStyle(
                         color: AppColors.white,
@@ -223,12 +223,12 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _passwordController,
                       hintText: 'Create a password',
                       obscureText: _obscurePassword,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.lock_outline,
                         color: AppColors.hintColor,
                         size: 20,
@@ -246,8 +246,8 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
+                    SizedBox(height: 20),
+                    Text(
                       'Confirm Password',
                       style: TextStyle(
                         color: AppColors.white,
@@ -255,12 +255,12 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _confirmPasswordController,
                       hintText: 'Confirm password',
                       obscureText: _obscureConfirmPassword,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.lock_outline,
                         color: AppColors.hintColor,
                         size: 20,
@@ -279,7 +279,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -289,12 +289,12 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.info_outline,
                             color: AppColors.secondary,
                             size: 18,
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               'A verification link will be sent to your email.',
@@ -308,12 +308,12 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     // Terms & Privacy notice
                     Wrap(
                       alignment: WrapAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'By registering, you agree to our ',
                           style: TextStyle(
                             color: AppColors.textSecondary,
@@ -327,7 +327,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                               builder: (_) => const TermsScreen(),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Terms of Service',
                             style: TextStyle(
                               color: AppColors.secondary,
@@ -336,7 +336,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                             ),
                           ),
                         ),
-                        const Text(
+                        Text(
                           ' and ',
                           style: TextStyle(
                             color: AppColors.textSecondary,
@@ -350,7 +350,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                               builder: (_) => const PrivacyPolicyScreen(),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Privacy Policy',
                             style: TextStyle(
                               color: AppColors.secondary,
@@ -361,7 +361,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -372,7 +372,7 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
                 onPressed: _goToStep2,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.primary,
+                  foregroundColor: AppColors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -414,10 +414,10 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.white, fontSize: 14),
+      style: TextStyle(color: AppColors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: AppColors.hintColor, fontSize: 14),
+        hintStyle: TextStyle(color: AppColors.hintColor, fontSize: 14),
         filled: true,
         fillColor: AppColors.fieldColor,
         prefixIcon: prefixIcon,
@@ -428,15 +428,15 @@ class _CreateAccountStep1ScreenState extends State<CreateAccountStep1Screen> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1),
+          borderSide: BorderSide(color: AppColors.fieldStroke, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1),
+          borderSide: BorderSide(color: AppColors.fieldStroke, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1),
+          borderSide: BorderSide(color: AppColors.secondary, width: 1),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
@@ -150,15 +150,15 @@ class _BookingSpotSelectionScreenState
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: AppColors.white,
               size: 20,
             ),
             onPressed: () => Navigator.pop(context),
           ),
-          const SizedBox(width: 6),
-          const Expanded(
+          SizedBox(width: 6),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -182,7 +182,7 @@ class _BookingSpotSelectionScreenState
             ),
           ),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.refresh_rounded,
               color: AppColors.secondary,
               size: 24,
@@ -204,15 +204,15 @@ class _BookingSpotSelectionScreenState
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.green,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(
             _loading ? 'Updating...' : 'Live - Updated ${secondsAgo}s ago',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),
@@ -221,7 +221,7 @@ class _BookingSpotSelectionScreenState
           if (_slots.isNotEmpty)
             Text(
               '${_slots.where((s) => s.isAvailable).length}/${_slots.length} available',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.secondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -245,24 +245,24 @@ class _BookingSpotSelectionScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.wifi_off_rounded,
                 color: AppColors.error,
                 size: 48,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 _error!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: AppColors.textSecondary),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => _fetchSlots(showLoading: true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                 ),
-                child: const Text(
+                child: Text(
                   'Retry',
                   style: TextStyle(color: Colors.black),
                 ),
@@ -273,7 +273,7 @@ class _BookingSpotSelectionScreenState
       );
     }
     if (_slots.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No parking slots reported by the system yet.',
           style: TextStyle(color: AppColors.textSecondary),
@@ -308,7 +308,7 @@ class _BookingSpotSelectionScreenState
             ),
             child: Row(
               children: [
-                const Text(
+                Text(
                   'Selected Spot',
                   style: TextStyle(
                     color: AppColors.white,
@@ -320,15 +320,15 @@ class _BookingSpotSelectionScreenState
                 if (_selectedSlot!.level.isNotEmpty)
                   Text(
                     _selectedSlot!.level,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 11,
                     ),
                   ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text(
                   _selectedSlot!.slotNumber,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.secondary,
                     fontWeight: FontWeight.w800,
                     fontSize: 20,
@@ -337,7 +337,7 @@ class _BookingSpotSelectionScreenState
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           SizedBox(
             height: 48,
             width: double.infinity,
@@ -352,7 +352,7 @@ class _BookingSpotSelectionScreenState
                 elevation: 0,
               ),
               child: _confirming
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 22,
                       width: 22,
                       child: CircularProgressIndicator(
@@ -360,7 +360,7 @@ class _BookingSpotSelectionScreenState
                         color: Colors.black,
                       ),
                     )
-                  : const Text(
+                  : Text(
                       'Done',
                       style: TextStyle(
                         fontSize: 15,

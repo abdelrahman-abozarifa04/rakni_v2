@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
@@ -161,26 +160,26 @@ class _FinalPaymentDetailsScreenState
               Container(
                 width: 72,
                 height: 72,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.secondary,
                 ),
-                child: const Icon(Icons.check_rounded,
+                child: Icon(Icons.check_rounded,
                     color: Colors.black, size: 40),
               ),
-              const SizedBox(height: 18),
-              const Text('Payment Successful!',
+              SizedBox(height: 18),
+              Text('Payment Successful!',
                   style: TextStyle(
                       color: AppColors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 'EGP ${_total.toStringAsFixed(2)} paid successfully',
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textSecondary, fontSize: 14),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => Navigator.pushNamedAndRemoveUntil(
                     context, '/', (r) => false),
@@ -192,7 +191,7 @@ class _FinalPaymentDetailsScreenState
                       borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
-                child: const Text('Back to Home',
+                child: Text('Back to Home',
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
@@ -217,10 +216,10 @@ class _FinalPaymentDetailsScreenState
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Payment Details',
           style: TextStyle(
               color: AppColors.white,
@@ -238,26 +237,26 @@ class _FinalPaymentDetailsScreenState
               children: [
                 // Plate recognition banner
                 _buildPlateBanner(),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 // Session summary
                 _buildSectionTitle('Session Summary'),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 _buildSessionSummary(),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 // Payment method
                 _buildSectionTitle('Payment Method'),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 _buildPaymentOption('wallet',
                     Icons.account_balance_wallet_outlined,
                     'Digital Wallet',
                     'Balance: EGP ${_walletBalance.toStringAsFixed(2)}'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildPaymentOption('visa', Icons.credit_card_outlined,
                     'Visa / Mastercard', 'Pay with card'),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 // Pricing breakdown
                 _buildSectionTitle('Pricing Breakdown'),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 _buildPricingBreakdown(),
               ],
             ),
@@ -282,7 +281,7 @@ class _FinalPaymentDetailsScreenState
                     elevation: 0,
                   ),
                   child: _paying
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 22,
                           width: 22,
                           child: CircularProgressIndicator(
@@ -290,7 +289,7 @@ class _FinalPaymentDetailsScreenState
                         )
                       : Text(
                           'Pay EGP ${_total.toStringAsFixed(2)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -304,7 +303,7 @@ class _FinalPaymentDetailsScreenState
 
   Widget _buildSectionTitle(String title) {
     return Text(title,
-        style: const TextStyle(
+        style: TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.w600,
             fontSize: 14));
@@ -337,26 +336,26 @@ class _FinalPaymentDetailsScreenState
             ),
             child: Text(
               widget.vehicle.plateNumber,
-              style: const TextStyle(
+              style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                   letterSpacing: 3),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${widget.vehicle.brand} ${widget.vehicle.model}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 14),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 const Row(
                   children: [
                     Icon(Icons.check_circle,
@@ -419,15 +418,15 @@ class _FinalPaymentDetailsScreenState
                   children: [
                     Icon(row.icon,
                         color: AppColors.secondary, size: 17),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(row.label,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 13)),
                     ),
                     Text(row.value,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 13)),
@@ -435,7 +434,7 @@ class _FinalPaymentDetailsScreenState
                 ),
               ),
               if (i < rows.length - 1)
-                const Divider(
+                Divider(
                     color: AppColors.fieldStroke,
                     height: 1,
                     indent: 16,
@@ -472,7 +471,7 @@ class _FinalPaymentDetailsScreenState
                     ? AppColors.secondary
                     : AppColors.textSecondary,
                 size: 20),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,7 +484,7 @@ class _FinalPaymentDetailsScreenState
                           fontWeight: FontWeight.w600,
                           fontSize: 13)),
                   Text(sub,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.hintColor, fontSize: 11)),
                 ],
               ),
@@ -503,7 +502,7 @@ class _FinalPaymentDetailsScreenState
                 color: isSelected ? AppColors.secondary : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 10, color: Colors.black)
+                  ? Icon(Icons.check, size: 10, color: Colors.black)
                   : null,
             ),
           ],
@@ -526,15 +525,15 @@ class _FinalPaymentDetailsScreenState
               'EGP ${widget.totalCost.toStringAsFixed(2)}',
               AppColors.textSecondary),
           if (_overstayFee > 0) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _priceRow('Overstay Fee (1.5x)',
                 'EGP ${_overstayFee.toStringAsFixed(2)}', Colors.orange),
           ],
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           _priceRow('Service Fee',
               'EGP ${_serviceFee.toStringAsFixed(2)}',
               AppColors.textSecondary),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: AppColors.fieldStroke, height: 1),
           ),

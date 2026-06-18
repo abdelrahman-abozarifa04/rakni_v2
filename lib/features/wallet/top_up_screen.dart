@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -113,10 +113,10 @@ class _TopUpScreenState extends State<TopUpScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Add Money',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
@@ -135,13 +135,13 @@ class _TopUpScreenState extends State<TopUpScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.account_balance_wallet_outlined,
                     color: AppColors.secondary,
                     size: 22,
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
+                  SizedBox(width: 10),
+                  Text(
                     'Current Balance: ',
                     style: TextStyle(
                       color: AppColors.textSecondary,
@@ -150,7 +150,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                   ),
                   Text(
                     'EGP ${_currentBalance.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -159,10 +159,10 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             // Quick amounts
-            const Text(
+            Text(
               'Quick Amount',
               style: TextStyle(
                 color: AppColors.white,
@@ -170,7 +170,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Wrap(
               spacing: 12,
               runSpacing: 12,
@@ -212,10 +212,10 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             // Custom amount
-            const Text(
+            Text(
               'Custom Amount',
               style: TextStyle(
                 color: AppColors.white,
@@ -223,16 +223,16 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: _customCtrl,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(color: AppColors.white, fontSize: 16),
+              style: TextStyle(color: AppColors.white, fontSize: 16),
               decoration: InputDecoration(
                 hintText: 'Enter amount (EGP)',
-                hintStyle: const TextStyle(color: AppColors.hintColor),
-                prefixIcon: const Padding(
+                hintStyle: TextStyle(color: AppColors.hintColor),
+                prefixIcon: Padding(
                   padding: EdgeInsets.only(left: 16, top: 14, bottom: 14),
                   child: Text(
                     'EGP',
@@ -247,19 +247,19 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 fillColor: AppColors.surface,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: AppColors.fieldStroke),
+                  borderSide: BorderSide(color: AppColors.fieldStroke),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide:
-                      const BorderSide(color: AppColors.secondary, width: 1.5),
+                      BorderSide(color: AppColors.secondary, width: 1.5),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             // Payment method
-            const Text(
+            Text(
               'Payment Method',
               style: TextStyle(
                 color: AppColors.white,
@@ -267,7 +267,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             ..._methods.map((method) {
               final isSelected = _selectedMethod == method['id'];
               return GestureDetector(
@@ -294,7 +294,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                             : AppColors.textSecondary,
                         size: 22,
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           method['label'] as String,
@@ -310,7 +310,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                         ),
                       ),
                       if (isSelected)
-                        const Icon(
+                        Icon(
                           Icons.check_circle_rounded,
                           color: AppColors.secondary,
                           size: 20,
@@ -320,7 +320,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 ),
               );
             }),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             // Top Up button
             if (_amountToAdd > 0) ...[
@@ -334,7 +334,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'You will add:',
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -343,7 +343,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                     ),
                     Text(
                       'EGP ${_amountToAdd.toStringAsFixed(0)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.secondary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -352,7 +352,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
             ],
             SizedBox(
               width: double.infinity,
@@ -369,7 +369,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                   ),
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 22,
                         width: 22,
                         child: CircularProgressIndicator(
@@ -377,7 +377,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                           color: AppColors.black,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Top Up',
                         style: TextStyle(
                           fontSize: 16,
@@ -386,7 +386,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                       ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
           ],
         ),
       ),

@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
@@ -60,7 +60,7 @@ class ParkingSpotMap extends StatelessWidget {
                               onSlotTap: onSlotTap,
                             ),
                           ),
-                          if (row != rows - 1) const SizedBox(height: 12),
+                          if (row != rows - 1) SizedBox(height: 12),
                         ],
                       ],
                     ),
@@ -113,7 +113,7 @@ class _ParkingMapRow extends StatelessWidget {
           child: Row(
             children: [
               Expanded(child: _slotAt(row * 4)),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(child: _slotAt(row * 4 + 1)),
             ],
           ),
@@ -131,7 +131,7 @@ class _ParkingMapRow extends StatelessWidget {
           child: Row(
             children: [
               Expanded(child: _slotAt(row * 4 + 2)),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(child: _slotAt(row * 4 + 3)),
             ],
           ),
@@ -200,7 +200,7 @@ class _SlotBay extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.secondary : const Color(0xFF3F454C),
+            color: isSelected ? AppColors.secondary : Color(0xFF3F454C),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: isSelected

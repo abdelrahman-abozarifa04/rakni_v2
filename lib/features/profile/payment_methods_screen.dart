@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
   const PaymentMethodsScreen({super.key});
@@ -35,7 +36,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => Padding(
@@ -59,8 +60,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            const Text(
+            SizedBox(height: 20),
+            Text(
               'Add New Card',
               style: TextStyle(
                 color: AppColors.white,
@@ -68,16 +69,16 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _sheetField(nameCtrl, 'Cardholder Name', Icons.person_outline),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _sheetField(
               numberCtrl,
               'Card Number',
               Icons.credit_card_outlined,
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -88,7 +89,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: _sheetField(
                     cvvCtrl,
@@ -99,13 +100,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
+                  backgroundColor: AppColors.accent,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -114,13 +115,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 onPressed: () {
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Text('Card added successfully!'),
-                      backgroundColor: AppColors.secondary,
+                      backgroundColor: AppColors.accent,
                     ),
                   );
                 },
-                child: const Text(
+                child: Text(
                   'Add Card',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
@@ -141,20 +142,20 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.white, fontSize: 15),
+      style: TextStyle(color: AppColors.white, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        labelStyle: TextStyle(color: AppColors.textSecondary),
         prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 20),
         filled: true,
         fillColor: AppColors.background,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke),
+          borderSide: BorderSide(color: AppColors.fieldStroke),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.accent, width: 1.5),
         ),
       ),
     );
@@ -180,22 +181,22 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Payment Methods',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.add_circle_outline,
-              color: AppColors.secondary,
+              color: AppColors.accent,
               size: 26,
             ),
             onPressed: _showAddCardSheet,
@@ -214,17 +215,32 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: m.isDefault
-                    ? const LinearGradient(
-                        colors: [Color(0xFF2A2A2B), Color(0xFF3D3F3F)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
+                    ? (ThemeService.instance.isDark
+                        ? const LinearGradient(
+                            colors: [Color(0xFF2A2A2B), Color(0xFF3D3F3F)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : LinearGradient(
+                            colors: [AppColors.surface, const Color(0xFFF2F3F5)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ))
                     : null,
                 color: m.isDefault ? null : AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: m.isDefault
-                    ? Border.all(color: AppColors.secondary, width: 1.5)
+                    ? Border.all(color: AppColors.accent, width: 1.5)
                     : null,
+                boxShadow: ThemeService.instance.isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: m.isDefault ? 0.06 : 0.03),
+                          blurRadius: m.isDefault ? 12 : 8,
+                          offset: Offset(0, m.isDefault ? 4 : 2),
+                        ),
+                      ],
               ),
               child: Row(
                 children: [
@@ -232,35 +248,35 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: m.isDefault
-                          ? AppColors.secondary.withAlpha(26)
+                          ? AppColors.accent.withAlpha(26)
                           : AppColors.background,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       _cardIcon(m.type),
                       color: m.isDefault
-                          ? AppColors.secondary
+                          ? AppColors.accent
                           : AppColors.textSecondary,
                       size: 26,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '${m.type} •••• ${m.last4}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           'Expires ${m.expiry}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
                           ),
@@ -277,13 +293,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary.withAlpha(26),
+                            color: AppColors.accent.withAlpha(26),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Default',
                             style: TextStyle(
-                              color: AppColors.secondary,
+                              color: AppColors.accent,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
@@ -303,16 +319,16 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                               }
                             });
                           },
-                          child: const Text(
+                          child: Text(
                             'Set Default',
                             style: TextStyle(
-                              color: AppColors.secondary,
+                              color: AppColors.accent,
                               fontSize: 12,
                             ),
                           ),
                         ),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.delete_outline,
                           color: AppColors.error,
                           size: 20,
@@ -327,16 +343,16 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
               ),
             );
           }),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _showAddCardSheet,
-            icon: const Icon(Icons.add, color: AppColors.secondary),
-            label: const Text(
+            icon: Icon(Icons.add, color: AppColors.accent),
+            label: Text(
               'Add New Card',
-              style: TextStyle(color: AppColors.secondary),
+              style: TextStyle(color: AppColors.accent),
             ),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.secondary),
+              side: BorderSide(color: AppColors.accent),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -344,8 +360,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             ),
           ),
 
-          const SizedBox(height: 32),
-          const Text(
+          SizedBox(height: 32),
+          Text(
             'Other Payment Options',
             style: TextStyle(
               color: AppColors.white,
@@ -353,15 +369,15 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildOtherOption(
             Icons.account_balance_wallet_outlined,
             'Rakni Wallet',
             'EGP 0.00',
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildOtherOption(Icons.apple, 'Apple Pay', 'Connect your Apple Pay'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildOtherOption(
             Icons.g_mobiledata_outlined,
             'Google Pay',
@@ -389,14 +405,14 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             ),
             child: Icon(icon, color: AppColors.textSecondary, size: 24),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -404,7 +420,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                   ),
@@ -412,7 +428,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.arrow_forward_ios,
             color: AppColors.textSecondary,
             size: 14,

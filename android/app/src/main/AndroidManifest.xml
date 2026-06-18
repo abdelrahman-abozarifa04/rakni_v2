@@ -42,6 +42,10 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
+
             <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI"/>
     </application>

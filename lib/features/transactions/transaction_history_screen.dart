@@ -53,7 +53,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   Widget build(BuildContext context) {
     final uid = _uid;
     if (uid == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
           child: Text(
@@ -71,10 +71,10 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Transaction History',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
@@ -108,29 +108,29 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                         color: AppColors.secondary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.account_balance_wallet_outlined,
                         color: AppColors.secondary,
                         size: 26,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Rakni Wallet',
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           snap.connectionState == ConnectionState.waiting
                               ? 'Loading...'
                               : 'EGP ${balance.toStringAsFixed(2)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => SizedBox(height: 10),
                   itemBuilder: (context, i) {
                     final tx = filtered[i];
                     return _TransactionTile(
@@ -226,13 +226,13 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.receipt_long_outlined,
             size: 60,
             color: AppColors.textSecondary,
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'No transactions yet',
             style: TextStyle(
               color: AppColors.white,
@@ -240,10 +240,10 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Your ${_filterTab.toLowerCase()} transactions will appear here.',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
             ),
@@ -305,23 +305,23 @@ class _TransactionTile extends StatelessWidget {
             ),
             child: Icon(icon, color: statusColor, size: 22),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   _typeLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Text(
                   '$_paymentLabel · $relativeTime',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -342,7 +342,7 @@ class _TransactionTile extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: 3),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(

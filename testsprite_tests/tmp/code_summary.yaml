@@ -1,0 +1,228 @@
+version: "2"
+type: frontend
+tech_stack:
+  - Dart
+  - Flutter
+  - Material Design 3
+  - Firebase Auth
+  - Cloud Firestore
+  - Google Maps Flutter
+  - Firebase Cloud Functions
+routes:
+  - path: /
+    file: lib/core/services/auth_gate.dart
+    auth_required: false
+    description: Root auth gate that routes to splash, sign-in, profile completion, or main shell
+  - path: /sign-in
+    file: lib/features/auth/sign_in_screen.dart
+    auth_required: false
+    description: Email/password and Google sign-in
+  - path: /create-account
+    file: lib/features/auth/create_account_step1_screen.dart
+    auth_required: false
+    description: Multi-step account registration flow
+  - path: /reset-password
+    file: lib/features/auth/reset_password_screen.dart
+    auth_required: false
+    description: Password reset via OTP or email link
+  - path: /home
+    file: lib/features/home/home_screen.dart
+    auth_required: true
+    description: Home tab with parking search, nearby lots, and active session banner
+  - path: /map
+    file: lib/features/map/map_screen.dart
+    auth_required: true
+    description: Map view of parking lots
+  - path: /bookings
+    file: lib/features/bookings/bookings_screen.dart
+    auth_required: true
+    description: User booking history and active reservations
+  - path: /vehicles
+    file: lib/features/profile/my_vehicles_screen.dart
+    auth_required: true
+    description: Manage registered vehicles
+  - path: /profile
+    file: lib/features/profile/profile_screen.dart
+    auth_required: true
+    description: User profile, settings, wallet, and support links
+  - path: /parking-search
+    file: lib/features/home/parking_search_screen.dart
+    auth_required: true
+    description: Search and filter parking lots
+  - path: /parking-lot-detail
+    file: lib/features/home/parking_lot_detail_screen.dart
+    auth_required: true
+    description: Parking lot details, reviews, and book action
+  - path: /booking-details
+    file: lib/features/booking/booking_details_screen.dart
+    auth_required: true
+    description: Configure booking time, vehicle, and spot selection
+  - path: /active-session
+    file: lib/features/booking/active_session_screen.dart
+    auth_required: true
+    description: Live parking session with extend and exit options
+  - path: /wallet
+    file: lib/features/wallet/wallet_screen.dart
+    auth_required: true
+    description: Wallet balance and top-up
+  - path: /notifications
+    file: lib/features/notifications/notifications_screen.dart
+    auth_required: true
+    description: In-app notifications list
+features:
+  - name: User Sign In
+    description: Authenticate with email/password or Google OAuth via Firebase Auth
+    files:
+      - lib/features/auth/sign_in_screen.dart
+      - lib/core/services/auth_service.dart
+      - lib/core/services/auth_gate.dart
+    entry_route: /sign-in
+    user_interactions:
+      - Enter email address
+      - Enter password
+      - Tap Sign In button
+      - Tap Continue with Google button
+      - Tap Forgot Password link
+      - Tap Create Account link
+      - See error snackbar on invalid credentials
+    api_calls:
+      - method: POST
+        endpoint: Firebase Auth signInWithEmailAndPassword
+      - method: POST
+        endpoint: Firebase Auth Google sign-in
+    auth_required: false
+  - name: Account Registration
+    description: Create a new Rakni account with profile and vehicle setup
+    files:
+      - lib/features/auth/create_account_step1_screen.dart
+      - lib/features/auth/create_account_step2_screen.dart
+      - lib/features/auth/create_account_step3_screen.dart
+      - lib/features/auth/add_car_screen.dart
+    entry_route: /create-account
+    user_interactions:
+      - Fill name, email, and password fields
+      - Verify OTP code
+      - Complete profile details
+      - Add vehicle information
+      - Submit registration
+    api_calls:
+      - method: POST
+        endpoint: Firebase Auth createUserWithEmailAndPassword
+      - method: POST
+        endpoint: Cloud Function sendVerificationOTP
+      - method: POST
+        endpoint: Cloud Function verifyOTP
+    auth_required: false
+  - name: Home and Parking Discovery
+    description: Browse nearby parking lots, search, filter, and view favourites
+    files:
+      - lib/features/home/home_screen.dart
+      - lib/features/home/parking_search_screen.dart
+      - lib/features/home/parking_lot_detail_screen.dart
+      - lib/features/home/favourites_screen.dart
+      - lib/core/repositories/parking_lot_repository.dart
+    entry_route: /home
+    user_interactions:
+      - View current location header
+      - Tap search bar to find parking
+      - Apply filters for price and availability
+      - Tap parking lot card to view details
+      - Add lot to favourites
+      - Tap Book Now on lot detail screen
+    api_calls:
+      - method: GET
+        endpoint: Firestore parking_lots collection
+      - method: GET
+        endpoint: Browser Geolocation API
+    auth_required: true
+  - name: Parking Booking Flow
+    description: Reserve a parking spot, confirm booking, and navigate to the lot
+    files:
+      - lib/features/booking/booking_details_screen.dart
+      - lib/features/booking/booking_spot_selection_screen.dart
+      - lib/features/booking/booking_confirmed_screen.dart
+      - lib/features/booking/outdoor_navigation_screen.dart
+      - lib/core/services/booking_service.dart
+    entry_route: /booking-details
+    user_interactions:
+      - Select date and time range
+      - Choose vehicle
+      - Select parking spot on map
+      - Confirm booking and payment
+      - View booking confirmation
+      - Start navigation to parking lot
+    api_calls:
+      - method: POST
+        endpoint: Firestore bookings collection
+      - method: POST
+        endpoint: Parking hardware API via booking_service
+    auth_required: true
+  - name: Active Parking Session
+    description: Manage an ongoing parking session including extend and gate scan
+    files:
+      - lib/features/booking/active_session_screen.dart
+      - lib/features/booking/extend_session_bottom_sheet.dart
+      - lib/features/booking/gate_entry_scan_screen.dart
+      - lib/features/booking/gate_exit_scan_screen.dart
+    entry_route: /active-session
+    user_interactions:
+      - View session timer and spot details
+      - Extend parking duration
+      - Scan QR code at gate entry
+      - Scan QR code at gate exit
+      - End session and view final payment
+    api_calls:
+      - method: PATCH
+        endpoint: Firestore bookings document update
+      - method: POST
+        endpoint: Parking hardware API gate validation
+    auth_required: true
+  - name: Wallet and Payments
+    description: View wallet balance, top up funds, and review transaction history
+    files:
+      - lib/features/wallet/wallet_screen.dart
+      - lib/features/wallet/top_up_screen.dart
+      - lib/features/transactions/transaction_history_screen.dart
+    entry_route: /wallet
+    user_interactions:
+      - View current wallet balance
+      - Tap Top Up to add funds
+      - Select top-up amount
+      - View transaction history
+    api_calls:
+      - method: GET
+        endpoint: Firestore users wallet balance
+      - method: POST
+        endpoint: Firestore wallet_transactions collection
+    auth_required: true
+  - name: Profile and Settings
+    description: Manage personal details, vehicles, payment methods, and app settings
+    files:
+      - lib/features/profile/profile_screen.dart
+      - lib/features/profile/personal_details_screen.dart
+      - lib/features/profile/settings_screen.dart
+      - lib/features/profile/my_vehicles_screen.dart
+    entry_route: /profile
+    user_interactions:
+      - View profile summary
+      - Edit personal details
+      - Manage vehicles
+      - Open wallet and notifications
+      - Sign out from settings
+      - View terms and privacy policy
+    api_calls:
+      - method: GET
+        endpoint: Firestore users collection
+      - method: PATCH
+        endpoint: Firestore users document update
+    auth_required: true
+known_limitations:
+  - issue: Google Maps and geolocation require browser permissions and may behave differently on Flutter web vs mobile
+    location: lib/features/map/map_screen.dart
+    impact: Map tab and outdoor navigation may show limited functionality in web test environment
+  - issue: QR gate scan screens depend on device camera APIs not fully available in all browsers
+    location: lib/features/booking/gate_entry_scan_screen.dart
+    impact: Gate entry/exit scan flows may not be testable in headless web automation
+  - issue: Firebase Auth Google sign-in popup flow may be blocked or differ on localhost web builds
+    location: lib/features/auth/sign_in_screen.dart
+    impact: Google OAuth tests may fail without proper authorized domains configured

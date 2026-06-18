@@ -1,0 +1,324 @@
+﻿
+   info - Use the null-aware operator '?.' rather than an explicit 'null' comparison - lib\core\models\booking_model.dart:142:7 - prefer_null_aware_operators
+   info - Unnecessary braces in a string interpolation - lib\core\services\parking_hardware_api_service.dart:95:37 - unnecessary_brace_in_string_interps
+   info - Unnecessary braces in a string interpolation - lib\core\services\parking_hardware_api_service.dart:124:37 - unnecessary_brace_in_string_interps
+  error - Invalid constant value - lib\core\utils\error_handler.dart:106:59 - invalid_constant
+  error - Invalid constant value - lib\core\utils\error_handler.dart:112:26 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen.dart:44:24 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen.dart:86:36 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen.dart:113:26 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen_2.dart:164:41 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen_2.dart:214:34 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen_2.dart:256:43 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen_2.dart:265:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\add_car_screen_2.dart:269:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:101:20 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:107:22 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:140:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:193:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:213:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:233:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:265:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:319:36 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:342:36 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:420:43 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:431:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step1_screen.dart:435:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step2_screen.dart:220:20 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step2_screen.dart:225:37 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step2_screen.dart:255:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step2_screen.dart:354:40 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step2_screen.dart:372:38 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:264:20 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:270:22 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:303:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:373:46 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:409:44 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:445:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:461:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:476:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:503:34 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:509:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:533:36 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:540:36 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:564:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:580:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:612:34 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:642:43 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:652:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:656:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\new_password_screen.dart:90:67 - invalid_constant
+  error - Invalid constant value - lib\features\auth\new_password_screen.dart:103:92 - invalid_constant
+  error - Invalid constant value - lib\features\auth\new_password_screen.dart:137:63 - invalid_constant
+  error - Invalid constant value - lib\features\auth\new_password_screen.dart:139:59 - invalid_constant
+  error - Invalid constant value - lib\features\auth\new_password_screen.dart:145:113 - invalid_constant
+  error - Invalid constant value - lib\features\auth\new_password_screen.dart:146:120 - invalid_constant
+  error - Invalid constant value - lib\features\auth\reset_password_screen.dart:70:20 - invalid_constant
+  error - Invalid constant value - lib\features\auth\reset_password_screen.dart:76:22 - invalid_constant
+  error - Invalid constant value - lib\features\auth\reset_password_screen.dart:108:28 - invalid_constant
+  error - Invalid constant value - lib\features\auth\reset_password_screen.dart:139:30 - invalid_constant
+  error - Arguments of a constant creation must be constant expressions - lib\features\auth\reset_password_screen.dart:149:27 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\auth\reset_password_screen.dart:161:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\reset_password_screen.dart:168:32 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:97:20 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:133:26 - invalid_constant
+  error - Arguments of a constant creation must be constant expressions - lib\features\auth\sign_in_screen.dart:157:57 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:177:67 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:205:45 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:236:56 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:244:56 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:254:49 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:286:45 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:329:43 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:337:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\sign_in_screen.dart:341:47 - invalid_constant
+  error - Invalid constant value - lib\features\auth\verification_code_screen.dart:143:22 - invalid_constant
+  error - Invalid constant value - lib\features\auth\verification_code_screen.dart:146:26 - invalid_constant
+  error - Invalid constant value - lib\features\auth\verification_code_screen.dart:170:30 - invalid_constant
+  error - Invalid constant value - lib\features\auth\verification_code_screen.dart:221:40 - invalid_constant
+  error - Invalid constant value - lib\features\auth\verification_code_screen.dart:225:40 - invalid_constant
+  error - Invalid constant value - lib\features\auth\verification_code_screen.dart:266:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\active_session_screen.dart:185:53 - invalid_constant
+  error - Invalid constant value - lib\features\booking\active_session_screen.dart:285:36 - invalid_constant
+  error - Invalid constant value - lib\features\booking\active_session_screen.dart:369:24 - invalid_constant
+  error - Invalid constant value - lib\features\booking\active_session_screen.dart:426:28 - invalid_constant
+  error - Invalid constant value - lib\features\booking\active_session_screen.dart:450:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_confirmed_screen.dart:163:51 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_confirmed_screen.dart:306:26 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_confirmed_screen.dart:311:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_confirmed_screen.dart:368:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_confirmed_screen.dart:423:32 - invalid_constant
+warning - The declaration '_formatTimeDisplay' isn't referenced - lib\features\booking\booking_details_screen.dart:97:10 - unused_element
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:110:22 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:129:22 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:269:53 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:406:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:427:36 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:448:54 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:467:60 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:522:24 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:575:43 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:635:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:731:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:767:49 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:774:53 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:778:53 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:851:35 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:177:28 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:216:22 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:257:47 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:279:35 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:324:30 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:127:16 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:253:24 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:276:26 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:360:24 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:399:30 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:452:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:495:35 - invalid_constant
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\booking\final_payment_details_screen.dart:2:8 - unnecessary_import
+  error - Invalid constant value - lib\features\booking\final_payment_details_screen.dart:181:28 - invalid_constant
+  error - Invalid constant value - lib\features\booking\final_payment_details_screen.dart:426:38 - invalid_constant
+  error - Invalid constant value - lib\features\booking\final_payment_details_screen.dart:439:28 - invalid_constant
+  error - Invalid constant value - lib\features\booking\final_payment_details_screen.dart:489:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\final_payment_details_screen.dart:539:35 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:116:30 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:129:40 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:187:42 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:234:44 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:254:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:267:40 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:285:40 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_entry_scan_screen.dart:548:36 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:117:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:173:42 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:231:44 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:251:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:264:40 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:282:40 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:518:36 - invalid_constant
+  error - Invalid constant value - lib\features\booking\indoor_navigate_to_spot_screen.dart:239:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\indoor_navigate_to_spot_screen.dart:301:30 - invalid_constant
+  error - Invalid constant value - lib\features\booking\indoor_navigate_to_spot_screen.dart:325:47 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:383:22 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:420:51 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:480:30 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:497:26 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:545:30 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:586:38 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:630:26 - invalid_constant
+   info - The local variable '_formatTimeOfDay' starts with an underscore - lib\features\bookings\booking_details_screen.dart:54:12 - no_leading_underscores_for_local_identifiers
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:126:54 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:151:34 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:157:38 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:163:40 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:173:40 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:275:24 - invalid_constant
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\bookings\bookings_screen.dart:1:8 - unnecessary_import
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:104:35 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:109:61 - invalid_constant
+   info - Don't use 'BuildContext's across async gaps - lib\features\bookings\bookings_screen.dart:125:7 - use_build_context_synchronously
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:199:41 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:248:20 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:255:22 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:280:22 - invalid_constant
+   info - The local variable '_formatTimeOfDay' starts with an underscore - lib\features\bookings\bookings_screen.dart:328:12 - no_leading_underscores_for_local_identifiers
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:421:40 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:448:30 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:464:40 - invalid_constant
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:512:43 - invalid_constant
+  error - Invalid constant value - lib\features\home\favourites_screen.dart:120:28 - invalid_constant
+  error - Invalid constant value - lib\features\home\filter_bottom_sheet.dart:61:16 - invalid_constant
+  error - Invalid constant value - lib\features\home\filter_bottom_sheet.dart:149:41 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:214:36 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\home\home_screen.dart:224:45 - unnecessary_underscores
+  error - Invalid constant value - lib\features\home\home_screen.dart:409:28 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:522:45 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:527:41 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:647:32 - invalid_constant
+  error - Arguments of a constant creation must be constant expressions - lib\features\home\home_screen.dart:679:25 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\home\home_screen.dart:687:32 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:952:30 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:971:28 - invalid_constant
+  error - Arguments of a constant creation must be constant expressions - lib\features\home\home_screen.dart:1093:27 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\home\home_screen.dart:1102:36 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:282:28 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:297:34 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:309:32 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:370:38 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:381:30 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:391:20 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:415:35 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:436:18 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:454:18 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:501:30 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\home\parking_lot_detail_screen.dart:84:29 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\features\home\parking_lot_detail_screen.dart:84:33 - unnecessary_underscores
+  error - Invalid constant value - lib\features\home\parking_lot_detail_screen.dart:150:22 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_lot_detail_screen.dart:158:26 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_lot_detail_screen.dart:183:24 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_lot_detail_screen.dart:190:39 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_lot_detail_screen.dart:236:22 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:132:28 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:147:34 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:170:34 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:224:18 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:233:20 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\home\parking_search_screen.dart:245:31 - unnecessary_underscores
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:246:34 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:300:30 - invalid_constant
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:322:28 - invalid_constant
+  error - Invalid constant value - lib\features\legal\privacy_policy_screen.dart:179:22 - invalid_constant
+  error - Invalid constant value - lib\features\legal\terms_screen.dart:183:22 - invalid_constant
+  error - Arguments of a constant creation must be constant expressions - lib\features\main\widgets\bottom_nav_bar.dart:80:33 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\main\widgets\bottom_nav_bar.dart:89:40 - invalid_constant
+   info - 'setMapStyle' is deprecated and shouldn't be used. Use GoogleMap.style instead - lib\features\map\map_screen.dart:139:21 - deprecated_member_use
+  error - Arguments of a constant creation must be constant expressions - lib\features\map\map_screen.dart:498:27 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\map\map_screen.dart:513:38 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:529:38 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:573:34 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:617:36 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:642:32 - invalid_constant
+  error - Arguments of a constant creation must be constant expressions - lib\features\map\map_screen.dart:675:23 - const_with_non_constant_argument
+  error - Invalid constant value - lib\features\map\map_screen.dart:736:26 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:757:26 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:816:22 - invalid_constant
+  error - Invalid constant value - lib\features\notifications\notifications_screen.dart:56:26 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\notifications\notifications_screen.dart:123:35 - unnecessary_underscores
+  error - Invalid constant value - lib\features\notifications\notifications_screen.dart:151:20 - invalid_constant
+  error - Invalid constant value - lib\features\notifications\notifications_screen.dart:265:30 - invalid_constant
+  error - Invalid constant value - lib\features\notifications\notifications_screen.dart:276:30 - invalid_constant
+  error - Invalid constant value - lib\features\onboarding\onboarding_screen.dart:86:34 - invalid_constant
+  error - Invalid constant value - lib\features\onboarding\onboarding_screen.dart:100:34 - invalid_constant
+  error - Invalid constant value - lib\features\onboarding\onboarding_screen.dart:142:34 - invalid_constant
+  error - Invalid constant value - lib\features\onboarding\onboarding_screen.dart:165:34 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:57:45 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:224:22 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:271:34 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:276:24 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:326:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:331:55 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:400:28 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:406:26 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:203:42 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:362:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:368:47 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:460:41 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:489:36 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:547:36 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:761:40 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:786:30 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:791:58 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:795:32 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:800:32 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:808:34 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:814:34 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:820:34 - invalid_constant
+   info - Statements in an if should be enclosed in a block - lib\features\profile\my_vehicles_screen.dart:883:33 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\features\profile\my_vehicles_screen.dart:891:33 - curly_braces_in_flow_control_structures
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:939:41 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:946:39 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:1059:26 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:1110:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:1361:39 - invalid_constant
+  error - Invalid constant value - lib\features\profile\payment_methods_screen.dart:147:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\payment_methods_screen.dart:153:47 - invalid_constant
+  error - Invalid constant value - lib\features\profile\payment_methods_screen.dart:264:36 - invalid_constant
+  error - Invalid constant value - lib\features\profile\payment_methods_screen.dart:408:28 - invalid_constant
+  error - Invalid constant value - lib\features\profile\payment_methods_screen.dart:417:20 - invalid_constant
+  error - Invalid constant value - lib\features\profile\personal_details_screen.dart:204:30 - invalid_constant
+  error - Invalid constant value - lib\features\profile\personal_details_screen.dart:293:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\personal_details_screen.dart:295:18 - invalid_constant
+  error - Invalid constant value - lib\features\profile\personal_details_screen.dart:305:47 - invalid_constant
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:121:35 - invalid_constant
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:128:39 - invalid_constant
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\features\profile\profile_screen.dart:137:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\features\profile\profile_screen.dart:143:38 - use_build_context_synchronously
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:185:41 - invalid_constant
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:223:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:273:30 - invalid_constant
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:413:22 - invalid_constant
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:457:24 - invalid_constant
+warning - The value of the field '_keyLang' isn't used - lib\features\profile\settings_screen.dart:32:23 - unused_field
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:310:28 - invalid_constant
+  error - The default value of an optional parameter must be constant - lib\features\profile\settings_screen.dart:335:23 - non_constant_default_value
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:368:22 - invalid_constant
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:424:24 - invalid_constant
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:462:39 - invalid_constant
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:497:44 - invalid_constant
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:500:47 - invalid_constant
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:521:35 - invalid_constant
+  error - Invalid constant value - lib\features\profile\settings_screen.dart:528:39 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\add_review_screen.dart:153:39 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\add_review_screen.dart:216:26 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\add_review_screen.dart:221:54 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\add_review_screen.dart:224:55 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:62:24 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:98:26 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:117:34 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:137:34 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:165:22 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:251:26 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:262:24 - invalid_constant
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\splash\splash_screen.dart:88:48 - deprecated_member_use
+  error - Invalid constant value - lib\features\transactions\transaction_history_screen.dart:57:26 - invalid_constant
+  error - Invalid constant value - lib\features\transactions\transaction_history_screen.dart:124:36 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\transactions\transaction_history_screen.dart:205:41 - unnecessary_underscores
+  error - Invalid constant value - lib\features\transactions\transaction_history_screen.dart:232:20 - invalid_constant
+  error - Invalid constant value - lib\features\transactions\transaction_history_screen.dart:247:22 - invalid_constant
+  error - Invalid constant value - lib\features\transactions\transaction_history_screen.dart:325:28 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\top_up_screen.dart:147:30 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\top_up_screen.dart:234:51 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\top_up_screen.dart:240:30 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\top_up_screen.dart:250:55 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\top_up_screen.dart:340:32 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\wallet_screen.dart:264:26 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\wallet_screen.dart:334:28 - invalid_constant
+
+flutter : 315 issues found. (ran in 174.3s)
+At line:1 char:1
++ flutter analyze 2>&1 | Select-Object -Skip 1 | Out-File -FilePath "an ...
++ ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (315 issues found. (ran in 174.3s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

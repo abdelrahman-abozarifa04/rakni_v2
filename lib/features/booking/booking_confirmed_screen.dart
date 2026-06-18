@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
@@ -92,25 +92,25 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
             opacity: _fadeIn,
             child: Column(
               children: [
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 // Animated checkmark
                 _buildCheckmark(),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'Booking Confirmed!',
                   style: TextStyle(
                       color: AppColors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Your parking spot has been reserved',
                   style: TextStyle(
                       color: AppColors.textSecondary.withValues(alpha: 0.8),
                       fontSize: 14),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 // Booking ID + expiry pill
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -119,17 +119,17 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
                         icon: Icons.confirmation_number_outlined,
                         label: '#${booking.reservationId}',
                         color: AppColors.secondary),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     _buildInfoPill(
                         icon: Icons.timer_outlined,
                         label: 'Expires ${_formatTime(expiryTime)}',
                         color: Colors.orange),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 // Location card
                 _buildLocationCard(booking),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 // Info grid
                 Row(
                   children: [
@@ -137,37 +137,37 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
                         icon: Icons.calendar_today_outlined,
                         label: 'Date',
                         value: _formatDate(booking.startTime))),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(child: _buildInfoCard(
                         icon: Icons.access_time_outlined,
                         label: 'Time',
                         value: '${_formatTime(booking.startTime)} - ${booking.endTime != null ? _formatTime(booking.endTime!) : '--'}')),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 _buildInfoCard(
                     icon: Icons.directions_car_outlined,
                     label: 'Vehicle',
                     value:
                         '${widget.vehicle.brand} ${widget.vehicle.model} · ${widget.vehicle.plateNumber}'),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 // Seamless entry banner
                 _buildAnprBanner(),
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
                 // Action buttons
                 OutlinedButton(
                   onPressed: () => Navigator.pushNamedAndRemoveUntil(
                       context, '/', (r) => false),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
-                    side: const BorderSide(color: AppColors.fieldStroke),
+                    side: BorderSide(color: AppColors.fieldStroke),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Back to Home',
+                  child: Text('Back to Home',
                       style: TextStyle(color: AppColors.white, fontSize: 15)),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () => Navigator.push(
                     context,
@@ -199,7 +199,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -231,11 +231,11 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
               Container(
                 width: 82,
                 height: 82,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.secondary,
                 ),
-                child: const Icon(Icons.check_rounded,
+                child: Icon(Icons.check_rounded,
                     color: Colors.black, size: 44),
               ),
             ],
@@ -260,7 +260,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: color, size: 14),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(label,
               style: TextStyle(
                   color: color, fontSize: 12, fontWeight: FontWeight.w600)),
@@ -293,28 +293,28 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
                       letterSpacing: 1.2)),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(widget.parkingLot.name,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16)),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Icons.location_on_outlined,
+              Icon(Icons.location_on_outlined,
                   color: AppColors.textSecondary, size: 14),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Expanded(
                 child: Text(widget.parkingLot.address,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textSecondary, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -326,12 +326,12 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.grid_view_rounded,
+                Icon(Icons.grid_view_rounded,
                     color: AppColors.secondary, size: 16),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   '${booking.level} · ${booking.spotLabel}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.secondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 14),
@@ -358,17 +358,17 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
       child: Row(
         children: [
           Icon(icon, color: AppColors.secondary, size: 18),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textSecondary, fontSize: 11)),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(value,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 13)),
@@ -403,11 +403,11 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen>
               color: AppColors.secondary.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.sensors,
+            child: Icon(Icons.sensors,
                 color: AppColors.secondary, size: 22),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

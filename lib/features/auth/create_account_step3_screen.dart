@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -68,37 +68,37 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.photo_library_rounded,
                 color: AppColors.secondary,
               ),
-              title: const Text(
+              title: Text(
                 'Choose from Gallery',
                 style: TextStyle(color: AppColors.white),
               ),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.camera_alt_rounded,
                 color: AppColors.secondary,
               ),
-              title: const Text(
+              title: Text(
                 'Take a Photo',
                 style: TextStyle(color: AppColors.white),
               ),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -259,12 +259,12 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         leadingWidth: 100,
         leading: TextButton.icon(
           onPressed: _isLoading ? null : () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
             color: AppColors.textSecondary,
             size: 20,
           ),
-          label: const Text(
+          label: Text(
             'Back',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -287,8 +287,8 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Personal Information',
                       style: TextStyle(
                         color: AppColors.white,
@@ -296,15 +296,15 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'Step 3 of 3',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -316,7 +316,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Container(
                             height: 4,
@@ -326,7 +326,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Container(
                             height: 4,
@@ -338,12 +338,12 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 40),
-                    const Text(
+                    SizedBox(height: 40),
+                    Text(
                       "Driver's License",
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     GestureDetector(
                       onTap: _isExtractingOcr ? null : _pickLicensePhoto,
                       child: Container(
@@ -359,7 +359,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                           ),
                         ),
                         child: _isExtractingOcr
-                            ? const Column(
+                            ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   CircularProgressIndicator(
@@ -401,7 +401,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                                   ],
                                 ),
                               )
-                            : const Column(
+                            : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
@@ -430,81 +430,81 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                               ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'License Number',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _licenseNumberCtrl,
                       hintText: 'e.g. 1234567',
                       keyboardType: TextInputType.number,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.tag_rounded,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'License Expiry Date',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _licenseExpiryCtrl,
                       hintText: 'DD/MM/YYYY',
                       keyboardType: TextInputType.datetime,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.calendar_today_outlined,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'License Category',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _licenseCategoryCtrl,
                       hintText: 'e.g. B or A, B',
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.category_outlined,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Age',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _ageController,
                       hintText: 'Enter your age',
                       keyboardType: TextInputType.number,
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Gender',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       dropdownColor: AppColors.fieldColor,
                       initialValue: _selectedGender,
-                      hint: const Text(
+                      hint: Text(
                         'Select your gender',
                         style: TextStyle(
                           color: AppColors.hintColor,
                           fontSize: 14,
                         ),
                       ),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.keyboard_arrow_down,
                         color: AppColors.textSecondary,
                       ),
@@ -514,7 +514,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                               value: v,
                               child: Text(
                                 v,
-                                style: const TextStyle(color: AppColors.white),
+                                style: TextStyle(color: AppColors.white),
                               ),
                             ),
                           )
@@ -529,59 +529,59 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
+                          borderSide: BorderSide(
                             color: AppColors.fieldStroke,
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
+                          borderSide: BorderSide(
                             color: AppColors.fieldStroke,
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
+                          borderSide: BorderSide(
                             color: AppColors.secondary,
                             width: 1,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Address',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _addressController,
                       hintText: 'Enter your address',
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.location_on_outlined,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Phone Number',
                       style: TextStyle(color: AppColors.white, fontSize: 14),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildTextField(
                       controller: _phoneController,
                       hintText: 'Enter your phone number',
                       keyboardType: TextInputType.phone,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.phone_outlined,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -592,7 +592,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                 onPressed: _isLoading ? null : _saveProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.primary,
+                  foregroundColor: AppColors.black,
                   disabledBackgroundColor: AppColors.secondary.withValues(
                     alpha: 0.6,
                   ),
@@ -604,15 +604,15 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                   minimumSize: const Size(double.infinity, 56),
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: AppColors.primary,
+                          color: AppColors.black,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Create Account',
                         style: TextStyle(
                           fontSize: 16,
@@ -636,10 +636,10 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.white, fontSize: 14),
+      style: TextStyle(color: AppColors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: AppColors.hintColor, fontSize: 14),
+        hintStyle: TextStyle(color: AppColors.hintColor, fontSize: 14),
         filled: true,
         fillColor: AppColors.fieldColor,
         prefixIcon: prefixIcon,
@@ -649,15 +649,15 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1),
+          borderSide: BorderSide(color: AppColors.fieldStroke, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke, width: 1),
+          borderSide: BorderSide(color: AppColors.fieldStroke, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1),
+          borderSide: BorderSide(color: AppColors.secondary, width: 1),
         ),
       ),
     );

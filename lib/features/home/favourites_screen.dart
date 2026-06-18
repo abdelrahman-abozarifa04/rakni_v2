@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
 import 'package:rakni_v2/core/services/favorites_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -90,14 +90,14 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Favourites',
           style: TextStyle(
             color: AppColors.white,
@@ -111,7 +111,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               child: CircularProgressIndicator(color: AppColors.secondary),
             )
           : _favourites.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -140,7 +140,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
           : ListView.separated(
               padding: const EdgeInsets.all(20),
               itemCount: _favourites.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              separatorBuilder: (context, index) => SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final name = _favourites.elementAt(i);
                 final isLoadingTile = _loadingTiles.contains(name);
@@ -161,17 +161,17 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                             color: AppColors.secondary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.local_parking_rounded,
                             color: AppColors.secondary,
                             size: 22,
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14),
                         Expanded(
                           child: Text(
                             name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -179,7 +179,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                           ),
                         ),
                         if (isLoadingTile)
-                          const SizedBox(
+                          SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -189,7 +189,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                           )
                         else
                           IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.favorite_rounded,
                               color: AppColors.secondary,
                               size: 22,

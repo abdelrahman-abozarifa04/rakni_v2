@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/utils/image_utils.dart';
 import 'package:rakni_v2/features/main/main_shell.dart';
 
@@ -54,7 +55,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => StatefulBuilder(
@@ -82,7 +83,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // Title row
                 Row(
@@ -93,14 +94,14 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                         color: AppColors.secondary.withAlpha(30),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.directions_car_rounded,
                         color: AppColors.secondary,
                         size: 22,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
+                    SizedBox(width: 12),
+                    Text(
                       'Add New Vehicle',
                       style: TextStyle(
                         color: AppColors.white,
@@ -110,7 +111,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // ── Vehicle photo picker ──────────────────────────────────────
                 GestureDetector(
@@ -118,7 +119,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     final source = await showModalBottomSheet<ImageSource>(
                       context: ctx,
                       backgroundColor: AppColors.surface,
-                      shape: const RoundedRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(20),
                         ),
@@ -127,13 +128,13 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             ListTile(
-                              leading: const Icon(
+                              leading: Icon(
                                 Icons.photo_library_rounded,
                                 color: AppColors.secondary,
                               ),
-                              title: const Text(
+                              title: Text(
                                 'Choose from Gallery',
                                 style: TextStyle(color: AppColors.white),
                               ),
@@ -141,18 +142,18 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                                   Navigator.pop(sheetCtx, ImageSource.gallery),
                             ),
                             ListTile(
-                              leading: const Icon(
+                              leading: Icon(
                                 Icons.camera_alt_rounded,
                                 color: AppColors.secondary,
                               ),
-                              title: const Text(
+                              title: Text(
                                 'Take a Photo',
                                 style: TextStyle(color: AppColors.white),
                               ),
                               onTap: () =>
                                   Navigator.pop(sheetCtx, ImageSource.camera),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                           ],
                         ),
                       ),
@@ -196,8 +197,8 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                                 color: AppColors.textSecondary,
                                 size: 36,
                               ),
-                              const SizedBox(height: 8),
-                              const Text(
+                              SizedBox(height: 8),
+                              Text(
                                 'Add Vehicle Photo (Optional)',
                                 style: TextStyle(
                                   color: AppColors.textSecondary,
@@ -208,7 +209,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // ── Form fields ──────────────────────────────────────────────
                 _sheetField(
@@ -218,7 +219,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   validator: (v) =>
                       v!.trim().isEmpty ? 'Brand is required' : null,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _sheetField(
                   modelCtrl,
                   'Model  (e.g. Camry)',
@@ -226,7 +227,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   validator: (v) =>
                       v!.trim().isEmpty ? 'Model is required' : null,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _sheetField(
                   plateCtrl,
                   'Plate Number',
@@ -234,7 +235,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   validator: (v) =>
                       v!.trim().isEmpty ? 'Plate number is required' : null,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _sheetField(
                   colorCtrl,
                   'Color',
@@ -242,7 +243,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   validator: (v) =>
                       v!.trim().isEmpty ? 'Color is required' : null,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // ── Save button ──────────────────────────────────────────────
                 SizedBox(
@@ -322,7 +323,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                             }
                           },
                     child: isSaving
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(
@@ -330,7 +331,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Add Vehicle',
                             style: TextStyle(
                               fontSize: 16,
@@ -356,28 +357,28 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     return TextFormField(
       controller: ctrl,
       validator: validator,
-      style: const TextStyle(color: AppColors.white, fontSize: 15),
+      style: TextStyle(color: AppColors.white, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        labelStyle: TextStyle(color: AppColors.textSecondary),
         prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 20),
         filled: true,
         fillColor: AppColors.background,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke),
+          borderSide: BorderSide(color: AppColors.fieldStroke),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.secondary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
     );
@@ -394,7 +395,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppColors.white,
             size: 20,
@@ -410,7 +411,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
             );
           },
         ),
-        title: const Text(
+        title: Text(
           'My Vehicles',
           style: TextStyle(
             color: AppColors.white,
@@ -454,7 +455,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         builder: (context) {
           final uid = _uid;
           if (uid == null) {
-            return const Center(
+            return Center(
               child: Text(
                 'Not logged in',
                 style: TextStyle(color: AppColors.textSecondary),
@@ -477,7 +478,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
 
               return Column(
                 children: [
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   // ── Vehicle count + page dots ──
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -485,7 +486,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                       children: [
                         Text(
                           '${vehicles.length} vehicle${vehicles.length == 1 ? '' : 's'} registered',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
                           ),
@@ -511,7 +512,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   // ── Paged cards ──
                   Expanded(
                     child: PageView.builder(
@@ -539,7 +540,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   if (vehicles.length > 1)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24, top: 8),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
@@ -559,7 +560,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                       ),
                     )
                   else
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                 ],
               );
             },
@@ -581,7 +582,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => StatefulBuilder(
@@ -609,7 +610,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Row(
                   children: [
                     Container(
@@ -618,14 +619,14 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                         color: AppColors.secondary.withAlpha(30),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.edit_rounded,
                         color: AppColors.secondary,
                         size: 22,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
+                    SizedBox(width: 12),
+                    Text(
                       'Edit Vehicle',
                       style: TextStyle(
                         color: AppColors.white,
@@ -635,7 +636,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // Photo picker (same as add sheet, but shows existing photo if no new one picked)
                 GestureDetector(
@@ -643,7 +644,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     final source = await showModalBottomSheet<ImageSource>(
                       context: ctx,
                       backgroundColor: AppColors.surface,
-                      shape: const RoundedRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(20),
                         ),
@@ -652,13 +653,13 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             ListTile(
-                              leading: const Icon(
+                              leading: Icon(
                                 Icons.photo_library_rounded,
                                 color: AppColors.secondary,
                               ),
-                              title: const Text(
+                              title: Text(
                                 'Choose from Gallery',
                                 style: TextStyle(color: AppColors.white),
                               ),
@@ -666,18 +667,18 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                                   Navigator.pop(sheetCtx, ImageSource.gallery),
                             ),
                             ListTile(
-                              leading: const Icon(
+                              leading: Icon(
                                 Icons.camera_alt_rounded,
                                 color: AppColors.secondary,
                               ),
-                              title: const Text(
+                              title: Text(
                                 'Take a Photo',
                                 style: TextStyle(color: AppColors.white),
                               ),
                               onTap: () =>
                                   Navigator.pop(sheetCtx, ImageSource.camera),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                           ],
                         ),
                       ),
@@ -753,7 +754,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                               ],
                             ),
                           )
-                        : const Column(
+                        : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
@@ -773,7 +774,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // Plate number — READ ONLY
                 Tooltip(
@@ -782,20 +783,20 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   child: TextFormField(
                     initialValue: vehicle.plateNumber,
                     readOnly: true,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.hintColor,
                       fontSize: 15,
                     ),
                     decoration: InputDecoration(
                       labelText: 'Plate Number',
-                      labelStyle: const TextStyle(color: AppColors.hintColor),
+                      labelStyle: TextStyle(color: AppColors.hintColor),
                       helperText:
                           'Plate number is used for parking access and cannot be modified.',
-                      helperStyle: const TextStyle(
+                      helperStyle: TextStyle(
                         color: AppColors.hintColor,
                         fontSize: 11,
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.lock_outline,
                         color: AppColors.hintColor,
                         size: 18,
@@ -804,26 +805,26 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                       fillColor: AppColors.surface.withAlpha(180),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: AppColors.fieldStroke,
                         ),
                       ),
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: AppColors.fieldStroke,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: AppColors.fieldStroke,
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 // Editable fields
                 _sheetField(
@@ -831,15 +832,15 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   'Brand  (e.g. Toyota)',
                   Icons.directions_car_outlined,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _sheetField(
                   modelCtrl,
                   'Model  (e.g. Camry)',
                   Icons.car_repair_outlined,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _sheetField(colorCtrl, 'Color', Icons.color_lens_outlined),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // Save button
                 SizedBox(
@@ -879,27 +880,29 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                                     imageFile: pickedImage,
                                   );
                               if (ctx.mounted) Navigator.pop(ctx);
-                              if (mounted)
+                              if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Vehicle updated! ✅'),
                                     backgroundColor: AppColors.secondary,
                                   ),
                                 );
+                              }
                             } catch (e) {
-                              if (mounted)
+                              if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('Error: $e'),
                                     backgroundColor: AppColors.error,
                                   ),
                                 );
+                              }
                             } finally {
                               setModalState(() => isSaving = false);
                             }
                           },
                     child: isSaving
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(
@@ -907,7 +910,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Save Changes',
                             style: TextStyle(
                               fontSize: 16,
@@ -930,25 +933,25 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Remove Vehicle',
           style: TextStyle(color: AppColors.white),
         ),
         content: Text(
           'Remove ${v.brand} ${v.model} (${v.plateNumber})?',
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               'Remove',
               style: TextStyle(color: AppColors.error),
             ),
@@ -1053,27 +1056,47 @@ class _VehicleCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.surface, Color(0xFF2F3030)],
+                colors: ThemeService.instance.isDark
+                    ? [AppColors.surface, const Color(0xFF2F3030)]
+                    : [AppColors.surface, const Color(0xFFF2F3F5)],
               ),
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                 color: isActive
-                    ? AppColors.secondary.withAlpha(80)
+                    ? (ThemeService.instance.isDark
+                        ? AppColors.accent.withAlpha(80)
+                        : AppColors.accent.withAlpha(120))
                     : AppColors.fieldStroke,
                 width: isActive ? 1.5 : 1,
               ),
-              boxShadow: isActive
-                  ? [
+              boxShadow: ThemeService.instance.isDark
+                  ? (isActive
+                      ? [
+                          BoxShadow(
+                            color: AppColors.accent.withAlpha(30),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ]
+                      : [])
+                  : [
                       BoxShadow(
-                        color: AppColors.secondary.withAlpha(30),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
+                        color: isActive
+                            ? AppColors.accent.withAlpha(40)
+                            : Colors.black.withValues(alpha: 0.03),
+                        blurRadius: isActive ? 20 : 12,
+                        offset: Offset(0, isActive ? 8 : 4),
                       ),
-                    ]
-                  : [],
+                      if (isActive)
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                    ],
             ),
             child: Column(
               // This is the magic property that makes the card tightly wrap its content!
@@ -1094,7 +1117,7 @@ class _VehicleCard extends StatelessWidget {
                           children: [
                             Text(
                               '${vehicle.brand} ${vehicle.model}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -1106,7 +1129,7 @@ class _VehicleCard extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
                                   vehicle.color,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 13,
                                   ),
@@ -1122,10 +1145,10 @@ class _VehicleCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary,
+                            color: AppColors.accent,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Default',
                             style: TextStyle(
                               color: AppColors.black,
@@ -1178,7 +1201,7 @@ class _VehicleCard extends StatelessWidget {
                                               ? progress.cumulativeBytesLoaded /
                                                     progress.expectedTotalBytes!
                                               : null,
-                                          color: AppColors.secondary,
+                                          color: AppColors.accent,
                                           strokeWidth: 2,
                                         ),
                                       );
@@ -1201,7 +1224,7 @@ class _VehicleCard extends StatelessWidget {
                       color: AppColors.background,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.secondary.withAlpha(120),
+                        color: AppColors.accent.withAlpha(120),
                         width: 1.5,
                       ),
                     ),
@@ -1212,17 +1235,17 @@ class _VehicleCard extends StatelessWidget {
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: AppColors.secondary,
+                            color: AppColors.accent,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Center(
                             child: Text('🅿', style: TextStyle(fontSize: 11)),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Text(
                           vehicle.plateNumber,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -1243,21 +1266,21 @@ class _VehicleCard extends StatelessWidget {
                         child: _ActionButton(
                           label: 'Edit',
                           icon: Icons.edit_outlined,
-                          color: AppColors.secondary,
+                          color: AppColors.accent,
                           onTap: onEdit ?? () {},
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       if (onSetDefault != null) ...[
                         Expanded(
                           child: _ActionButton(
                             label: 'Set Default',
                             icon: Icons.star_outline_rounded,
-                            color: AppColors.secondary,
+                            color: AppColors.accent,
                             onTap: onSetDefault!,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                       ],
                       Expanded(
                         child: _ActionButton(
@@ -1309,7 +1332,7 @@ class _ActionButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: color, size: 18),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
@@ -1345,8 +1368,8 @@ class _EmptyState extends StatelessWidget {
               width: 240,
               fit: BoxFit.contain,
             ),
-            const SizedBox(height: 24),
-            const Text(
+            SizedBox(height: 24),
+            Text(
               'No Vehicles Yet',
               style: TextStyle(
                 color: AppColors.white,
@@ -1354,20 +1377,20 @@ class _EmptyState extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
-            const Text(
+            SizedBox(height: 10),
+            Text(
               'Add your car to start booking parking spots easily.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               height: 54,
               child: ElevatedButton.icon(
                 onPressed: onAdd,
-                icon: const Icon(Icons.add_rounded, size: 20),
-                label: const Text(
+                icon: Icon(Icons.add_rounded, size: 20),
+                label: Text(
                   'Add Your Vehicle',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),

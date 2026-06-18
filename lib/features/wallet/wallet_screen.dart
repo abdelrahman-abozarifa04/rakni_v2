@@ -4,6 +4,7 @@ import 'package:rakni_v2/core/models/transaction_model.dart';
 import 'package:rakni_v2/core/models/wallet_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/features/transactions/transaction_history_screen.dart';
 import 'package:rakni_v2/features/wallet/top_up_screen.dart';
 
@@ -66,28 +67,28 @@ class _WalletScreenState extends State<WalletScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'My Wallet',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.secondary),
+          ? Center(
+              child: CircularProgressIndicator(color: AppColors.accent),
             )
           : RefreshIndicator(
               onRefresh: _loadData,
-              color: AppColors.secondary,
+              color: AppColors.accent,
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
                   _buildBalanceCard(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   _buildAddMoneyButton(context),
-                  const SizedBox(height: 28),
+                  SizedBox(height: 28),
                   _buildRecentTransactions(context),
                 ],
               ),
@@ -96,21 +97,30 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _buildBalanceCard() {
+    final isDark = ThemeService.instance.isDark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3D5A1E), Color(0xFF2A3D12)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: isDark
+            ? const LinearGradient(
+                colors: [Color(0xFF3D5A1E), Color(0xFF2A3D12)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : const LinearGradient(
+                colors: [Color(0xFFF9FBF0), Color(0xFFECF3D0)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: AppColors.secondary.withValues(alpha: 0.4),
+          color: AppColors.secondary.withValues(alpha: isDark ? 0.4 : 0.6),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withValues(alpha: 0.15),
+            color: isDark
+                ? AppColors.secondary.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -121,16 +131,16 @@ class _WalletScreenState extends State<WalletScreen> {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.account_balance_wallet_rounded,
-                color: AppColors.secondary,
+                color: isDark ? AppColors.secondary : const Color(0xFF4A5C00),
                 size: 26,
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 'Rakni Wallet',
                 style: TextStyle(
-                  color: AppColors.secondary,
+                  color: isDark ? AppColors.secondary : const Color(0xFF4A5C00),
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -139,13 +149,13 @@ class _WalletScreenState extends State<WalletScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.2),
+                  color: AppColors.secondary.withValues(alpha: isDark ? 0.2 : 0.3),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
+                child: Text(
                   'Active',
                   style: TextStyle(
-                    color: AppColors.secondary,
+                    color: isDark ? AppColors.secondary : const Color(0xFF4A5C00),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -153,31 +163,31 @@ class _WalletScreenState extends State<WalletScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          const Text(
+          SizedBox(height: 20),
+          Text(
             'Available Balance',
             style: TextStyle(
-              color: Color(0xFFB0B8A0),
+              color: isDark ? const Color(0xFFB0B8A0) : AppColors.textSecondary,
               fontSize: 13,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             'EGP ${(_wallet?.balance ?? 0.0).toStringAsFixed(2)}',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.white,
               fontSize: 36,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             _wallet != null
                 ? 'Last updated: ${_relativeTime(_wallet!.lastUpdated)}'
                 : '',
-            style: const TextStyle(
-              color: Color(0xFFB0B8A0),
+            style: TextStyle(
+              color: isDark ? const Color(0xFFB0B8A0) : AppColors.textSecondary,
               fontSize: 12,
             ),
           ),
@@ -200,13 +210,13 @@ class _WalletScreenState extends State<WalletScreen> {
             _loadData();
           }
         },
-        icon: const Icon(Icons.add_rounded, size: 22),
-        label: const Text(
+        icon: Icon(Icons.add_rounded, size: 22),
+        label: Text(
           'Add Money',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondary,
+          backgroundColor: AppColors.accent,
           foregroundColor: AppColors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -223,7 +233,7 @@ class _WalletScreenState extends State<WalletScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Recent Transactions',
               style: TextStyle(
                 color: AppColors.white,
@@ -238,10 +248,10 @@ class _WalletScreenState extends State<WalletScreen> {
                   builder: (_) => const TransactionHistoryScreen(),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'View all',
                 style: TextStyle(
-                  color: AppColors.secondary,
+                  color: AppColors.accent,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -249,7 +259,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
         if (_recentTransactions.isEmpty)
           Container(
             padding: const EdgeInsets.all(24),
@@ -257,7 +267,7 @@ class _WalletScreenState extends State<WalletScreen> {
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'No transactions yet',
                 style: TextStyle(
@@ -302,7 +312,7 @@ class _MiniTransactionTile extends StatelessWidget {
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               color: isTopUp
-                  ? AppColors.secondary.withValues(alpha: 0.15)
+                  ? AppColors.accent.withValues(alpha: 0.15)
                   : AppColors.background,
               borderRadius: BorderRadius.circular(10),
             ),
@@ -311,18 +321,18 @@ class _MiniTransactionTile extends StatelessWidget {
                   ? Icons.add_circle_outline
                   : Icons.local_parking_outlined,
               color:
-                  isTopUp ? AppColors.secondary : AppColors.textSecondary,
+                  isTopUp ? AppColors.accent : AppColors.textSecondary,
               size: 20,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   isTopUp ? 'Wallet Top-up' : 'Parking Booking',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -330,7 +340,7 @@ class _MiniTransactionTile extends StatelessWidget {
                 ),
                 Text(
                   relativeTime,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -341,7 +351,7 @@ class _MiniTransactionTile extends StatelessWidget {
           Text(
             '${isTopUp ? '+' : '-'}EGP ${transaction.amount.toStringAsFixed(0)}',
             style: TextStyle(
-              color: isTopUp ? AppColors.secondary : AppColors.white,
+              color: isTopUp ? AppColors.accent : AppColors.white,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),

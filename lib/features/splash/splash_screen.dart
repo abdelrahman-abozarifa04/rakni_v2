@@ -85,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 width: 240,
                 height: 240,
                 decoration: BoxDecoration(
-                  color: AppColors.fieldStroke.withOpacity(0.5), // Subtle opacity for modern layering
+                  color: AppColors.fieldStroke.withValues(alpha: 0.5), // Subtle opacity for modern layering
                   shape: BoxShape.circle,
                 ),
               ),
@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: Container(
                 width: 180,
                 height: 180,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.secondary,
                   shape: BoxShape.circle,
                 ),
@@ -110,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: Container(
                 width: 140,
                 height: 140,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.white,
                   shape: BoxShape.circle,
                   // Added a soft shadow for modern depth (Neumorphic touch)

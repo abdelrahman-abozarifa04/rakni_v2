@@ -52,7 +52,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final uid = _uid;
     if (uid == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
           child: Text(
@@ -70,10 +70,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Notifications',
           style: TextStyle(
             color: AppColors.white,
@@ -89,7 +89,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               if (!hasUnread) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () => _markAllRead(notifications),
-                child: const Text(
+                child: Text(
                   'Mark all read',
                   style: TextStyle(
                     color: AppColors.secondary,
@@ -120,7 +120,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           return ListView.separated(
             padding: const EdgeInsets.all(20),
             itemCount: notifications.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => SizedBox(height: 10),
             itemBuilder: (context, i) {
               final n = notifications[i];
               return _NotificationTile(
@@ -141,7 +141,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -225,7 +225,7 @@ class _NotificationTile extends StatelessWidget {
                     : AppColors.secondary,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,22 +246,22 @@ class _NotificationTile extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       if (!notification.isRead)
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppColors.secondary,
                             shape: BoxShape.circle,
                           ),
                         ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     notification.body,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                       height: 1.4,
@@ -269,10 +269,10 @@ class _NotificationTile extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   Text(
                     relativeTime,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.hintColor,
                       fontSize: 11,
                     ),

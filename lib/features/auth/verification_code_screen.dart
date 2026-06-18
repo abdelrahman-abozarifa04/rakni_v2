@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/services/otp_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/new_password_screen.dart';
@@ -139,9 +139,9 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
           onPressed: (_isVerifying || _isResending)
               ? null
               : () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back,
+          icon: Icon(Icons.arrow_back,
               color: AppColors.textSecondary, size: 20),
-          label: const Text('Back',
+          label: Text('Back',
               style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 16,
@@ -157,29 +157,29 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 32),
-              const Text('Verification Code',
+              SizedBox(height: 32),
+              Text('Verification Code',
                   style: TextStyle(
                       color: AppColors.white,
                       fontSize: 28,
                       fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.textSecondary, fontSize: 14, height: 1.5),
                   children: [
                     const TextSpan(
                         text: 'Enter the 6-digit reset code sent to '),
                     TextSpan(
                         text: widget.email,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.white,
                             fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               Center(
                 child: Container(
                   width: 80,
@@ -187,11 +187,11 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                   decoration: BoxDecoration(
                       color: AppColors.secondary.withValues(alpha: 0.12),
                       shape: BoxShape.circle),
-                  child: const Icon(Icons.lock_outline,
+                  child: Icon(Icons.lock_outline,
                       color: AppColors.secondary, size: 32),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               // 6-digit OTP row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -205,7 +205,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                       textAlign: TextAlign.center,
                       maxLength: 1,
                       enabled: !_isVerifying,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w600),
@@ -217,15 +217,15 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                             const EdgeInsets.symmetric(vertical: 16),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                                 color: AppColors.fieldStroke, width: 1)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                                 color: AppColors.fieldStroke, width: 1)),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                                 color: AppColors.secondary, width: 1)),
                       ),
                       onChanged: (v) => _onOtpChanged(v, i),
@@ -233,12 +233,12 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                   );
                 }),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               ElevatedButton(
                 onPressed: _isVerifying ? null : _verify,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.primary,
+                  foregroundColor: AppColors.black,
                   disabledBackgroundColor:
                       AppColors.secondary.withValues(alpha: 0.5),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -248,31 +248,31 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                   minimumSize: const Size(double.infinity, 56),
                 ),
                 child: _isVerifying
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: AppColors.primary))
-                    : const Text('Verify',
+                            strokeWidth: 2, color: AppColors.black))
+                    : Text('Verify',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600)),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Didn't receive it? ",
+                  Text("Didn't receive it? ",
                       style: TextStyle(
                           color: AppColors.textSecondary, fontSize: 14)),
                   GestureDetector(
                     onTap: (_isVerifying || _isResending) ? null : _resend,
                     child: _isResending
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 16,
                             width: 16,
                             child: CircularProgressIndicator(
                                 strokeWidth: 2, color: AppColors.secondary))
-                        : const Text('Resend Code',
+                        : Text('Resend Code',
                             style: TextStyle(
                                 color: AppColors.secondary,
                                 fontSize: 14,
@@ -280,7 +280,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
           ),
         ),

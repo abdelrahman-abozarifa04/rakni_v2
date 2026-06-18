@@ -96,14 +96,14 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Search Parking',
           style: TextStyle(
             color: AppColors.white,
@@ -126,22 +126,22 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
               ),
               child: Row(
                 children: [
-                  const SizedBox(width: 16),
-                  const Icon(
+                  SizedBox(width: 16),
+                  Icon(
                     Icons.search,
                     color: AppColors.hintColor,
                     size: 20,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _controller,
                       autofocus: true,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.white,
                         fontSize: 15,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search for a parking spot...',
                         hintStyle: TextStyle(
                           color: AppColors.hintColor,
@@ -163,7 +163,7 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
                         setState(() => _query = '');
                         _search('');
                       },
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 12),
                         child: Icon(
                           Icons.close,
@@ -172,7 +172,7 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
                         ),
                       ),
                     ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   // Filter button
                   GestureDetector(
                     onTap: _openFilter,
@@ -189,7 +189,7 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
                       child: Icon(
                         Icons.tune_rounded,
                         color: _activeFilter != null
-                            ? AppColors.primary
+                            ? AppColors.black
                             : AppColors.textSecondary,
                         size: 18,
                       ),
@@ -219,17 +219,17 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
+        Icon(
           Icons.search_off_rounded,
           color: AppColors.hintColor,
           size: 48,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           _query.isEmpty
               ? 'No parking lots found'
               : 'No results for "$_query"',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 15,
           ),
@@ -242,8 +242,8 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
       ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: results.length,
-        separatorBuilder: (_, __) =>
-            const Divider(color: AppColors.fieldStroke, height: 1),
+        separatorBuilder: (_, _) =>
+            Divider(color: AppColors.fieldStroke, height: 1),
         itemBuilder: (context, i) {
           final lot = results[i];
           return _SearchResultTile(
@@ -274,29 +274,29 @@ class _SearchResultTile extends StatelessWidget {
                 color: AppColors.secondary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.local_parking_rounded,
                 color: AppColors.secondary,
                 size: 24,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     lot.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   Text(
                     lot.address,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
@@ -309,16 +309,16 @@ class _SearchResultTile extends StatelessWidget {
               children: [
                 Text(
                   '${lot.availableSlots} spots',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.secondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Text(
                   'EGP ${lot.pricePerHour.toStringAsFixed(0)}/hr',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                   ),

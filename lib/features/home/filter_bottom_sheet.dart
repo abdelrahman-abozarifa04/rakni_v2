@@ -57,7 +57,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -76,8 +76,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          const Text(
+          SizedBox(height: 20),
+          Text(
             'Filter Parking',
             style: TextStyle(
               color: AppColors.white,
@@ -85,15 +85,15 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _lbl('Price Range (EGP/hr)'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'EGP ${_priceRange.start.round()}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.secondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -101,7 +101,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               ),
               Text(
                 'EGP ${_priceRange.end.round()}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.secondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -126,25 +126,25 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               onChanged: (v) => setState(() => _priceRange = v),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _lbl('Slot Type'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildSlotChips(),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _lbl('Max Distance'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 '${_maxDistance.toStringAsFixed(1)} km',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.secondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const Text(
+              Text(
                 '10 km',
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
@@ -165,7 +165,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               onChanged: (v) => setState(() => _maxDistance = v),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             height: 52,
@@ -181,13 +181,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
-                foregroundColor: AppColors.primary,
+                foregroundColor: AppColors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 elevation: 0,
               ),
-              child: const Text(
+              child: Text(
                 'Apply Filters',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
@@ -239,7 +239,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       size: 18,
                       color: sel ? AppColors.secondary : AppColors.hintColor,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       type,
                       style: TextStyle(

@@ -115,15 +115,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Log Out', style: TextStyle(color: AppColors.white)),
-        content: const Text(
+        title: Text('Log Out', style: TextStyle(color: AppColors.white)),
+        content: Text(
           'Are you sure you want to log out?',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -133,13 +133,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.pop(dialogContext);
               try {
                 await AuthService().signOut();
-                if (!mounted) return;
+                if (!rootContext.mounted) return;
                 Navigator.of(rootContext).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const AuthGate()),
                   (route) => false,
                 );
               } catch (e) {
-                if (!mounted) return;
+                if (!rootContext.mounted) return;
                 ScaffoldMessenger.of(rootContext).showSnackBar(
                   SnackBar(
                     content: Text('Failed to log out: $e'),
@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }
             },
-            child: const Text(
+            child: Text(
               'Log Out',
               style: TextStyle(
                 color: AppColors.error,
@@ -169,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Profile',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
@@ -179,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: CircularProgressIndicator(color: AppColors.secondary),
             )
           : _userModel == null
-          ? const Center(
+          ? Center(
               child: Text(
                 'User data not found.',
                 style: TextStyle(color: AppColors.textSecondary),
@@ -217,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : NetworkImage(_userModel!.photoUrl!))
                                 : null,
                             child: _userModel?.photoUrl == null
-                                ? const Icon(
+                                ? Icon(
                                     Icons.person,
                                     size: 50,
                                     color: AppColors.textSecondary,
@@ -246,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 2,
                                 ),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.camera_alt,
                                 color: Colors.black,
                                 size: 18,
@@ -257,24 +257,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     _userModel!.fullName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     _userModel!.email,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 16,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
                   // Stats Row
                   Row(
@@ -283,19 +283,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         '${(_bookingCount * 0.8).round()}',
                         'Total Parked',
                       )),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(child: _buildStatItem(
                         '$_bookingCount',
                         'Bookings',
                       )),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(child: _buildStatItem(
                         _bookingCount > 0 ? '4.8' : '—',
                         'Rating',
                       )),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
 
                   // Profile Options
                   _buildProfileOption(
@@ -373,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   _buildProfileOption(
                     icon: Icons.logout,
                     title: 'Log Out',
@@ -382,7 +382,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: _signOut,
                     showTrailing: false,
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                 ],
               ),
             ),
@@ -400,16 +400,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),
@@ -423,10 +423,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    Color textColor = AppColors.white,
-    Color iconColor = AppColors.white,
+    Color? textColor,
+    Color? iconColor,
     bool showTrailing = true,
   }) {
+    final effectiveTextColor = textColor ?? AppColors.white;
+    final effectiveIconColor = iconColor ?? AppColors.white;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -438,21 +441,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
+            color: effectiveIconColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: iconColor, size: 24),
+          child: Icon(icon, color: effectiveIconColor, size: 24),
         ),
         title: Text(
           title,
           style: TextStyle(
-            color: textColor,
+            color: effectiveTextColor,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
         trailing: showTrailing
-            ? const Icon(
+            ? Icon(
                 Icons.arrow_forward_ios,
                 color: AppColors.textSecondary,
                 size: 16,

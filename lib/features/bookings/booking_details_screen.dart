@@ -51,7 +51,7 @@ class BookingDetailsScreen extends StatelessWidget {
       dateStr = 'Unknown Date';
     }
 
-    String _formatTimeOfDay(DateTime dt) {
+    String formatTimeOfDay(DateTime dt) {
       final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
       final ampm = dt.hour >= 12 ? 'PM' : 'AM';
       final min = dt.minute.toString().padLeft(2, '0');
@@ -59,8 +59,8 @@ class BookingDetailsScreen extends StatelessWidget {
     }
 
     final timeStr = booking.endTime != null 
-        ? "${_formatTimeOfDay(booking.startTime)} - ${_formatTimeOfDay(booking.endTime!)}"
-        : "${_formatTimeOfDay(booking.startTime)} - Ongoing";
+        ? "${formatTimeOfDay(booking.startTime)} - ${formatTimeOfDay(booking.endTime!)}"
+        : "${formatTimeOfDay(booking.startTime)} - Ongoing";
 
     final title = booking.lotName.isNotEmpty ? booking.lotName : 'Parking Lot';
     final address = booking.lotAddress.isNotEmpty ? booking.lotAddress : 'Cairo, Egypt';
@@ -81,11 +81,11 @@ class BookingDetailsScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
+          icon: Icon(Icons.arrow_back_ios,
               color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Booking Details',
+        title: Text('Booking Details',
             style:
                 TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
         centerTitle: true,
@@ -113,7 +113,7 @@ class BookingDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             // Map placeholder
             Container(
               height: 180,
@@ -121,12 +121,12 @@ class BookingDetailsScreen extends StatelessWidget {
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Center(
+              child: Center(
                 child:
                     Icon(Icons.map, size: 48, color: AppColors.textSecondary),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             // Details Card
             Container(
               padding: const EdgeInsets.all(20),
@@ -139,43 +139,43 @@ class BookingDetailsScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined,
+                      Icon(Icons.location_on_outlined,
                           color: AppColors.textSecondary, size: 18),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           address,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textSecondary, fontSize: 14),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  const Divider(color: AppColors.textSecondary, height: 1),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
+                  Divider(color: AppColors.textSecondary, height: 1),
+                  SizedBox(height: 20),
                   _buildDetailRow('Date', dateStr),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   _buildDetailRow('Time', timeStr),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   _buildDetailRow('Vehicle', vehicle),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   _buildDetailRow('Payment Method', paymentMethodStr),
-                  const SizedBox(height: 20),
-                  const Divider(color: AppColors.textSecondary, height: 1),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
+                  Divider(color: AppColors.textSecondary, height: 1),
+                  SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Total Paid',
                         style: TextStyle(
                             color: AppColors.white,
@@ -184,7 +184,7 @@ class BookingDetailsScreen extends StatelessWidget {
                       ),
                       Text(
                         total,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.secondary,
                             fontSize: 20,
                             fontWeight: FontWeight.bold),
@@ -194,7 +194,7 @@ class BookingDetailsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             if (isActive || isPending) ...[
               // QR Code placeholder
               Container(
@@ -206,14 +206,14 @@ class BookingDetailsScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Scan to enter',
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     QrImageView(
                       data: 'RAKNI-BOOKING-${booking.id}',
                       version: QrVersions.auto,
@@ -229,10 +229,10 @@ class BookingDetailsScreen extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Reservation #${booking.reservationId}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.black54,
                         fontSize: 12,
                       ),
@@ -240,25 +240,25 @@ class BookingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton(
                   onPressed: onCancel,
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.error),
+                    side: BorderSide(color: AppColors.error),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Cancel Booking',
+                  child: Text('Cancel Booking',
                       style: TextStyle(
                           color: AppColors.error,
                           fontSize: 16,
                           fontWeight: FontWeight.bold)),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ]
           ],
         ),
@@ -271,10 +271,10 @@ class BookingDetailsScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.textSecondary, fontSize: 14)),
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w500)),

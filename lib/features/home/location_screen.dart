@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:rakni_v2/core/services/geocoding_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
@@ -93,23 +93,14 @@ class _LocationScreenState extends State<LocationScreen> {
     setState(() => _searching = true);
 
     try {
-      final locations = await locationFromAddress('$query, Cairo, Egypt');
-      final results = <_LocationResult>[];
-
-      for (final location in locations.take(5)) {
-        final placemarks = await placemarkFromCoordinates(
-          location.latitude,
-          location.longitude,
+      final searchResults = await GeocodingService.instance.searchLocation(query);
+      final results = searchResults.map((res) {
+        return _LocationResult(
+          title: res.title,
+          subtitle: res.subtitle,
+          icon: Icons.location_on_rounded,
         );
-        final placemark = placemarks.isNotEmpty ? placemarks.first : null;
-        results.add(
-          _LocationResult(
-            title: _formatTitle(placemark, query),
-            subtitle: _formatSubtitle(placemark),
-            icon: Icons.location_on_rounded,
-          ),
-        );
-      }
+      }).toList();
 
       if (!mounted || query != _controller.text.trim()) return;
       setState(() => _results = results);
@@ -178,12 +169,10 @@ class _LocationScreenState extends State<LocationScreen> {
             },
           );
 
-      final placemarks = await placemarkFromCoordinates(
+      final locationText = await GeocodingService.instance.reverseGeocode(
         position.latitude,
         position.longitude,
       );
-      final place = placemarks.isNotEmpty ? placemarks.first : null;
-      final locationText = _formatSubtitle(place);
       if (!mounted) return;
       Navigator.pop(context, locationText);
     } catch (_) {
@@ -199,36 +188,7 @@ class _LocationScreenState extends State<LocationScreen> {
     });
   }
 
-  String _formatTitle(Placemark? place, String fallback) {
-    final candidates = [
-      place?.name,
-      place?.street,
-      place?.subLocality,
-      fallback,
-    ];
-    return candidates
-        .whereType<String>()
-        .firstWhere((value) => value.trim().isNotEmpty)
-        .trim();
-  }
 
-  String _formatSubtitle(Placemark? place) {
-    if (place == null) return 'Cairo, Egypt';
-    final parts =
-        [
-              place.street,
-              place.subLocality,
-              place.locality,
-              place.administrativeArea,
-              place.country,
-            ]
-            .whereType<String>()
-            .map((part) => part.trim())
-            .where((part) => part.isNotEmpty)
-            .toSet()
-            .toList();
-    return parts.isEmpty ? 'Cairo, Egypt' : parts.join(', ');
-  }
 
   void _selectLocation(_LocationResult location) {
     Navigator.pop(context, location.subtitle);
@@ -244,14 +204,14 @@ class _LocationScreenState extends State<LocationScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Select Location',
           style: TextStyle(
             color: AppColors.white,
@@ -264,7 +224,7 @@ class _LocationScreenState extends State<LocationScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -276,22 +236,22 @@ class _LocationScreenState extends State<LocationScreen> {
               ),
               child: Row(
                 children: [
-                  const SizedBox(width: 16),
-                  const Icon(
+                  SizedBox(width: 16),
+                  Icon(
                     Icons.search,
                     color: AppColors.hintColor,
                     size: 20,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _controller,
                       autofocus: true,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.white,
                         fontSize: 15,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search location...',
                         hintStyle: TextStyle(
                           color: AppColors.hintColor,
@@ -304,7 +264,7 @@ class _LocationScreenState extends State<LocationScreen> {
                   ),
                   if (_query.isNotEmpty)
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close_rounded,
                         color: AppColors.textSecondary,
                         size: 20,
@@ -312,12 +272,12 @@ class _LocationScreenState extends State<LocationScreen> {
                       onPressed: _controller.clear,
                     )
                   else
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: GestureDetector(
@@ -333,7 +293,7 @@ class _LocationScreenState extends State<LocationScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: _currentLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
@@ -344,18 +304,18 @@ class _LocationScreenState extends State<LocationScreen> {
                           : SvgPicture.asset(
                               'assets/images/curent_location_icon.svg',
                               height: 20,
-                              colorFilter: const ColorFilter.mode(
+                              colorFilter: ColorFilter.mode(
                                 AppColors.secondary,
                                 BlendMode.srcIn,
                               ),
                             ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Use current location',
                             style: TextStyle(
                               color: AppColors.white,
@@ -363,10 +323,10 @@ class _LocationScreenState extends State<LocationScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
                             _currentSubtitle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                             ),
@@ -376,7 +336,7 @@ class _LocationScreenState extends State<LocationScreen> {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_ios_rounded,
                       color: AppColors.textSecondary,
                       size: 14,
@@ -386,8 +346,8 @@ class _LocationScreenState extends State<LocationScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          const Divider(
+          SizedBox(height: 12),
+          Divider(
             color: AppColors.fieldStroke,
             indent: 20,
             endIndent: 20,
@@ -409,7 +369,7 @@ class _LocationScreenState extends State<LocationScreen> {
     }
 
     if (_results.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No locations found',
           style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
@@ -428,17 +388,17 @@ class _LocationScreenState extends State<LocationScreen> {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _buildSectionLabel('SAVED LOCATIONS'),
         ..._savedLocations.map(_buildLocationItem),
-        const SizedBox(height: 12),
-        const Divider(
+        SizedBox(height: 12),
+        Divider(
           color: AppColors.fieldStroke,
           indent: 20,
           endIndent: 20,
           thickness: 1,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _buildSectionLabel('RECENT SEARCHES'),
         ..._recentLocations.map(_buildLocationItem),
       ],
@@ -450,7 +410,7 @@ class _LocationScreenState extends State<LocationScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textSecondary,
           fontSize: 11,
           fontWeight: FontWeight.w700,
@@ -479,14 +439,14 @@ class _LocationScreenState extends State<LocationScreen> {
                 size: 20,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     location.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -494,10 +454,10 @@ class _LocationScreenState extends State<LocationScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     location.subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                     ),

@@ -92,7 +92,7 @@ class ParkingHardwareApiService {
   /// Returns true on success. On any failure, logs and returns false — the
   /// Firestore booking is already saved and must never be blocked by this.
   Future<bool> reserveSlot({required String slotId}) async {
-    final uri = Uri.parse('$_baseUrl${_slotsPath}$slotId/');
+    final uri = Uri.parse('$_baseUrl$_slotsPath$slotId/');
     try {
       final response = await http
           .patch(
@@ -121,7 +121,7 @@ class ParkingHardwareApiService {
   /// Called when a booking is cancelled or a session is completed.
   /// Endpoint: PATCH /api/v1/parking-slots/{id}/   body: {"is_occupied": false}
   Future<bool> releaseSlot({required String slotId}) async {
-    final uri = Uri.parse('$_baseUrl${_slotsPath}$slotId/');
+    final uri = Uri.parse('$_baseUrl$_slotsPath$slotId/');
     try {
       final response = await http
           .patch(

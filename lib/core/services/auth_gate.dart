@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
+import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/sign_in_screen.dart';
 import 'package:rakni_v2/features/auth/create_account_step3_screen.dart';
 import 'package:rakni_v2/features/main/main_shell.dart';
@@ -16,6 +18,18 @@ class AuthGate extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: AuthService().authStateChanges,
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: Center(
+              child: Text(
+                'Auth Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          );
+        }
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SplashScreen();
         }
@@ -26,12 +40,16 @@ class AuthGate extends StatelessWidget {
           return const SignInScreen();
         }
 
-        // Check Firestore for a complete profile
+        // Check Firestore for a complete profile with a 3-second timeout
         return StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
-              .snapshots(),
+              .snapshots()
+              .timeout(
+                const Duration(seconds: 3),
+                onTimeout: (sink) => sink.addError(TimeoutException('Firestore connection timed out')),
+              ),
           builder: (context, firestoreSnap) {
             if (firestoreSnap.connectionState == ConnectionState.waiting) {
               return const SplashScreen();

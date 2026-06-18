@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -110,7 +110,7 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
             color: AppColors.white,
             size: 20,
@@ -137,7 +137,7 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                     child: SvgPicture.asset(
                       'assets/images/car_Icon.svg',
                       height: 70,
-                      colorFilter: const ColorFilter.mode(
+                      colorFilter: ColorFilter.mode(
                         AppColors.secondary,
                         BlendMode.srcIn,
                       ),
@@ -145,10 +145,10 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── Title & Subtitle ─────────────────────────────
-              const Text(
+              Text(
                 'Add Your Car',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -157,13 +157,13 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Enter your vehicle details',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // ── Form Fields ──────────────────────────────────
               _buildLabel('Car Brand'),
@@ -171,34 +171,34 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                 controller: _brandController,
                 hintText: 'e.g., Toyota, BMW, Mercedes',
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildLabel('Plate Number'),
               _buildTextField(
                 controller: _plateController,
                 hintText: 'e.g. أبج١٢٣٤ or ABC1234',
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildLabel('Model'),
               _buildTextField(
                 controller: _modelController,
                 hintText: 'e.g., Camry, Civic, X5',
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildLabel('Color'),
               _buildTextField(
                 controller: _colorController,
                 hintText: 'e.g., Black, Silver, White',
               ),
-              const SizedBox(height: 60),
+              SizedBox(height: 60),
 
               // ── Bottom Button ───────────────────────────────
               ElevatedButton(
                 onPressed: _isLoading ? null : _addCar,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.primary,
+                  foregroundColor: AppColors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -206,15 +206,15 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                   elevation: 0,
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: AppColors.primary,
+                          color: AppColors.black,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Add Car',
                         style: TextStyle(
                           fontSize: 16,
@@ -222,7 +222,7 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
                         ),
                       ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
           ),
         ),
@@ -235,7 +235,7 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
       padding: const EdgeInsets.only(bottom: 8.0, left: 4),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.white,
           fontSize: 15,
           fontWeight: FontWeight.w500,
@@ -250,10 +250,10 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: AppColors.white, fontSize: 14),
+      style: TextStyle(color: AppColors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: AppColors.hintColor, fontSize: 14),
+        hintStyle: TextStyle(color: AppColors.hintColor, fontSize: 14),
         filled: true,
         fillColor: AppColors.fieldColor,
         contentPadding: const EdgeInsets.symmetric(
@@ -262,15 +262,15 @@ class _AddCarScreen2State extends State<AddCarScreen2> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke),
+          borderSide: BorderSide(color: AppColors.fieldStroke),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.fieldStroke),
+          borderSide: BorderSide(color: AppColors.fieldStroke),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.secondary, width: 1.5),
         ),
       ),
     );

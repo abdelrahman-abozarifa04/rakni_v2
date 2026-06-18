@@ -94,9 +94,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         hour: (toMinutes ~/ 60) % 24, minute: toMinutes % 60);
   }
 
-  String _formatTimeDisplay(TimeOfDay t) =>
-      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -105,7 +102,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       lastDate: DateTime.now().add(const Duration(days: 30)),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.dark(
+          colorScheme: ColorScheme.dark(
             primary: AppColors.secondary,
             surface: AppColors.surface,
           ),
@@ -124,7 +121,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       initialTime: _fromTime,
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.dark(
+          colorScheme: ColorScheme.dark(
             primary: AppColors.secondary,
             surface: AppColors.surface,
           ),
@@ -244,17 +241,17 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Booking Details',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.secondary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.secondary))
           : _error != null
               ? _buildError()
               : _buildBody(),
@@ -264,14 +261,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   Widget _buildError() {
     return Center(
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.error_outline, color: AppColors.error, size: 48),
-        const SizedBox(height: 12),
-        Text(_error!, style: const TextStyle(color: AppColors.textSecondary)),
-        const SizedBox(height: 16),
+        Icon(Icons.error_outline, color: AppColors.error, size: 48),
+        SizedBox(height: 12),
+        Text(_error!, style: TextStyle(color: AppColors.textSecondary)),
+        SizedBox(height: 16),
         ElevatedButton(
           onPressed: _loadInitialData,
           style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
-          child: const Text('Retry', style: TextStyle(color: Colors.black)),
+          child: Text('Retry', style: TextStyle(color: Colors.black)),
         ),
       ]),
     );
@@ -287,32 +284,32 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             children: [
               // Lot Info Card
               _buildLotCard(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Vehicle Selector
               _buildSectionTitle('Select Vehicle'),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               _buildVehicleSelector(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Spot Selector
               _buildSectionTitle('Parking Spot'),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               _buildSpotField(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Date & Time
               _buildSectionTitle('Date & Time'),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               _buildDateTimeSection(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Payment Method
               _buildSectionTitle('Payment Method'),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               _buildPaymentSelector(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Promo Code
               _buildSectionTitle('Promo Code'),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               _buildPromoField(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               // Price Summary
               _buildPriceSummary(),
             ],
@@ -337,14 +334,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   elevation: 0,
                 ),
                 child: _confirming
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 22,
                         width: 22,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                       )
                     : Text(
                         'Confirm & Pay — EGP ${_total.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
             ),
@@ -356,7 +353,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Text(title,
-        style: const TextStyle(
+        style: TextStyle(
             color: AppColors.white, fontWeight: FontWeight.w600, fontSize: 14));
   }
 
@@ -383,47 +380,47 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(widget.parkingLot.imageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(
+                        errorBuilder: (context, error, stackTrace) => Icon(
                             Icons.local_parking,
                             color: AppColors.secondary,
                             size: 32)))
-                : const Icon(Icons.local_parking,
+                : Icon(Icons.local_parking,
                     color: AppColors.secondary, size: 32),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.parkingLot.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 15)),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(widget.parkingLot.address,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textSecondary, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.access_time,
+                    Icon(Icons.access_time,
                         color: AppColors.secondary, size: 14),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       'EGP ${widget.parkingLot.pricePerHour.toStringAsFixed(0)}/hr',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.secondary,
                           fontSize: 13,
                           fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(width: 12),
-                    const Icon(Icons.circle, color: Colors.green, size: 8),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 12),
+                    Icon(Icons.circle, color: Colors.green, size: 8),
+                    SizedBox(width: 4),
                     Text('${widget.parkingLot.availableSlots} spots',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textSecondary, fontSize: 12)),
                   ],
                 ),
@@ -444,7 +441,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.fieldStroke),
         ),
-        child: const Row(children: [
+        child: Row(children: [
           Icon(Icons.directions_car_outlined, color: AppColors.textSecondary),
           SizedBox(width: 10),
           Text('No vehicles found. Add one in your profile.',
@@ -464,17 +461,17 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         isExpanded: true,
         dropdownColor: AppColors.surface,
         underline: const SizedBox.shrink(),
-        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+        icon: Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
         items: _vehicles.map((v) {
           return DropdownMenuItem(
             value: v,
             child: Row(
               children: [
-                const Icon(Icons.directions_car, color: AppColors.secondary, size: 20),
-                const SizedBox(width: 10),
+                Icon(Icons.directions_car, color: AppColors.secondary, size: 20),
+                SizedBox(width: 10),
                 Text(
                   '${v.brand} ${v.model} — ${v.plateNumber}',
-                  style: const TextStyle(color: AppColors.white, fontSize: 14),
+                  style: TextStyle(color: AppColors.white, fontSize: 14),
                 ),
               ],
             ),
@@ -505,7 +502,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ? AppColors.secondary
                     : AppColors.textSecondary,
                 size: 20),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 _selectedSlot != null
@@ -518,7 +515,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     fontSize: 14),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios,
+            Icon(Icons.arrow_forward_ios,
                 color: AppColors.textSecondary, size: 14),
           ],
         ),
@@ -537,7 +534,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
           onTap: _selectDate,
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -548,7 +545,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 onTap: _selectFromTime,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: _buildTappableRow(
                 icon: Icons.access_time_rounded,
@@ -559,7 +556,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         // Duration stepper
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -571,7 +568,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Duration',
+              Text('Duration',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
               Row(
                 children: [
@@ -586,7 +583,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
                       '${_durationHours.toString().padLeft(2, '0')}h : ${_durationMinutes.toString().padLeft(2, '0')}m',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 15),
@@ -626,15 +623,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         child: Row(
           children: [
             Icon(icon, color: AppColors.secondary, size: 18),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.hintColor, fontSize: 11)),
                 Text(value,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 13)),
@@ -671,7 +668,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           label: 'Digital Wallet',
           subtitle: 'Balance: EGP ${_walletBalance.toStringAsFixed(2)}',
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildPaymentOption(
           id: 'visa',
           icon: Icons.credit_card_outlined,
@@ -717,7 +714,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       isSelected ? AppColors.secondary : AppColors.textSecondary,
                   size: 20),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -727,7 +724,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         fontWeight: FontWeight.w600,
                         fontSize: 13)),
                 Text(subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.hintColor, fontSize: 11)),
               ],
             ),
@@ -746,7 +743,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 color: isSelected ? AppColors.secondary : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 12, color: Colors.black)
+                  ? Icon(Icons.check, size: 12, color: Colors.black)
                   : null,
             ),
           ],
@@ -761,32 +758,32 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         Expanded(
           child: TextField(
             controller: _promoController,
-            style: const TextStyle(color: AppColors.white),
+            style: TextStyle(color: AppColors.white),
             decoration: InputDecoration(
               hintText: 'Enter promo code',
-              hintStyle: const TextStyle(color: AppColors.hintColor),
-              prefixIcon: const Icon(Icons.discount_outlined,
+              hintStyle: TextStyle(color: AppColors.hintColor),
+              prefixIcon: Icon(Icons.discount_outlined,
                   color: AppColors.secondary, size: 20),
               filled: true,
               fillColor: AppColors.fieldColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.fieldStroke),
+                borderSide: BorderSide(color: AppColors.fieldStroke),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.fieldStroke),
+                borderSide: BorderSide(color: AppColors.fieldStroke),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.secondary),
+                borderSide: BorderSide(color: AppColors.secondary),
               ),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         SizedBox(
           height: 52,
           child: ElevatedButton(
@@ -817,7 +814,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             ),
             child: Text(
               _promoApplied ? 'Applied!' : 'Apply',
-              style: const TextStyle(
+              style: TextStyle(
                   color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ),
@@ -838,15 +835,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         children: [
           _buildPriceRow('Parking fee',
               'EGP ${_subtotal.toStringAsFixed(2)}', AppColors.textSecondary),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           _buildPriceRow('Service fee',
               'EGP ${_serviceFee.toStringAsFixed(2)}', AppColors.textSecondary),
           if (_promoApplied) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _buildPriceRow('Promo discount',
                 '- EGP ${_promoDiscount.toStringAsFixed(2)}', Colors.green),
           ],
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: AppColors.fieldStroke, height: 1),
           ),

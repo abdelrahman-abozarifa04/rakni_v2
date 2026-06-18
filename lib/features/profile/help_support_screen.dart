@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -28,11 +28,11 @@ class HelpSupportScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
+          icon: Icon(Icons.arrow_back_ios,
               color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Help & Support',
           style:
               TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
@@ -50,7 +50,7 @@ class HelpSupportScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppColors.fieldStroke),
             ),
-            child: const TextField(
+            child: TextField(
               style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 hintText: 'Search for help...',
@@ -60,7 +60,7 @@ class HelpSupportScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
 
           // Quick Actions
           Row(
@@ -76,7 +76,7 @@ class HelpSupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _buildQuickAction(
                   context,
@@ -88,7 +88,7 @@ class HelpSupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _buildQuickAction(
                   context,
@@ -102,10 +102,10 @@ class HelpSupportScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
 
           // FAQ Section
-          const Text(
+          Text(
             'Frequently Asked Questions',
             style: TextStyle(
               color: AppColors.white,
@@ -113,13 +113,13 @@ class HelpSupportScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ..._faqs.map((faq) => _buildFaqItem(context, faq)),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Other Support Options
-          const Text(
+          Text(
             'More Options',
             style: TextStyle(
               color: AppColors.white,
@@ -127,21 +127,21 @@ class HelpSupportScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildOptionItem(
             icon: Icons.book_outlined,
             title: 'User Guide',
             subtitle: 'How to use Rakni',
             onTap: () => _launchUrl(context, 'https://rakni.app/guide'),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildOptionItem(
             icon: Icons.bug_report_outlined,
             title: 'Report a Bug',
             subtitle: 'Help us improve the app',
             onTap: () => _showReportSheet(context),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildOptionItem(
             icon: Icons.star_outline,
             title: 'Rate the App',
@@ -151,14 +151,14 @@ class HelpSupportScreen extends StatelessWidget {
               'market://details?id=com.rakniteam.rakni_v2',
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildOptionItem(
             icon: Icons.info_outline,
             title: 'About Rakni',
             subtitle: 'Version 2.0.0',
             onTap: () => _showAboutDialog(context),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
         ],
       ),
     );
@@ -181,10 +181,10 @@ class HelpSupportScreen extends StatelessWidget {
         child: Column(
           children: [
             Icon(icon, color: AppColors.secondary, size: 28),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -211,7 +211,7 @@ class HelpSupportScreen extends StatelessWidget {
         collapsedIconColor: AppColors.textSecondary,
         title: Text(
           faq.question,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.white,
             fontSize: 15,
             fontWeight: FontWeight.w500,
@@ -220,7 +220,7 @@ class HelpSupportScreen extends StatelessWidget {
         children: [
           Text(
             faq.answer,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
               height: 1.6,
@@ -255,24 +255,24 @@ class HelpSupportScreen extends StatelessWidget {
               ),
               child: Icon(icon, color: AppColors.textSecondary, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.textSecondary, fontSize: 13)),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios,
+            Icon(Icons.arrow_forward_ios,
                 color: AppColors.textSecondary, size: 14),
           ],
         ),
@@ -286,7 +286,7 @@ class HelpSupportScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
@@ -309,35 +309,35 @@ class HelpSupportScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            const Text('Report a Bug',
+            SizedBox(height: 20),
+            Text('Report a Bug',
                 style: TextStyle(
                     color: AppColors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             TextField(
               controller: ctrl,
               maxLines: 5,
-              style: const TextStyle(color: AppColors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 hintText: 'Describe the issue in detail...',
                 hintStyle:
-                    const TextStyle(color: AppColors.textSecondary),
+                    TextStyle(color: AppColors.textSecondary),
                 filled: true,
                 fillColor: AppColors.background,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.fieldStroke),
+                  borderSide: BorderSide(color: AppColors.fieldStroke),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide:
-                      const BorderSide(color: AppColors.secondary, width: 1.5),
+                      BorderSide(color: AppColors.secondary, width: 1.5),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               height: 54,
@@ -357,7 +357,7 @@ class HelpSupportScreen extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text('Submit Report',
+                child: Text('Submit Report',
                     style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold)),
               ),
@@ -373,7 +373,7 @@ class HelpSupportScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('About Rakni',
+        title: Text('About Rakni',
             style: TextStyle(color: AppColors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -385,21 +385,21 @@ class HelpSupportScreen extends StatelessWidget {
                 color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.local_parking,
+              child: Icon(Icons.local_parking,
                   color: AppColors.secondary, size: 40),
             ),
-            const SizedBox(height: 16),
-            const Text('Rakni',
+            SizedBox(height: 16),
+            Text('Rakni',
                 style: TextStyle(
                     color: AppColors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            const Text('Version 2.0.0',
+            SizedBox(height: 4),
+            Text('Version 2.0.0',
                 style: TextStyle(
                     color: AppColors.textSecondary, fontSize: 14)),
-            const SizedBox(height: 12),
-            const Text(
+            SizedBox(height: 12),
+            Text(
               'Your smart parking companion — find, book, and manage parking spots with ease.',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -410,7 +410,7 @@ class HelpSupportScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close',
+            child: Text('Close',
                 style: TextStyle(color: AppColors.secondary)),
           ),
         ],

@@ -1,0 +1,69 @@
+﻿Analyzing lib...                                                
+
+   info - Use the null-aware operator '?.' rather than an explicit 'null' comparison - lib\core\models\booking_model.dart:142:7 - prefer_null_aware_operators
+   info - Unnecessary braces in a string interpolation - lib\core\services\parking_hardware_api_service.dart:95:37 - unnecessary_brace_in_string_interps
+   info - Unnecessary braces in a string interpolation - lib\core\services\parking_hardware_api_service.dart:124:37 - unnecessary_brace_in_string_interps
+  error - Invalid constant value - lib\features\auth\create_account_step2_screen.dart:354:40 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:373:46 - invalid_constant
+  error - Invalid constant value - lib\features\auth\create_account_step3_screen.dart:409:44 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_confirmed_screen.dart:423:32 - invalid_constant
+warning - The declaration '_formatTimeDisplay' isn't referenced - lib\features\booking\booking_details_screen.dart:97:10 - unused_element
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:110:22 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:129:22 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:448:54 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_details_screen.dart:851:35 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:177:28 - invalid_constant
+  error - Invalid constant value - lib\features\booking\booking_spot_selection_screen.dart:279:35 - invalid_constant
+  error - Invalid constant value - lib\features\booking\extend_session_bottom_sheet.dart:495:35 - invalid_constant
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\booking\final_payment_details_screen.dart:2:8 - unnecessary_import
+  error - Invalid constant value - lib\features\booking\final_payment_details_screen.dart:539:35 - invalid_constant
+  error - Invalid constant value - lib\features\booking\gate_exit_scan_screen.dart:117:32 - invalid_constant
+  error - Invalid constant value - lib\features\booking\indoor_navigate_to_spot_screen.dart:239:34 - invalid_constant
+  error - Invalid constant value - lib\features\booking\outdoor_navigation_screen.dart:586:38 - invalid_constant
+   info - The local variable '_formatTimeOfDay' starts with an underscore - lib\features\bookings\booking_details_screen.dart:54:12 - no_leading_underscores_for_local_identifiers
+  error - Invalid constant value - lib\features\bookings\booking_details_screen.dart:126:54 - invalid_constant
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\bookings\bookings_screen.dart:1:8 - unnecessary_import
+   info - Don't use 'BuildContext's across async gaps - lib\features\bookings\bookings_screen.dart:125:7 - use_build_context_synchronously
+   info - The local variable '_formatTimeOfDay' starts with an underscore - lib\features\bookings\bookings_screen.dart:328:12 - no_leading_underscores_for_local_identifiers
+  error - Invalid constant value - lib\features\bookings\bookings_screen.dart:464:40 - invalid_constant
+  error - Invalid constant value - lib\features\home\favourites_screen.dart:120:28 - invalid_constant
+  error - Invalid constant value - lib\features\home\home_screen.dart:214:36 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\home\home_screen.dart:224:45 - unnecessary_underscores
+  error - Invalid constant value - lib\features\home\home_screen.dart:527:41 - invalid_constant
+  error - Invalid constant value - lib\features\home\location_screen.dart:415:35 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\home\parking_lot_detail_screen.dart:84:29 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\features\home\parking_lot_detail_screen.dart:84:33 - unnecessary_underscores
+  error - Invalid constant value - lib\features\home\parking_search_screen.dart:170:34 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\home\parking_search_screen.dart:245:31 - unnecessary_underscores
+   info - 'setMapStyle' is deprecated and shouldn't be used. Use GoogleMap.style instead - lib\features\map\map_screen.dart:139:21 - deprecated_member_use
+  error - Invalid constant value - lib\features\map\map_screen.dart:529:38 - invalid_constant
+  error - Invalid constant value - lib\features\map\map_screen.dart:573:34 - invalid_constant
+  error - Invalid constant value - lib\features\notifications\notifications_screen.dart:56:26 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\notifications\notifications_screen.dart:123:35 - unnecessary_underscores
+  error - Invalid constant value - lib\features\notifications\notifications_screen.dart:151:20 - invalid_constant
+  error - Invalid constant value - lib\features\profile\help_support_screen.dart:57:45 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:460:41 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:547:36 - invalid_constant
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:761:40 - invalid_constant
+   info - Statements in an if should be enclosed in a block - lib\features\profile\my_vehicles_screen.dart:883:33 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\features\profile\my_vehicles_screen.dart:891:33 - curly_braces_in_flow_control_structures
+  error - Invalid constant value - lib\features\profile\my_vehicles_screen.dart:1059:26 - invalid_constant
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\features\profile\profile_screen.dart:137:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\features\profile\profile_screen.dart:143:38 - use_build_context_synchronously
+  error - Invalid constant value - lib\features\profile\profile_screen.dart:185:41 - invalid_constant
+warning - The value of the field '_keyLang' isn't used - lib\features\profile\settings_screen.dart:31:23 - unused_field
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:62:24 - invalid_constant
+  error - Invalid constant value - lib\features\reviews\reviews_list_widget.dart:165:22 - invalid_constant
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\splash\splash_screen.dart:88:48 - deprecated_member_use
+  error - Invalid constant value - lib\features\transactions\transaction_history_screen.dart:57:26 - invalid_constant
+   info - Unnecessary use of multiple underscores - lib\features\transactions\transaction_history_screen.dart:205:41 - unnecessary_underscores
+  error - Invalid constant value - lib\features\wallet\top_up_screen.dart:240:30 - invalid_constant
+  error - Invalid constant value - lib\features\wallet\wallet_screen.dart:264:26 - invalid_constant
+
+flutter : 59 issues found. (ran in 9.5s)
+At line:1 char:1
++ flutter analyze lib 2>&1 | Out-File -FilePath "analyze_output2.txt" - ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (59 issues found. (ran in 9.5s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

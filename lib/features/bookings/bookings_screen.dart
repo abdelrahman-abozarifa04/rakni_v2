@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -98,25 +97,27 @@ class _BookingsScreenState extends State<BookingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Cancel Booking', style: TextStyle(color: AppColors.white)),
-        content: const Text(
+        title: Text('Cancel Booking', style: TextStyle(color: AppColors.white)),
+        content: Text(
           'Are you sure you want to cancel this booking?',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('No', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text('No', style: TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Yes, Cancel', style: TextStyle(color: AppColors.error)),
+            child: Text('Yes, Cancel', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
     );
 
     if (confirm != true) return;
+
+    if (!context.mounted) return;
 
     setState(() => _isProcessing = true);
 
@@ -184,8 +185,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 'Your Bookings',
                 style: TextStyle(
                   color: AppColors.white,
@@ -193,12 +194,12 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 4),
-              const Text(
+              SizedBox(height: 4),
+              Text(
                 'View and manage your parking reservations',
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Expanded(
                 child: uid.isEmpty
                     ? _buildEmptyState('Please log in to view your bookings.')
@@ -223,7 +224,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           return ListView.separated(
                             padding: const EdgeInsets.only(bottom: 24),
                             itemCount: bookings.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 16),
+                            separatorBuilder: (context, index) => SizedBox(height: 16),
                             itemBuilder: (context, index) {
                               return _buildBookingCard(context, bookings[index]);
                             },
@@ -243,15 +244,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.calendar_today_outlined,
             color: AppColors.hintColor,
             size: 64,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -268,15 +269,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             color: AppColors.error,
             size: 64,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -325,7 +326,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
       dateStr = 'Unknown Date';
     }
 
-    String _formatTimeOfDay(DateTime dt) {
+    String formatTimeOfDay(DateTime dt) {
       final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
       final ampm = dt.hour >= 12 ? 'PM' : 'AM';
       final min = dt.minute.toString().padLeft(2, '0');
@@ -333,8 +334,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
     }
 
     final timeStr = booking.endTime != null 
-        ? "${_formatTimeOfDay(booking.startTime)} - ${_formatTimeOfDay(booking.endTime!)}"
-        : "${_formatTimeOfDay(booking.startTime)} - Ongoing";
+        ? "${formatTimeOfDay(booking.startTime)} - ${formatTimeOfDay(booking.endTime!)}"
+        : "${formatTimeOfDay(booking.startTime)} - Ongoing";
 
     return GestureDetector(
       onTap: () {
@@ -379,7 +380,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       Expanded(
                         child: Text(
                           booking.lotName.isNotEmpty ? booking.lotName : 'Parking Lot',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -388,7 +389,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -409,27 +410,27 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _buildInfoRow(Icons.location_on_outlined, booking.lotAddress.isNotEmpty ? booking.lotAddress : 'Cairo, Egypt'),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _buildInfoRow(Icons.calendar_today_outlined, dateStr),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _buildInfoRow(Icons.access_time_outlined, timeStr),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _buildInfoRow(Icons.directions_car_outlined, booking.vehiclePlate.isNotEmpty ? booking.vehiclePlate : 'No Plate'),
-                  const SizedBox(height: 16),
-                  const Divider(color: AppColors.fieldStroke, height: 1),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  Divider(color: AppColors.fieldStroke, height: 1),
+                  SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Total',
                         style: TextStyle(color: AppColors.white, fontSize: 14),
                       ),
                       Text(
                         'EGP ${booking.totalAmount.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.secondary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -442,7 +443,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
             ),
             if (isActive) ...[
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
                       color: AppColors.fieldStroke,
@@ -455,7 +456,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     Expanded(
                       child: InkWell(
                         onTap: () => _navigateToActiveSession(context, booking),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
@@ -505,11 +506,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
     return Row(
       children: [
         Icon(icon, color: AppColors.textSecondary, size: 16),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

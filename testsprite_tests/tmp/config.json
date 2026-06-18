@@ -1,0 +1,17 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8080",
+  "executionArgs": {
+    "projectName": "rakni_v2",
+    "projectPath": "c:\\Users\\ASUS\\rakni_v2",
+    "testIds": [],
+    "additionalInstruction": "Flutter web app served at http://localhost:8080. Use email/password login for authenticated flows. Google sign-in may not work in automated browser.",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-jODqQMarcCkvoye2yR-Me3ZMY334FdMXv6R9WTJOxD4tTX9EicV6untGjrK4I01zYgGbEnf3kKxk4lHlJmhRgYJ-_YvaN82uXGwAGnomoEg6y2-5vccGFJtDOP9IXduGfmQ"
+    }
+  },
+  "serverPort": 57846
+}

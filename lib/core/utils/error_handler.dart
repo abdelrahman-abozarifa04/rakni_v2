@@ -72,13 +72,13 @@ class AppErrorHandler {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline, color: AppColors.white, size: 20),
-            const SizedBox(width: 10),
+            Icon(Icons.error_outline, color: Colors.white, size: 20),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(
-                  color: AppColors.white,
+                style: TextStyle(
+                  color: Colors.white,
                   fontSize: 14,
                 ),
               ),
@@ -103,13 +103,13 @@ class AppErrorHandler {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_outline, color: AppColors.primary, size: 20),
-            const SizedBox(width: 10),
+            Icon(Icons.check_circle_outline, color: AppColors.black, size: 20),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(
-                  color: AppColors.primary,
+                style: TextStyle(
+                  color: AppColors.black,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),

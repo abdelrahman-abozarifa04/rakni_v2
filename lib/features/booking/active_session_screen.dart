@@ -144,10 +144,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Active Session',
           style: TextStyle(
               color: AppColors.white,
@@ -157,7 +157,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: AppColors.white),
+            icon: Icon(Icons.more_vert, color: AppColors.white),
             onPressed: () {},
           ),
         ],
@@ -168,13 +168,13 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
           children: [
             // Circular timer ring
             _buildTimerRing(),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             // Cost card
             _buildCostCard(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             // Session details
             _buildSessionDetails(),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
             // Action buttons
             Row(
               children: [
@@ -182,12 +182,12 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                   child: OutlinedButton(
                     onPressed: _showExtendSheet,
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.fieldStroke),
+                      side: BorderSide(color: AppColors.fieldStroke),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Extend Session',
                       style: TextStyle(
                           color: AppColors.white,
@@ -196,7 +196,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _endSession,
@@ -208,7 +208,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'End Session',
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 14),
@@ -217,7 +217,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -279,8 +279,8 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                             .withValues(alpha: _dotAnim.value),
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    const Text('Active Session',
+                    SizedBox(width: 6),
+                    Text('Active Session',
                         style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
@@ -288,20 +288,20 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               // Time display
               Text(
                 _formatDuration(_elapsed),
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.white,
                     fontSize: 34,
                     fontWeight: FontWeight.bold,
                     fontFeatures: [FontFeature.tabularFigures()]),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 'EGP ${_currentCost.toStringAsFixed(2)}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.secondary,
                     fontSize: 18,
                     fontWeight: FontWeight.w600),
@@ -358,20 +358,21 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     required String label,
     required String value,
     required IconData icon,
-    Color valueColor = AppColors.white,
+    Color? valueColor,
   }) {
+    final effectiveColor = valueColor ?? AppColors.white;
     return Column(
       children: [
         Icon(icon, color: AppColors.secondary, size: 18),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.textSecondary, fontSize: 10),
             textAlign: TextAlign.center),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(value,
             style: TextStyle(
-                color: valueColor,
+                color: effectiveColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 12),
             textAlign: TextAlign.center),
@@ -422,7 +423,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
             children: [
               _buildDetailRow(item),
               if (i < details.length - 1)
-                const Divider(
+                Divider(
                     color: AppColors.fieldStroke,
                     height: 1,
                     indent: 16,
@@ -440,17 +441,17 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
       child: Row(
         children: [
           Icon(item.icon, color: AppColors.secondary, size: 18),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(item.label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textSecondary, fontSize: 11)),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(item.value,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w500,
                         fontSize: 13)),

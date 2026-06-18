@@ -1,0 +1,1665 @@
+[
+  {
+    "id": "TC001",
+    "title": "Create a driver account and reach the authenticated home screen",
+    "description": "This verifies that a new driver can complete registration and land on the authenticated home screen after account creation.",
+    "category": "User Authentication and Account Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /create-account"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a new driver name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the verification step"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid verification code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the account creation flow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated home screen is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Verify an unidentified vehicle and open the gate",
+    "description": "This test verifies that an admin can review an unrecognized vehicle, confirm the correct plate, and authorize gate access from the live control flow.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the live vehicle alert or control view"
+      },
+      {
+        "type": "action",
+        "description": "Review the detected vehicle details"
+      },
+      {
+        "type": "action",
+        "description": "Correct the license plate information"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the manual match"
+      },
+      {
+        "type": "action",
+        "description": "Authorize the gate to open"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the vehicle is marked as verified and access is allowed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Create a booking with vehicle and spot selection",
+    "description": "This test verifies that a driver can choose booking time, vehicle, and a parking spot and complete a reservation with confirmation.",
+    "category": "Parking Reservation and Booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /booking-details"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid booking date and time range"
+      },
+      {
+        "type": "action",
+        "description": "Choose a vehicle"
+      },
+      {
+        "type": "action",
+        "description": "Select an available parking spot"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the booking details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking identifier is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Sign in and reach the authenticated home screen",
+    "description": "This verifies that an existing driver can sign in with valid credentials and access the app successfully.",
+    "category": "User Authentication and Account Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated home screen is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Finalize parking payment from the booking flow",
+    "description": "This test verifies that a driver can review the total parking cost, submit payment, and see the booking finalized.",
+    "category": "Parking Payment and Wallet Top-Up",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /booking-details"
+      },
+      {
+        "type": "action",
+        "description": "Review the total parking cost"
+      },
+      {
+        "type": "action",
+        "description": "Choose a payment method"
+      },
+      {
+        "type": "action",
+        "description": "Submit the payment"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking is finalized"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Issue a gate override from a reviewed booking record",
+    "description": "This test verifies that an admin can inspect a suspicious booking or recognition record and issue a manual gate override that is reflected in the UI.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the booking or recognition record from the dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Validate the record against the reservation details"
+      },
+      {
+        "type": "action",
+        "description": "Issue a gate override"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a gate override confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the manual action appears in the activity log"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "View active session details",
+    "description": "This verifies that a driver can open the active parking session and see the current session state.",
+    "category": "Active Parking Session Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the active session screen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current parking session details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Open the admin operations dashboard from the profile area",
+    "description": "This verifies that an admin can reach the operations dashboard from the profile area and see the main management summary.",
+    "category": "Admin Dashboard and Parking Operations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the profile area"
+      },
+      {
+        "type": "action",
+        "description": "Open the admin or management tools"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify occupancy and alert information is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "End an active parking session",
+    "description": "This verifies that a driver can end a parking session and see the final payment summary.",
+    "category": "Active Parking Session Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the active session screen"
+      },
+      {
+        "type": "action",
+        "description": "End the parking session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final payment summary is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Review operational metrics and filter by zone",
+    "description": "This verifies that an admin can inspect real-time parking metrics and change the view by zone.",
+    "category": "Admin Dashboard and Parking Operations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the profile area"
+      },
+      {
+        "type": "action",
+        "description": "Open the admin or management tools"
+      },
+      {
+        "type": "action",
+        "description": "Select a zone filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard updates to the selected zone"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify current occupancy metrics are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Review estimated fee before confirming a reservation",
+    "description": "This test verifies that a driver can set a booking time, review the estimated cost, and reach the payment step with pricing visible.",
+    "category": "Parking Reservation and Booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /booking-details"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid booking time"
+      },
+      {
+        "type": "action",
+        "description": "Review the estimated fee"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the payment step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the payment step is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the estimated fee is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Browse nearby parking from home and open lot details",
+    "description": "This verifies that a logged-in driver can view nearby parking options from home and open a lot to inspect its details and reviews.",
+    "category": "Real-Time Parking Discovery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /home"
+      },
+      {
+        "type": "action",
+        "description": "Inspect the nearby parking options"
+      },
+      {
+        "type": "action",
+        "description": "Open a parking lot from the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected parking lot detail view is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify parking lot information and reviews are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Top up the wallet and see the balance update",
+    "description": "This test verifies that a driver can add funds through the wallet and see the new balance and transaction entry afterward.",
+    "category": "Parking Payment and Wallet Top-Up",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /wallet"
+      },
+      {
+        "type": "action",
+        "description": "Start a wallet top-up"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid top-up amount"
+      },
+      {
+        "type": "action",
+        "description": "Complete the top-up"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wallet balance is updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a new transaction record is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Correct an unrecognized license plate before approval",
+    "description": "This test verifies that an admin can edit an incorrect plate entry and successfully save the corrected identification for a vehicle review.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open an unrecognized vehicle record"
+      },
+      {
+        "type": "action",
+        "description": "Select the option to edit the license plate"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a valid corrected plate value"
+      },
+      {
+        "type": "action",
+        "description": "Save the updated plate information"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the corrected plate is displayed in the review view"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Extend an active parking session",
+    "description": "This verifies that a driver can extend an ongoing parking session and see the remaining time update.",
+    "category": "Active Parking Session Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the active session screen"
+      },
+      {
+        "type": "action",
+        "description": "Extend the parking duration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the remaining time is updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Search and filter parking lots",
+    "description": "This verifies that a logged-in driver can search for parking, apply filters, and see matching results.",
+    "category": "Real-Time Parking Discovery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /parking-search"
+      },
+      {
+        "type": "action",
+        "description": "Search for nearby parking"
+      },
+      {
+        "type": "action",
+        "description": "Apply a price filter"
+      },
+      {
+        "type": "action",
+        "description": "Apply an availability filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching parking lots are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Recover account access through password reset",
+    "description": "This verifies that a driver can start the password recovery flow and reach the reset completion state.",
+    "category": "User Authentication and Account Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /reset-password"
+      },
+      {
+        "type": "action",
+        "description": "Start the password recovery flow"
+      },
+      {
+        "type": "action",
+        "description": "Follow the password reset steps"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password reset confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "View lot details and save a favourite parking lot",
+    "description": "This test verifies that a driver can review a lot’s details and mark it as a favourite so the selection is saved for later use.",
+    "category": "Favorites and Parking Lot Details",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the lot details entry point"
+      },
+      {
+        "type": "action",
+        "description": "Add the parking lot to favourites"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the lot is saved as a favourite"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify lot details remain visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "View recent parking notifications",
+    "description": "This verifies that a driver can open the notifications screen and review recent booking, payment, and session alerts.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the notifications section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent notifications are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify parking-related update notifications are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Add a registered vehicle",
+    "description": "This verifies that a logged-in driver can save a new vehicle profile for future bookings.",
+    "category": "Vehicle Profile Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /vehicles"
+      },
+      {
+        "type": "action",
+        "description": "Add a vehicle"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the license plate field with a unique plate number"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the vehicle model field with a vehicle model"
+      },
+      {
+        "type": "action",
+        "description": "Save the vehicle details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new vehicle is listed for the account"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Review lot information before booking",
+    "description": "This test verifies that a driver can open a parking lot, inspect its reviews and attributes, and continue toward booking from the same flow.",
+    "category": "Favorites and Parking Lot Details",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the lot details entry point"
+      },
+      {
+        "type": "action",
+        "description": "Review the lot reviews and attributes"
+      },
+      {
+        "type": "action",
+        "description": "Proceed toward booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking entry point is available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify lot details are still visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Open a notification and view its related parking update",
+    "description": "This verifies that opening a notification takes the user to the related booking or payment update details.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the notifications section"
+      },
+      {
+        "type": "action",
+        "description": "Open a recent parking notification"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the related parking update is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notification is marked as read"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Review the live vehicle snapshot before approving access",
+    "description": "This test verifies that an admin can open the live snapshot or image associated with a blocked vehicle and use it to complete the manual verification flow.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the live vehicle alert"
+      },
+      {
+        "type": "action",
+        "description": "Open the associated snapshot or live view"
+      },
+      {
+        "type": "action",
+        "description": "Review the vehicle image details"
+      },
+      {
+        "type": "action",
+        "description": "Approve the vehicle after inspection"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the vehicle review is completed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "View the parking map and open a lot from the map",
+    "description": "This verifies that a logged-in driver can inspect the map view and select a lot to reach its detail view.",
+    "category": "Real-Time Parking Discovery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /map"
+      },
+      {
+        "type": "action",
+        "description": "Inspect the parking map"
+      },
+      {
+        "type": "action",
+        "description": "Select a parking lot from the map"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chosen parking lot detail view is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "View completed and active bookings",
+    "description": "This verifies that a driver can open the booking history and see both active and completed reservations.",
+    "category": "Booking History and Receipts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the bookings screen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking history entries are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Open a past booking and view its receipt",
+    "description": "This verifies that a driver can inspect a past reservation and access its receipt details.",
+    "category": "Booking History and Receipts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the bookings screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a past reservation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking receipt details are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Adjust parking pricing and save the new configuration",
+    "description": "This verifies that an admin can update pricing or rules and see the saved configuration reflected in the interface.",
+    "category": "Pricing, Rules, and Reports Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the profile area"
+      },
+      {
+        "type": "action",
+        "description": "Open the settings area"
+      },
+      {
+        "type": "action",
+        "description": "Update the parking pricing or rules fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the configuration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated configuration is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the pricing or rules change is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Reject a mismatched vehicle review",
+    "description": "This test verifies that an admin can identify a mismatched vehicle record and leave it unapproved so the gate remains blocked until corrected.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open an unidentified vehicle record"
+      },
+      {
+        "type": "action",
+        "description": "Review the vehicle and plate details"
+      },
+      {
+        "type": "action",
+        "description": "Choose to reject the match"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the vehicle remains unverified"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the gate is still blocked for that record"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Review wallet transaction history",
+    "description": "This test verifies that a driver can open transaction history in the wallet and inspect past top-ups and parking payments.",
+    "category": "Parking Payment and Wallet Top-Up",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /wallet"
+      },
+      {
+        "type": "action",
+        "description": "Open transaction history"
+      },
+      {
+        "type": "action",
+        "description": "Review past wallet and parking transactions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify transaction history is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify transaction details are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Inspect booking cost and duration details",
+    "description": "This verifies that a driver can open a reservation and review the recorded booking date, duration, and cost.",
+    "category": "Booking History and Receipts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the bookings screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a reservation entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking transaction details are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Generate an operational report for a chosen date range",
+    "description": "This verifies that an admin can choose a report type and date range and generate a report from the reports area.",
+    "category": "Pricing, Rules, and Reports Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the profile area"
+      },
+      {
+        "type": "action",
+        "description": "Open the reports section"
+      },
+      {
+        "type": "action",
+        "description": "Choose a report type"
+      },
+      {
+        "type": "action",
+        "description": "Choose a valid date range"
+      },
+      {
+        "type": "action",
+        "description": "Generate the report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the generated report is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify report results are available"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Start navigation from a confirmed parking booking",
+    "description": "This verifies that a driver can open a confirmed booking and launch route guidance to the assigned parking spot.",
+    "category": "Navigation to Assigned Parking Spot",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the bookings screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a confirmed booking"
+      },
+      {
+        "type": "action",
+        "description": "Start navigation to the assigned parking spot"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify route guidance to the parking spot is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Update vehicle details",
+    "description": "This verifies that a logged-in driver can edit an existing vehicle profile and see the updated vehicle entry.",
+    "category": "Vehicle Profile Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /vehicles"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing vehicle for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the vehicle model field with a new model"
+      },
+      {
+        "type": "action",
+        "description": "Save the vehicle details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the vehicle entry reflects the updated details"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Log a manual override for a recognized booking mismatch",
+    "description": "This test verifies that an admin can apply a manual override when a booking is valid but the recognition flow needs intervention, and the action is logged for auditability.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the booking record that needs intervention"
+      },
+      {
+        "type": "action",
+        "description": "Review the reservation details"
+      },
+      {
+        "type": "action",
+        "description": "Apply a manual override for the vehicle"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the override is recorded in the audit trail"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "View analytics before adjusting operational settings",
+    "description": "This verifies that an admin can review analytics and usage patterns from the dashboard to support operational decisions.",
+    "category": "Pricing, Rules, and Reports Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the profile area"
+      },
+      {
+        "type": "action",
+        "description": "Open the admin or management tools"
+      },
+      {
+        "type": "action",
+        "description": "Review the analytics area"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify usage analytics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify operational trends are visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "View route guidance after opening a booked lot from home or map",
+    "description": "This verifies that a driver can open a booked parking location and view navigation guidance to the assigned area.",
+    "category": "Navigation to Assigned Parking Spot",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open the home screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a booked parking lot or slot"
+      },
+      {
+        "type": "action",
+        "description": "Launch navigation guidance"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the assigned parking route is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Prevent booking when no slots are available",
+    "description": "This test verifies that a driver cannot complete a reservation when no parking slots are available for the selected time.",
+    "category": "Parking Reservation and Booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /booking-details"
+      },
+      {
+        "type": "action",
+        "description": "Select a time range with no available slots"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to continue with the reservation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an availability warning is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking confirmation is not shown"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC038",
+    "title": "Open the gate from a verified plate without editing",
+    "description": "This test verifies that an admin can approve access directly after confirming an already correct plate on a blocked vehicle record.",
+    "category": "Manual Plate Verification and Gate Override",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Open a blocked vehicle record"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the plate matches the expected vehicle"
+      },
+      {
+        "type": "action",
+        "description": "Authorize gate access without editing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is granted for the verified vehicle"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC039",
+    "title": "Reject duplicate vehicle information",
+    "description": "This verifies that adding a vehicle with a duplicate plate or invalid plate data is prevented and an inline validation error appears.",
+    "category": "Vehicle Profile Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email or phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /vehicles"
+      },
+      {
+        "type": "action",
+        "description": "Add a vehicle"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the license plate field with an invalid or duplicate plate number"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the vehicle model field with a vehicle model"
+      },
+      {
+        "type": "action",
+        "description": "Save the vehicle details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a vehicle validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

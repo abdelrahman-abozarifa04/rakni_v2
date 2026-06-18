@@ -123,7 +123,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -147,25 +147,25 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                 ),
               ),
             ),
-            const Text(
+            Text(
               'Extend Session',
               style: TextStyle(
                   color: AppColors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // Current session summary
             _buildSummaryCard(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // Extension controls
             _buildExtensionControls(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             // New end time
             _buildNewEndTime(),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // Payment selector
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text('Payment Method',
                   style: TextStyle(
@@ -173,16 +173,16 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                       fontWeight: FontWeight.w600,
                       fontSize: 14)),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _buildPaymentOption('wallet', Icons.account_balance_wallet_outlined,
                 'Digital Wallet', 'Balance: EGP ${_walletBalance.toStringAsFixed(2)}'),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _buildPaymentOption('visa', Icons.credit_card_outlined,
                 'Visa / Mastercard', 'Pay with card'),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // Price summary
             _buildPriceSummary(),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             // Confirm button
             SizedBox(
               width: double.infinity,
@@ -197,7 +197,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                   elevation: 0,
                 ),
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 22,
                         width: 22,
                         child: CircularProgressIndicator(
@@ -205,7 +205,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                       )
                     : Text(
                         'Confirm & Pay — EGP ${_total.toStringAsFixed(2)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold),
                       ),
               ),
@@ -228,14 +228,14 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
         children: [
           _summaryRow('Reservation',
               '#${widget.booking.reservationId}'),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _summaryRow('Vehicle',
               widget.vehicle.plateNumber),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _summaryRow('Spot',
               '${widget.booking.level} · ${widget.booking.spotLabel}'),
           if (widget.booking.endTime != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _summaryRow('Current End',
                 _formatTime(widget.booking.endTime!)),
           ],
@@ -249,10 +249,10 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.textSecondary, fontSize: 12)),
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.white,
                 fontWeight: FontWeight.w600,
                 fontSize: 12)),
@@ -271,10 +271,10 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Extend By',
+          Text('Extend By',
               style: TextStyle(
                   color: AppColors.textSecondary, fontSize: 12)),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -293,8 +293,8 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                   }
                 },
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(':',
                     style: TextStyle(
                         color: AppColors.white,
@@ -344,21 +344,21 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.fieldStroke),
             ),
-            child: const Icon(Icons.keyboard_arrow_up,
+            child: Icon(Icons.keyboard_arrow_up,
                 color: AppColors.secondary, size: 22),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(value.toString().padLeft(2, '0'),
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.white,
                 fontSize: 28,
                 fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.textSecondary, fontSize: 10)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         GestureDetector(
           onTap: onDecrement,
           child: Container(
@@ -369,7 +369,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.fieldStroke),
             ),
-            child: const Icon(Icons.keyboard_arrow_down,
+            child: Icon(Icons.keyboard_arrow_down,
                 color: AppColors.secondary, size: 22),
           ),
         ),
@@ -391,17 +391,17 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
         children: [
           Row(
             children: [
-              const Icon(Icons.update_outlined,
+              Icon(Icons.update_outlined,
                   color: AppColors.secondary, size: 18),
-              const SizedBox(width: 8),
-              const Text('New End Time',
+              SizedBox(width: 8),
+              Text('New End Time',
                   style: TextStyle(
                       color: AppColors.textSecondary, fontSize: 13)),
             ],
           ),
           Text(
             _formatTime(_newEndTime),
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.secondary,
                 fontWeight: FontWeight.bold,
                 fontSize: 18),
@@ -435,7 +435,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                     ? AppColors.secondary
                     : AppColors.textSecondary,
                 size: 20),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,7 +448,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                           fontWeight: FontWeight.w600,
                           fontSize: 13)),
                   Text(sub,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.hintColor, fontSize: 11)),
                 ],
               ),
@@ -466,7 +466,7 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                 color: isSelected ? AppColors.secondary : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 10, color: Colors.black)
+                  ? Icon(Icons.check, size: 10, color: Colors.black)
                   : null,
             ),
           ],
@@ -487,10 +487,10 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
         children: [
           _priceRow('Extension fee', 'EGP ${_extensionFee.toStringAsFixed(2)}',
               AppColors.textSecondary),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _priceRow('Service fee', 'EGP ${_serviceFee.toStringAsFixed(2)}',
               AppColors.textSecondary),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(color: AppColors.fieldStroke, height: 1),
           ),

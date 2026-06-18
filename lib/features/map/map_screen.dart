@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
 // ─────────────────────────────────────────────────────────────────
@@ -60,6 +61,29 @@ const String _darkMapStyle = '''[
 ]''';
 
 // ─────────────────────────────────────────────────────────────────
+// Light-mode map style JSON
+// ─────────────────────────────────────────────────────────────────
+const String _lightMapStyle = '''[
+  {"elementType":"geometry","stylers":[{"color":"#F6F7F4"}]},
+  {"elementType":"labels.text.fill","stylers":[{"color":"#4A5568"}]},
+  {"elementType":"labels.text.stroke","stylers":[{"color":"#FFFFFF"}]},
+  {"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#EAECEE"}]},
+  {"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#D8EDCD"}]},
+  {"featureType":"poi","elementType":"geometry","stylers":[{"color":"#D8EDCD"}]},
+  {"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#718096"}]},
+  {"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#BEDFB3"}]},
+  {"featureType":"road","elementType":"geometry","stylers":[{"color":"#FFFFFF"}]},
+  {"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#D1D5DB"}]},
+  {"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#4A5568"}]},
+  {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#F7FAFC"}]},
+  {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#2D3748"}]},
+  {"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#718096"}]},
+  {"featureType":"water","elementType":"geometry","stylers":[{"color":"#BEE3F8"}]},
+  {"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#2B6CB0"}]},
+  {"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#718096"}]}
+]''';
+
+// ─────────────────────────────────────────────────────────────────
 // MapScreen
 // ─────────────────────────────────────────────────────────────────
 class MapScreen extends StatefulWidget {
@@ -95,17 +119,23 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    ThemeService.instance.addListener(_onThemeChanged);
     _loadGaragesFromFirestore();
     _initLocation();
   }
 
   @override
   void dispose() {
+    ThemeService.instance.removeListener(_onThemeChanged);
     _garagesSubscription?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _mapController?.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   /// Streams parking lots from Firestore and maps them to [_Garage] objects.
@@ -420,7 +450,7 @@ class _MapScreenState extends State<MapScreen> {
               target: LatLng(30.0219, 31.4997),
               zoom: 12,
             ),
-            style: _darkMapStyle,
+            style: ThemeService.instance.isDark ? _darkMapStyle : _lightMapStyle,
             onMapCreated: (ctrl) async {
               _controllerCompleter.complete(ctrl);
               _mapController = ctrl;
@@ -458,24 +488,21 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(width: 14),
-                      SvgPicture.asset(
-                        'assets/images/search_Icon.svg',
-                        height: 18,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.hintColor,
-                          BlendMode.srcIn,
-                        ),
+                      SizedBox(width: 14),
+                      Icon(
+                        Icons.search_rounded,
+                        color: AppColors.hintColor,
+                        size: 18,
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       Expanded(
                         child: TextField(
                           controller: _searchController,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 14,
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: 'Search for a parking spot...',
                             hintStyle: TextStyle(
                               color: AppColors.hintColor,
@@ -490,7 +517,7 @@ class _MapScreenState extends State<MapScreen> {
                       if (_searchQuery.isNotEmpty)
                         GestureDetector(
                           onTap: _searchController.clear,
-                          child: const Padding(
+                          child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 12),
                             child: Icon(
                               Icons.close,
@@ -523,7 +550,7 @@ class _MapScreenState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: AppColors.fieldStroke),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
@@ -572,16 +599,16 @@ class _MapScreenState extends State<MapScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.route_rounded,
                       color: AppColors.secondary,
                       size: 18,
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: RichText(
                         text: TextSpan(
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                           ),
@@ -589,7 +616,7 @@ class _MapScreenState extends State<MapScreen> {
                             const TextSpan(text: 'Routing to: '),
                             TextSpan(
                               text: _routeTarget!.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -605,7 +632,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                     GestureDetector(
                       onTap: _clearRoute,
-                      child: const Icon(
+                      child: Icon(
                         Icons.close,
                         color: AppColors.hintColor,
                         size: 18,
@@ -639,8 +666,8 @@ class _MapScreenState extends State<MapScreen> {
                   child: SvgPicture.asset(
                     'assets/images/curent_location_icon.svg',
                     height: 22,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                    colorFilter: ColorFilter.mode(
+                      AppColors.black,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -665,9 +692,9 @@ class _GarageSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1F),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: AppColors.navBarBackground,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       child: Column(
@@ -684,13 +711,13 @@ class _GarageSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Text(
                   garage.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -699,7 +726,7 @@ class _GarageSheet extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(
+                child: Icon(
                   Icons.close,
                   color: AppColors.hintColor,
                   size: 20,
@@ -707,48 +734,48 @@ class _GarageSheet extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             children: [
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.secondary,
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 '${garage.slots} spots available',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             children: [
               _Chip(icon: Icons.access_time_rounded, label: 'Open 24/7'),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               _Chip(icon: Icons.attach_money_rounded, label: 'EGP 10/hr'),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ElevatedButton(
             onPressed: onGetDirections,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
-              foregroundColor: AppColors.primary,
+              foregroundColor: AppColors.black,
               minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
             ),
-            child: const Text(
+            child: Text(
               'Get Directions',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
@@ -777,10 +804,10 @@ class _Chip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: AppColors.secondary, size: 14),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),

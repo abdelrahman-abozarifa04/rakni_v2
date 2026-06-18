@@ -21,13 +21,13 @@ class OnboardingScreen extends StatelessWidget {
               // Top section: Logo, Title, Subtitle
               Column(
                 children: [
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                   SvgPicture.asset(
                     'assets/images/rakni_logo_white.svg',
                     height: 50,
                   ),
-                  const SizedBox(height: 40),
-                  const Text(
+                  SizedBox(height: 40),
+                  Text(
                     'Find Your Perfect\nParking Spot',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -37,7 +37,7 @@ class OnboardingScreen extends StatelessWidget {
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     'Smart parking solution\nfor Cairo, Egypt',
                     textAlign: TextAlign.center,
@@ -80,21 +80,21 @@ class OnboardingScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Get Started',
                         style: TextStyle(
-                          color: AppColors.primary,
+                          color: AppColors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         'Already have an account? ',
                         style: TextStyle(
                           color: AppColors.textSecondary,
@@ -108,7 +108,7 @@ class OnboardingScreen extends StatelessWidget {
                             MaterialPageRoute(builder: (context) => const SignInScreen()),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           'Sign In',
                           style: TextStyle(
                             color: AppColors.secondary,
@@ -119,24 +119,24 @@ class OnboardingScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   // Page indicator
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildPageDot(isActive: true),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       _buildPageDot(isActive: false),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       _buildPageDot(isActive: false),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   // Terms & Privacy notice
                   Wrap(
                     alignment: WrapAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         'By continuing, you agree to our ',
                         style: TextStyle(
                           color: AppColors.textSecondary,
@@ -150,7 +150,7 @@ class OnboardingScreen extends StatelessWidget {
                             builder: (_) => const TermsScreen(),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Terms',
                           style: TextStyle(
                             color: AppColors.secondary,
@@ -159,7 +159,7 @@ class OnboardingScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         ' & ',
                         style: TextStyle(
                           color: AppColors.textSecondary,
@@ -173,7 +173,7 @@ class OnboardingScreen extends StatelessWidget {
                             builder: (_) => const PrivacyPolicyScreen(),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Privacy Policy',
                           style: TextStyle(
                             color: AppColors.secondary,
@@ -184,7 +184,7 @@ class OnboardingScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                 ],
               ),
             ],

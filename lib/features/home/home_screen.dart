@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:rakni_v2/core/services/geocoding_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rakni_v2/core/services/favorites_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -10,6 +10,7 @@ import 'package:rakni_v2/features/home/location_screen.dart';
 import 'package:rakni_v2/features/home/parking_lot_detail_screen.dart';
 import 'package:rakni_v2/features/home/filter_bottom_sheet.dart';
 import 'package:rakni_v2/features/home/parking_search_screen.dart';
+import 'package:rakni_v2/features/main/main_shell.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/services/booking_service.dart';
@@ -21,6 +22,7 @@ import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
 import 'package:rakni_v2/features/booking/active_session_screen.dart';
 import 'package:rakni_v2/features/notifications/notifications_screen.dart';
 import 'package:rakni_v2/core/models/notification_model.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -97,12 +99,11 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           );
 
-      final placemarks = await placemarkFromCoordinates(
+      final locationName = await GeocodingService.instance.reverseGeocode(
         position.latitude,
         position.longitude,
       );
-      final place = placemarks.isNotEmpty ? placemarks.first : null;
-      _setLocation(_formatPlacemark(place));
+      _setLocation(locationName);
     } catch (_) {
       _setLocation('Cairo, Egypt');
     }
@@ -116,20 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  String _formatPlacemark(Placemark? place) {
-    if (place == null) return 'Cairo, Egypt';
-    final area = place.subLocality?.isNotEmpty == true
-        ? place.subLocality
-        : place.locality;
-    final city = place.administrativeArea?.isNotEmpty == true
-        ? place.administrativeArea
-        : place.country;
-    final parts = [
-      area,
-      city,
-    ].whereType<String>().where((part) => part.trim().isNotEmpty).toList();
-    return parts.isEmpty ? 'Cairo, Egypt' : parts.join(', ');
-  }
+
 
   Future<void> _selectLocation() async {
     final selected = await Navigator.push<String>(
@@ -206,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             .toList()
                         : lots;
                     if (filtered.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           'No parking lots available',
                           style: TextStyle(
@@ -220,8 +208,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(width: 14),
+                      separatorBuilder: (_, _) =>
+                          SizedBox(width: 14),
                       itemBuilder: (context, i) {
                         final lot = filtered[i];
                         return GestureDetector(
@@ -256,14 +244,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     _QuickAction(
                       svgPath: 'assets/images/Map_mark.svg',
                       label: 'Find\nParking',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ParkingSearchScreen(),
-                        ),
-                      ),
+                      onTap: () {
+                        final mainShellState =
+                            context.findAncestorStateOfType<MainShellState>();
+                        if (mainShellState != null) {
+                          mainShellState.setTab(1);
+                        }
+                      },
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     _QuickAction(
                       svgPath: 'assets/images/booking_Icon.svg',
                       label: 'Reserve\nSpot',
@@ -274,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     _QuickAction(
                       svgPath: 'assets/images/makefavorate_Icon.svg',
                       label: 'Favourites',
@@ -285,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     _QuickAction(
                       svgPath: 'assets/images/hour_Icon.svg',
                       label: 'History',
@@ -375,14 +364,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   SvgPicture.asset(
                     'assets/images/curent_location_icon.svg',
                     height: 18,
-                    colorFilter: const ColorFilter.mode(
+                    colorFilter: ColorFilter.mode(
                       AppColors.secondary,
                       BlendMode.srcIn,
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   if (_locationLoading)
-                    const SizedBox(
+                    SizedBox(
                       width: 14,
                       height: 14,
                       child: CircularProgressIndicator(
@@ -390,11 +379,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: AppColors.secondary,
                       ),
                     ),
-                  if (_locationLoading) const SizedBox(width: 8),
+                  if (_locationLoading) SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       _locationText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -402,8 +391,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(
+                  SizedBox(width: 4),
+                  Icon(
                     Icons.keyboard_arrow_down_rounded,
                     color: AppColors.textSecondary,
                     size: 18,
@@ -412,6 +401,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          // ── Theme toggle ──────────────────────────────────────────────
+          GestureDetector(
+            onTap: () => ThemeService.instance.toggle(),
+            child: Container(
+              width: 40,
+              height: 40,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: AppColors.fieldColor,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.fieldStroke),
+              ),
+              child: Icon(
+                ThemeService.instance.isDark
+                    ? Icons.light_mode_rounded
+                    : Icons.dark_mode_rounded,
+                color: AppColors.secondary,
+                size: 20,
+              ),
+            ),
+          ),
+          // ── Notification bell ─────────────────────────────────────────────
           StreamBuilder<List<NotificationModel>?>(
             stream: () {
               final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -444,7 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: AppColors.fieldStroke),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.notifications_none_rounded,
                         color: AppColors.white,
                         size: 20,
@@ -456,13 +467,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         right: -4,
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppColors.error,
                             shape: BoxShape.circle,
                           ),
                           child: Text(
                             unreadCount > 9 ? '9+' : '$unreadCount',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -495,10 +506,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            const SizedBox(width: 14),
-            const Icon(Icons.search, color: AppColors.hintColor, size: 20),
-            const SizedBox(width: 10),
-            const Expanded(
+            SizedBox(width: 14),
+            Icon(Icons.search, color: AppColors.hintColor, size: 20),
+            SizedBox(width: 10),
+            Expanded(
               child: Text(
                 'Search for a parking spot...',
                 style: TextStyle(color: AppColors.hintColor, fontSize: 14),
@@ -525,8 +536,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Icon(
                   Icons.tune_rounded,
                   color: _activeFilter != null
-                      ? AppColors.primary
-                      : AppColors.primary,
+                      ? AppColors.black
+                      : AppColors.black,
                   size: 18,
                 ),
               ),
@@ -543,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -552,7 +563,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (action.isNotEmpty)
           Text(
             action,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.secondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -600,7 +611,7 @@ class _NearbyParkingCard extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey[800],
-                    child: const Icon(
+                    child: Icon(
                       Icons.image_not_supported,
                       color: Colors.white24,
                     ),
@@ -620,8 +631,8 @@ class _NearbyParkingCard extends StatelessWidget {
                     ),
                     child: Text(
                       '$available free',
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: AppColors.black,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -638,7 +649,7 @@ class _NearbyParkingCard extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -646,21 +657,21 @@ class _NearbyParkingCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   children: [
                     SvgPicture.asset(
                       'assets/images/location_Icon.svg',
                       height: 11,
-                      colorFilter: const ColorFilter.mode(
+                      colorFilter: ColorFilter.mode(
                         AppColors.textSecondary,
                         BlendMode.srcIn,
                       ),
                     ),
-                    const SizedBox(width: 3),
+                    SizedBox(width: 3),
                     Text(
                       distance,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 11,
                       ),
@@ -669,15 +680,15 @@ class _NearbyParkingCard extends StatelessWidget {
                     SvgPicture.asset(
                       'assets/images/hour_Icon.svg',
                       height: 11,
-                      colorFilter: const ColorFilter.mode(
+                      colorFilter: ColorFilter.mode(
                         AppColors.secondary,
                         BlendMode.srcIn,
                       ),
                     ),
-                    const SizedBox(width: 3),
+                    SizedBox(width: 3),
                     Text(
                       price,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.secondary,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -707,28 +718,30 @@ class _QuickAction extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          height: 88,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: AppColors.fieldColor,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.fieldStroke),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
                 svgPath,
                 height: 26,
-                colorFilter: const ColorFilter.mode(
+                colorFilter: ColorFilter.mode(
                   AppColors.secondary,
                   BlendMode.srcIn,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -900,21 +913,21 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
                 child: SvgPicture.asset(
                   'assets/images/Map_mark.svg',
                   height: 22,
-                  colorFilter: const ColorFilter.mode(
+                  colorFilter: ColorFilter.mode(
                     AppColors.secondary,
                     BlendMode.srcIn,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     displayName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -922,10 +935,10 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
@@ -933,7 +946,7 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             GestureDetector(
               onTap: _navigateToActiveSession,
               child: Container(
@@ -942,10 +955,10 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
                   color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
+                child: Text(
                   'End',
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: AppColors.black,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1018,7 +1031,7 @@ class _FeaturedMallTileState extends State<_FeaturedMallTile> {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: Colors.grey[800],
-                child: const Icon(Icons.broken_image, color: Colors.white12),
+                child: Icon(Icons.broken_image, color: Colors.white12),
               ),
             ),
           ),
@@ -1034,7 +1047,7 @@ class _FeaturedMallTileState extends State<_FeaturedMallTile> {
                       Expanded(
                         child: Text(
                           widget.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -1066,16 +1079,16 @@ class _FeaturedMallTileState extends State<_FeaturedMallTile> {
                       SvgPicture.asset(
                         'assets/images/location_Icon.svg',
                         height: 12,
-                        colorFilter: const ColorFilter.mode(
+                        colorFilter: ColorFilter.mode(
                           AppColors.textSecondary,
                           BlendMode.srcIn,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           widget.address,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 11,
                           ),
@@ -1096,7 +1109,7 @@ class _FeaturedMallTileState extends State<_FeaturedMallTile> {
                     ),
                     child: Text(
                       widget.slots,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.secondary,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,

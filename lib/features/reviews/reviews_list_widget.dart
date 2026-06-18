@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/review_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -33,7 +33,7 @@ class ReviewsListWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildRatingSummary(reviews),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             if (reviews.isEmpty)
               _buildEmptyState()
             else
@@ -52,7 +52,7 @@ class ReviewsListWidget extends StatelessWidget {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.star_rounded, color: AppColors.secondary, size: 28),
             SizedBox(width: 10),
@@ -84,24 +84,24 @@ class ReviewsListWidget extends StatelessWidget {
             children: [
               Text(
                 avg.toStringAsFixed(1),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.white,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               _StarRow(rating: avg, size: 16),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 '${reviews.length} review${reviews.length == 1 ? '' : 's'}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
           Expanded(
             child: Column(
               children: [5, 4, 3, 2, 1].map((star) {
@@ -113,12 +113,12 @@ class ReviewsListWidget extends StatelessWidget {
                     children: [
                       Text(
                         '$star',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 11,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Expanded(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
@@ -130,10 +130,10 @@ class ReviewsListWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(
                         '$count',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 11,
                         ),
@@ -156,7 +156,7 @@ class ReviewsListWidget extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Center(
+      child: Center(
         child: Column(
           children: [
             Icon(
@@ -220,34 +220,34 @@ class _ReviewCard extends StatelessWidget {
                 backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
                 child: Text(
                   _initials(review.userName),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.secondary,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       review.userName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     _StarRow(rating: review.rating, size: 13),
                   ],
                 ),
               ),
               Text(
                 _relativeTime(review.timestamp),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.hintColor,
                   fontSize: 11,
                 ),
@@ -255,10 +255,10 @@ class _ReviewCard extends StatelessWidget {
             ],
           ),
           if (review.comment.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               review.comment,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
                 height: 1.5,

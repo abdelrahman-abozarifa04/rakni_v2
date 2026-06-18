@@ -139,7 +139,7 @@ class BookingModel {
 
   /// Duration of the booking (null if endTime not set).
   Duration? get duration =>
-      endTime != null ? endTime!.difference(startTime) : null;
+      endTime?.difference(startTime);
 
   @override
   String toString() {

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
@@ -215,12 +215,12 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
         leadingWidth: 100,
         leading: TextButton.icon(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
             color: AppColors.textSecondary,
             size: 20,
           ),
-          label: const Text(
+          label: Text(
             'Back',
             style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
           ),
@@ -239,8 +239,8 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'Verify Email',
                       style: TextStyle(
                         color: AppColors.white,
@@ -248,27 +248,27 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'Step 2 of 3',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     // ── progress bar ──────────────────────────────────
                     Row(
                       children: [
                         Expanded(child: _progressSegment(filled: true)),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(child: _progressSegment(filled: true)),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(child: _progressSegment(filled: false)),
                       ],
                     ),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
 
                     // ── email icon ────────────────────────────────────
                     Center(
@@ -283,17 +283,17 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                             width: 1.5,
                           ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.mark_email_unread_rounded,
                           color: AppColors.secondary,
                           size: 44,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
 
                     // ── description ───────────────────────────────────
-                    const Text(
+                    Text(
                       'Check your inbox',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -302,7 +302,7 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Text(
                       'We sent a verification link to',
                       textAlign: TextAlign.center,
@@ -311,17 +311,17 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                         fontSize: 15,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       widget.email,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Text(
                       'Click the link in the email to verify your account. This page will update automatically.',
                       textAlign: TextAlign.center,
@@ -331,11 +331,11 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                         height: 1.6,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
 
                     // ── polling indicator ─────────────────────────────
                     if (_isChecking)
-                      const Center(
+                      Center(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -358,7 +358,7 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                           ],
                         ),
                       ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
 
                     // ── resend section ────────────────────────────────
                     Center(
@@ -368,7 +368,7 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                             _resendCooldown > 0
                                 ? 'Resend link in ${_resendCooldown}s'
                                 : "Didn't receive the email?",
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 14,
                             ),
@@ -377,7 +377,7 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                             TextButton(
                               onPressed: _isSending ? null : _resendEmail,
                               child: _isSending
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
@@ -385,7 +385,7 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                                         color: AppColors.secondary,
                                       ),
                                     )
-                                  : const Text(
+                                  : Text(
                                       'Resend Link',
                                       style: TextStyle(
                                         color: AppColors.secondary,
@@ -408,7 +408,7 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                 onPressed: (_isSending || _uid == null) ? null : _manualCheck,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.primary,
+                  foregroundColor: AppColors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -416,8 +416,8 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
                   minimumSize: const Size(double.infinity, 56),
                 ),
                 child: _isChecking
-                    ? const CircularProgressIndicator(color: AppColors.primary)
-                    : const Text(
+                    ? CircularProgressIndicator(color: AppColors.black)
+                    : Text(
                         "I've verified my email",
                         style: TextStyle(
                           fontSize: 16,

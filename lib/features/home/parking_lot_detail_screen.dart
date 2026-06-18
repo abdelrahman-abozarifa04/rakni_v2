@@ -81,7 +81,7 @@ class _State extends State<ParkingLotDetailScreen> {
         Image.asset(
           widget.imagePath,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(color: Colors.grey[800]),
+          errorBuilder: (_, _, _) => Container(color: Colors.grey[800]),
         ),
         Container(
           decoration: BoxDecoration(
@@ -115,19 +115,21 @@ class _State extends State<ParkingLotDetailScreen> {
       ],
     ),
   );
-  Widget _cb(IconData i, VoidCallback f, {Color c = AppColors.white}) =>
-      GestureDetector(
-        onTap: f,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.7),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(i, color: c, size: 20),
+  Widget _cb(IconData i, VoidCallback f, {Color? c}) {
+    final iconColor = c ?? AppColors.white;
+    return GestureDetector(
+      onTap: f,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.7),
+          shape: BoxShape.circle,
         ),
-      );
+        child: Icon(i, color: iconColor, size: 20),
+      ),
+    );
+  }
 
   Widget _info() => Padding(
     padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -136,25 +138,25 @@ class _State extends State<ParkingLotDetailScreen> {
       children: [
         Text(
           widget.name,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.white,
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.location_on_outlined,
               color: AppColors.textSecondary,
               size: 16,
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Expanded(
               child: Text(
                 widget.address,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                 ),
@@ -162,12 +164,12 @@ class _State extends State<ParkingLotDetailScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
-            const SizedBox(width: 4),
-            const Text(
+            Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+            SizedBox(width: 4),
+            Text(
               '4.8',
               style: TextStyle(
                 color: AppColors.white,
@@ -175,23 +177,23 @@ class _State extends State<ParkingLotDetailScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Container(
               width: 4,
               height: 4,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.hintColor,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 6),
-            const Text(
+            SizedBox(width: 6),
+            Text(
               '234 reviews',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           children: [
             _sc(
@@ -199,9 +201,9 @@ class _State extends State<ParkingLotDetailScreen> {
               '${widget.availableSlots}/${widget.totalSlots}',
               'Available',
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             _sc(Icons.attach_money, widget.pricePerHour, 'Price'),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             _sc(Icons.access_time, '24/7', 'Hours'),
           ],
         ),
@@ -220,19 +222,19 @@ class _State extends State<ParkingLotDetailScreen> {
       child: Column(
         children: [
           Icon(i, color: AppColors.secondary, size: 20),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             v,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.white,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(
             l,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 10,
             ),
@@ -253,7 +255,7 @@ class _State extends State<ParkingLotDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Slot Type',
             style: TextStyle(
               color: AppColors.white,
@@ -261,7 +263,7 @@ class _State extends State<ParkingLotDetailScreen> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             children: m.entries.map((e) {
               final s = _slot == e.key;
@@ -291,7 +293,7 @@ class _State extends State<ParkingLotDetailScreen> {
                           size: 18,
                           color: s ? AppColors.secondary : AppColors.hintColor,
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                           e.key,
                           style: TextStyle(
@@ -378,13 +380,13 @@ class _State extends State<ParkingLotDetailScreen> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.secondary,
-          foregroundColor: AppColors.primary,
+          foregroundColor: AppColors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
           elevation: 0,
         ),
-        child: const Text(
+        child: Text(
           'Book Now',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),

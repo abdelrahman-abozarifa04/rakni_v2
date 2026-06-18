@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
 /// A transparent overlay that blocks interaction and shows a centered
@@ -37,7 +37,7 @@ class LoadingOverlay extends StatelessWidget {
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     color: AppColors.secondary,
                     strokeWidth: 3,
                   ),

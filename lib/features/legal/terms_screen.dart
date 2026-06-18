@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
 /// Terms of Service screen shown to users from Settings or during registration.
@@ -14,14 +14,14 @@ class TermsScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Terms of Service',
           style: TextStyle(
             color: AppColors.white,
@@ -44,7 +44,7 @@ class TermsScreen extends StatelessWidget {
                   color: AppColors.secondary.withValues(alpha: 0.3),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Last updated: January 2025',
                 style: TextStyle(
                   color: AppColors.secondary,
@@ -53,7 +53,7 @@ class TermsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             _buildSection(
               'Agreement to Terms',
@@ -154,7 +154,7 @@ class TermsScreen extends StatelessWidget {
               'Address: Cairo, Egypt',
             ),
 
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
           ],
         ),
       ),
@@ -169,17 +169,17 @@ class TermsScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.secondary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.3,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
               height: 1.7,

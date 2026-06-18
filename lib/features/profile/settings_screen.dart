@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rakni_v2/core/localization/locale_service.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/legal/privacy_policy_screen.dart';
 import 'package:rakni_v2/features/legal/terms_screen.dart';
@@ -17,8 +19,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _parkingReminders = true;
   bool _promotions = false;
   bool _locationServices = true;
-  bool _darkMode = true;
-  String _language = 'English';
+  // _darkMode removed — ThemeService is the source of truth
+  String _language = 'English'; // display label, synced from LocaleService
   String _currency = 'EGP';
 
   static const String _keyPush = 'setting_push_notifications';
@@ -26,8 +28,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const String _keyReminders = 'setting_parking_reminders';
   static const String _keyPromo = 'setting_promotions';
   static const String _keyLocation = 'setting_location_services';
-  static const String _keyDark = 'setting_dark_mode';
-  static const String _keyLang = 'setting_language';
   static const String _keyCurrency = 'setting_currency';
 
   @override
@@ -45,8 +45,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _parkingReminders = prefs.getBool(_keyReminders) ?? true;
       _promotions = prefs.getBool(_keyPromo) ?? false;
       _locationServices = prefs.getBool(_keyLocation) ?? true;
-      _darkMode = prefs.getBool(_keyDark) ?? true;
-      _language = prefs.getString(_keyLang) ?? 'English';
+      // Sync language display label from LocaleService
+      _language = LocaleService.instance.isArabic ? 'العربية' : 'English';
       _currency = prefs.getString(_keyCurrency) ?? 'EGP';
     });
   }
@@ -70,14 +70,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // Notifications Section
           _sectionTitle('Notifications'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildToggle(
             icon: Icons.notifications_outlined,
             title: 'Push Notifications',
@@ -98,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveBool(_keyPush, v);
             },
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildToggle(
             icon: Icons.email_outlined,
             title: 'Email Notifications',
@@ -109,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveBool(_keyEmail, v);
             },
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildToggle(
             icon: Icons.alarm_outlined,
             title: 'Parking Reminders',
@@ -120,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveBool(_keyReminders, v);
             },
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildToggle(
             icon: Icons.local_offer_outlined,
             title: 'Promotions & Offers',
@@ -131,11 +131,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveBool(_keyPromo, v);
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Privacy & Security Section
           _sectionTitle('Privacy & Security'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildToggle(
             icon: Icons.location_on_outlined,
             title: 'Location Services',
@@ -146,56 +146,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveBool(_keyLocation, v);
             },
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildNavItem(
             icon: Icons.lock_outline,
             title: 'Change Password',
             onTap: () => _showChangePasswordDialog(),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildNavItem(
             icon: Icons.security_outlined,
             title: 'Two-Factor Authentication',
             onTap: () {},
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildNavItem(
             icon: Icons.history_outlined,
             title: 'Login Activity',
             onTap: () {},
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Appearance Section
           _sectionTitle('Appearance'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildToggle(
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
             subtitle: 'Use dark theme throughout the app',
-            value: _darkMode,
+            value: ThemeService.instance.isDark,
             onChanged: (v) {
-              setState(() => _darkMode = v);
-              _saveBool(_keyDark, v);
+              ThemeService.instance.setDark(v);
+              setState(() {});
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Regional Section
           _sectionTitle('Regional'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildDropdown(
             icon: Icons.language_outlined,
             title: 'Language',
             value: _language,
-            items: ['English', 'العربية', 'French'],
+            items: const ['English', 'العربية'],
             onChanged: (v) {
               if (v == null) return;
               setState(() => _language = v);
-              _saveString(_keyLang, v);
+              LocaleService.instance.setLocale(
+                v == 'العربية' ? AppLocale.ar : AppLocale.en,
+              );
             },
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildDropdown(
             icon: Icons.attach_money_outlined,
             title: 'Currency',
@@ -207,11 +209,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveString(_keyCurrency, v);
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Legal
           _sectionTitle('Legal'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildNavItem(
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy Policy',
@@ -222,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildNavItem(
             icon: Icons.description_outlined,
             title: 'Terms of Service',
@@ -233,11 +235,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Danger Zone
           _sectionTitle('Account'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildNavItem(
             icon: Icons.delete_outline,
             title: 'Delete Account',
@@ -245,7 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconColor: AppColors.error,
             onTap: () => _showDeleteAccountDialog(),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
         ],
       ),
     );
@@ -254,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _sectionTitle(String text) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         color: AppColors.secondary,
         fontSize: 13,
         fontWeight: FontWeight.w600,
@@ -286,23 +288,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             child: Icon(icon, color: AppColors.textSecondary, size: 20),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -327,9 +329,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    Color textColor = AppColors.white,
-    Color iconColor = AppColors.textSecondary,
+    Color? textColor,
+    Color? iconColor,
   }) {
+    final effectiveTextColor = textColor ?? AppColors.white;
+    final effectiveIconColor = iconColor ?? AppColors.textSecondary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -343,23 +347,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
+                color: effectiveIconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: iconColor, size: 20),
+              child: Icon(icon, color: effectiveIconColor, size: 20),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
-                  color: textColor,
+                  color: effectiveTextColor,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios,
               color: AppColors.textSecondary,
               size: 14,
@@ -393,11 +397,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             child: Icon(icon, color: AppColors.textSecondary, size: 20),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
@@ -408,14 +412,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: DropdownButton<String>(
               value: value,
               dropdownColor: AppColors.surface,
-              style: const TextStyle(color: AppColors.secondary, fontSize: 14),
+              style: TextStyle(color: AppColors.secondary, fontSize: 14),
               items: items
                   .map(
                     (item) => DropdownMenuItem(value: item, child: Text(item)),
                   )
                   .toList(),
               onChanged: onChanged,
-              icon: const Icon(
+              icon: Icon(
                 Icons.expand_more,
                 color: AppColors.textSecondary,
                 size: 20,
@@ -436,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text(
+        title: Text(
           'Change Password',
           style: TextStyle(color: AppColors.white),
         ),
@@ -444,16 +448,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _dialogField(currentCtrl, 'Current Password', obscure: true),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _dialogField(newCtrl, 'New Password', obscure: true),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _dialogField(confirmCtrl, 'Confirm New Password', obscure: true),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -472,7 +476,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               );
             },
-            child: const Text('Update'),
+            child: Text('Update'),
           ),
         ],
       ),
@@ -487,17 +491,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return TextField(
       controller: ctrl,
       obscureText: obscure,
-      style: const TextStyle(color: AppColors.white),
+      style: TextStyle(color: AppColors.white),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        labelStyle: TextStyle(color: AppColors.textSecondary),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.fieldStroke),
+          borderSide: BorderSide(color: AppColors.fieldStroke),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.secondary),
+          borderSide: BorderSide(color: AppColors.secondary),
         ),
       ),
     );
@@ -508,18 +512,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text(
+        title: Text(
           'Delete Account',
           style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
         ),
-        content: const Text(
+        content: Text(
           'This action is permanent and cannot be undone. All your data will be deleted.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -533,7 +537,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(ctx);
               // TODO: Implement account deletion logic
             },
-            child: const Text('Delete'),
+            child: Text('Delete'),
           ),
         ],
       ),

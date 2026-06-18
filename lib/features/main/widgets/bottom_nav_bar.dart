@@ -44,7 +44,7 @@ class RakniBottomNavBar extends StatelessWidget {
                 activeIndex: currentIndex,
                 itemCount: _items.length,
                 notchRadius: (bubbleSize / 2) + 8,
-                barColor: const Color(0xFF1E1E1F),
+                barColor: AppColors.navBarBackground,
                 barHeight: barHeight + MediaQuery.of(context).padding.bottom,
               ),
               child: SizedBox(
@@ -76,17 +76,17 @@ class RakniBottomNavBar extends StatelessWidget {
                             SvgPicture.asset(
                               _items[i].svgPath,
                               height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.hintColor,
+                              colorFilter: ColorFilter.mode(
+                                AppColors.textSecondary,
                                 BlendMode.srcIn,
                               ),
                             ),
-                            const SizedBox(height: 3),
+                            SizedBox(height: 3),
                             Text(
                               _items[i].label,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.hintColor,
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
@@ -130,7 +130,7 @@ class RakniBottomNavBar extends StatelessWidget {
                   child: SvgPicture.asset(
                     _items[currentIndex].svgPath,
                     height: 26,
-                    colorFilter: const ColorFilter.mode(
+                    colorFilter: ColorFilter.mode(
                       AppColors.black,
                       BlendMode.srcIn,
                     ),

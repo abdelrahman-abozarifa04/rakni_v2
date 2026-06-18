@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/add_car_screen_2.dart';
@@ -16,7 +16,7 @@ class AddCarScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 60),
+            SizedBox(height: 60),
             // ── Logo ──────────────────────────────────────────
             Center(
               child: SvgPicture.asset(
@@ -24,10 +24,10 @@ class AddCarScreen extends StatelessWidget {
                 height: 45,
               ),
             ),
-            const SizedBox(height: 60),
+            SizedBox(height: 60),
 
             // ── Header Text ───────────────────────────────────
-            const Text(
+            Text(
               'Parking made easy..',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -36,8 +36,8 @@ class AddCarScreen extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Add your car to start now',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -73,7 +73,7 @@ class AddCarScreen extends StatelessWidget {
                     child: Container(
                       width: 130,
                       height: 140,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.secondary,
                         shape: BoxShape.circle,
                       ),
@@ -83,7 +83,7 @@ class AddCarScreen extends StatelessWidget {
                           'ADD YOUR\nCAR TO\nSTART',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: AppColors.black,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             height: 1.2,
@@ -107,7 +107,7 @@ class AddCarScreen extends StatelessWidget {
                   (route) => false,
                 );
               },
-              child: const Text(
+              child: Text(
                 'Skip for now',
                 style: TextStyle(
                   color: AppColors.textSecondary,
@@ -116,7 +116,7 @@ class AddCarScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
           ],
         ),
       ),

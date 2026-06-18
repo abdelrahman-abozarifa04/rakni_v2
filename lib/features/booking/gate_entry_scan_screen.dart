@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
@@ -106,26 +106,26 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on_outlined,
+                  Icon(Icons.location_on_outlined,
                       color: AppColors.textSecondary, size: 18),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(widget.parkingLot.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16)),
                         Text(widget.parkingLot.address,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.textSecondary, fontSize: 12),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
@@ -135,7 +135,7 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // Main scan card
             Expanded(
               child: Padding(
@@ -159,14 +159,14 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                                   animation: _pulseAnim,
                                   builder: (context, child) => Transform.scale(
                                     scale: _pulseAnim.value,
-                                    child: const Icon(Icons.wifi_tethering,
+                                    child: Icon(Icons.wifi_tethering,
                                         color: AppColors.secondary, size: 20),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                                 Text(
                                   _recognized ? 'ENTRY SCAN' : 'ENTRY SCAN',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: AppColors.secondary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
@@ -183,19 +183,19 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                                 border: Border.all(
                                     color: AppColors.fieldStroke),
                               ),
-                              child: const Icon(Icons.help_outline,
+                              child: Icon(Icons.help_outline,
                                   color: AppColors.textSecondary, size: 16),
                             ),
                           ],
                         ),
                       ),
-                      const Text('AI PLATE RECOGNITION',
+                      Text('AI PLATE RECOGNITION',
                           style: TextStyle(
                               color: AppColors.secondary,
                               fontSize: 11,
                               letterSpacing: 1.5,
                               fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       // Viewfinder
                       Expanded(
                         child: Padding(
@@ -206,7 +206,7 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                               : _buildScanningView(),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       // Status text
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 400),
@@ -214,9 +214,9 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                             ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.check_circle,
+                                  Icon(Icons.check_circle,
                                       color: Colors.green, size: 16),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     'Access Granted: Entry Gate Opening',
                                     key: const ValueKey('granted'),
@@ -227,7 +227,7 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                                   ),
                                 ],
                               )
-                            : const Text(
+                            : Text(
                                 'Please wait while scanning...',
                                 key: ValueKey('scanning'),
                                 style: TextStyle(
@@ -235,10 +235,10 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                                     fontSize: 13),
                               ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       // Instructions
                       _buildInstructions(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -249,21 +249,21 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               child: Column(
                 children: [
-                  const Text('Issues scanning?',
+                  Text('Issues scanning?',
                       style: TextStyle(
                           color: AppColors.textSecondary, fontSize: 12)),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {},
-                          icon: const Icon(Icons.qr_code_2,
+                          icon: Icon(Icons.qr_code_2,
                               color: AppColors.white, size: 18),
-                          label: const Text('Scan QR Code',
+                          label: Text('Scan QR Code',
                               style: TextStyle(color: AppColors.white)),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
+                            side: BorderSide(
                                 color: AppColors.fieldStroke),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
@@ -272,16 +272,16 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {},
-                          icon: const Icon(Icons.keyboard,
+                          icon: Icon(Icons.keyboard,
                               color: AppColors.white, size: 18),
-                          label: const Text('Manual Entry',
+                          label: Text('Manual Entry',
                               style: TextStyle(color: AppColors.white)),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
+                            side: BorderSide(
                                 color: AppColors.fieldStroke),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
@@ -316,9 +316,9 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.directions_car,
+                  Icon(Icons.directions_car,
                       color: Color(0xFF444444), size: 80),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 4),
@@ -327,7 +327,7 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                           color: AppColors.secondary, width: 2),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text('PLATE',
+                    child: Text('PLATE',
                         style: TextStyle(
                             color: AppColors.secondary,
                             fontSize: 12,
@@ -349,13 +349,13 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                 Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.green,
                   ),
                 ),
-                const SizedBox(width: 6),
-                const Text('ANPR System enabled',
+                SizedBox(width: 6),
+                Text('ANPR System enabled',
                     style: TextStyle(
                         color: AppColors.white,
                         fontSize: 11,
@@ -414,9 +414,9 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.directions_car,
+                  Icon(Icons.directions_car,
                       color: Color(0xFF666666), size: 72),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 6),
@@ -427,7 +427,7 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                     ),
                     child: Text(
                       widget.vehicle.plateNumber,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -446,9 +446,9 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
             right: 10,
             child: Container(
               padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                   color: Colors.green, shape: BoxShape.circle),
-              child: const Icon(Icons.check, color: Colors.white, size: 16),
+              child: Icon(Icons.check, color: Colors.white, size: 16),
             ),
           ),
         ],
@@ -516,12 +516,12 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Instructions',
+            Text('Instructions',
                 style: TextStyle(
                     color: AppColors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 13)),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             for (int i = 0; i < steps.length; i++) ...[
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,29 +529,29 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
                   Container(
                     width: 22,
                     height: 22,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.secondary,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Text('${i + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                               fontSize: 11)),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(steps[i],
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                             height: 1.4)),
                   ),
                 ],
               ),
-              if (i < steps.length - 1) const SizedBox(height: 8),
+              if (i < steps.length - 1) SizedBox(height: 8),
             ],
           ],
         ),

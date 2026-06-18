@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/user_model.dart';
@@ -105,14 +105,14 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios,
             color: AppColors.white,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Personal Details',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
@@ -129,7 +129,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 icon: Icons.person_outline,
                 validator: (v) => v!.trim().isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'Email',
                 controller: _emailCtrl,
@@ -137,7 +137,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 readOnly: true,
                 hint: 'Email cannot be changed',
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'Phone Number',
                 controller: _phoneCtrl,
@@ -145,14 +145,14 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 keyboardType: TextInputType.phone,
                 validator: (v) => v!.trim().isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'Age',
                 controller: _ageCtrl,
                 icon: Icons.cake_outlined,
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'License Number',
                 controller: _licenseNumberCtrl,
@@ -160,7 +160,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 keyboardType: TextInputType.number,
                 validator: Validators.validateLicenseNumber,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'License Expiry Date',
                 controller: _licenseExpiryCtrl,
@@ -171,20 +171,20 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                   return Validators.validateLicenseExpiry(v);
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'License Category',
                 controller: _licenseCategoryCtrl,
                 icon: Icons.category_outlined,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildField(
                 label: 'Address',
                 controller: _addressCtrl,
                 icon: Icons.home_outlined,
                 maxLines: 2,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // Gender picker
               Container(
@@ -199,18 +199,18 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.wc_outlined,
                       color: AppColors.textSecondary,
                       size: 20,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _gender,
                           dropdownColor: AppColors.surface,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.white,
                             fontSize: 15,
                           ),
@@ -227,7 +227,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               SizedBox(
                 width: double.infinity,
@@ -242,7 +242,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                     ),
                   ),
                   child: _isSaving
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
@@ -250,7 +250,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Save Changes',
                           style: TextStyle(
                             fontSize: 16,
@@ -259,7 +259,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
             ],
           ),
         ),
@@ -290,8 +290,8 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        hintStyle: const TextStyle(
+        labelStyle: TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(
           color: AppColors.textSecondary,
           fontSize: 13,
         ),
@@ -302,19 +302,19 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
             : AppColors.fieldColor,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.fieldStroke),
+          borderSide: BorderSide(color: AppColors.fieldStroke),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.secondary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
     );

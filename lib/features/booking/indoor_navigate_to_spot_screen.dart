@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
@@ -204,33 +204,33 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: AppColors.white,
               size: 20,
             ),
             onPressed: () => Navigator.pop(context),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(
                   'Navigate to $_spotLabel',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontWeight: FontWeight.w800,
                     fontSize: 20,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Follow the route to your spot',
                         maxLines: 1,
@@ -243,7 +243,7 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
                     ),
                     Text(
                       '1 min - $_distanceMeters m',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.secondary,
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
@@ -279,7 +279,7 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
               ),
               child: Icon(_turnIcon, color: Colors.black, size: 30),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,16 +288,16 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
                     _turnText,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 18,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   Text(
                     'In ${_distanceMeters}m',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
@@ -322,19 +322,19 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.white,
-                side: const BorderSide(color: AppColors.fieldStroke),
+                side: BorderSide(color: AppColors.fieldStroke),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 18),
               ),
-              child: const Text(
+              child: Text(
                 'Cancel',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: SizedBox(
               height: 42,
@@ -348,7 +348,7 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
+                child: Text(
                   'Done',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                 ),

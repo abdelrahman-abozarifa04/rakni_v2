@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -337,7 +337,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.fieldStroke),
                 ),
-                child: const Icon(Icons.my_location,
+                child: Icon(Icons.my_location,
                     color: AppColors.secondary, size: 22),
               ),
             ),
@@ -362,12 +362,12 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.directions_car_rounded, color: AppColors.secondary, size: 24),
-              const SizedBox(width: 10),
+              Icon(Icons.directions_car_rounded, color: AppColors.secondary, size: 24),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Navigate to ${widget.parkingLot.name}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -376,15 +376,15 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Start live GPS-style navigation to the garage, or skip if you are already at the entrance.',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -399,13 +399,13 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Start Navigation',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
@@ -417,13 +417,13 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.white,
-                    side: const BorderSide(color: AppColors.fieldStroke),
+                    side: BorderSide(color: AppColors.fieldStroke),
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Skip Navigation',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
@@ -460,21 +460,21 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
               color: AppColors.secondary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.turn_right, color: Colors.black, size: 28),
+            child: Icon(Icons.turn_right, color: Colors.black, size: 28),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   _instructions[_currentInstruction],
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16),
                 ),
-                const Text(
+                Text(
                   'In 200m',
                   style: TextStyle(
                       color: AppColors.textSecondary, fontSize: 13),
@@ -493,7 +493,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.fieldStroke),
               ),
-              child: const Icon(Icons.close,
+              child: Icon(Icons.close,
                   color: AppColors.textSecondary, size: 16),
             ),
           ),
@@ -523,31 +523,31 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.fieldStroke),
               ),
-              child: const Icon(Icons.close,
+              child: Icon(Icons.close,
                   color: AppColors.white, size: 20),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   '$_durationRemainingMinutes min',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.secondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 22),
                 ),
                 Text(
                   '${_distanceRemaining.toStringAsFixed(1)} km  •  ${TimeOfDay.now().format(context)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.textSecondary, fontSize: 13),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           GestureDetector(
             onTap: () {
               setState(() {
@@ -563,7 +563,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.fieldStroke),
               ),
-              child: const Icon(Icons.alt_route,
+              child: Icon(Icons.alt_route,
                   color: AppColors.white, size: 20),
             ),
           ),
@@ -582,7 +582,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
         decoration: BoxDecoration(
           color: AppColors.surface.withValues(alpha: 0.97),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          border: const Border(
+          border: Border(
               top: BorderSide(color: AppColors.fieldStroke)),
         ),
         child: Column(
@@ -613,23 +613,23 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
                   border:
                       Border.all(color: AppColors.secondary, width: 2),
                 ),
-                child: const Icon(Icons.location_on,
+                child: Icon(Icons.location_on,
                     color: AppColors.secondary, size: 36),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text("You've Arrived!",
+            SizedBox(height: 16),
+            Text("You've Arrived!",
                 style: TextStyle(
                     color: AppColors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               widget.parkingLot.name,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.textSecondary, fontSize: 14),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.push(
                 context,

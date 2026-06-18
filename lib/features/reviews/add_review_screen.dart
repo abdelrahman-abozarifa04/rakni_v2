@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/models/review_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
@@ -88,10 +88,10 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Rate Your Experience',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
@@ -116,17 +116,17 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                       color: AppColors.secondary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.local_parking,
                       color: AppColors.secondary,
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       widget.parkingLotName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -136,10 +136,10 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             // Rating label
-            const Text(
+            Text(
               'Your Rating',
               style: TextStyle(
                 color: AppColors.white,
@@ -147,12 +147,12 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 6),
-            const Text(
+            SizedBox(height: 6),
+            Text(
               'Tap a star to rate',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             // Star row
             Row(
@@ -181,11 +181,11 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
               }),
             ),
             if (_selectedRating > 0) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Center(
                 child: Text(
                   _ratingLabel(_selectedRating),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.secondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -193,10 +193,10 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             // Comment label
-            const Text(
+            Text(
               'Your Comment',
               style: TextStyle(
                 color: AppColors.white,
@@ -204,28 +204,28 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: _commentCtrl,
               maxLines: 5,
               maxLength: 500,
-              style: const TextStyle(color: AppColors.white, fontSize: 14),
+              style: TextStyle(color: AppColors.white, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Share your experience at this parking lot...',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   color: AppColors.hintColor,
                   fontSize: 14,
                 ),
                 filled: true,
                 fillColor: AppColors.surface,
-                counterStyle: const TextStyle(color: AppColors.textSecondary),
+                counterStyle: TextStyle(color: AppColors.textSecondary),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: AppColors.fieldStroke),
+                  borderSide: BorderSide(color: AppColors.fieldStroke),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     color: AppColors.secondary,
                     width: 1.5,
                   ),
@@ -233,7 +233,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                 contentPadding: const EdgeInsets.all(16),
               ),
             ),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             // Submit button
             SizedBox(
@@ -250,7 +250,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                   ),
                 ),
                 child: _isSubmitting
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 22,
                         width: 22,
                         child: CircularProgressIndicator(
@@ -258,7 +258,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                           color: AppColors.black,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Submit Review',
                         style: TextStyle(
                           fontSize: 16,
@@ -267,7 +267,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                       ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
           ],
         ),
       ),
