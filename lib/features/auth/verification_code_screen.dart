@@ -1,9 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/services/otp_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/new_password_screen.dart';
 import 'package:rakni_v2/features/auth/create_account_step3_screen.dart';
 
+// NOTE: This screen and the OTP flow appear to be currently unreachable dead code,
+// as the app uses the email link authentication flow (AuthService.sendPasswordResetEmail / sendEmailVerification).
 class VerificationCodeScreen extends StatefulWidget {
   final String email;
   final OtpType type;

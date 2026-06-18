@@ -66,8 +66,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       if (!mounted) return;
       setState(() {
         _vehicles = vehicles;
-        _selectedVehicle =
-            vehicles.firstWhere((v) => v.isDefault, orElse: () => vehicles.isNotEmpty ? vehicles.first : _selectedVehicle!);
+        _selectedVehicle = vehicles.isNotEmpty
+            ? (vehicles.any((v) => v.isDefault)
+                ? vehicles.firstWhere((v) => v.isDefault)
+                : vehicles.first)
+            : null;
         _walletBalance = wallet?.balance ?? 0;
         _loading = false;
       });

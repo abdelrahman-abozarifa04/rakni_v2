@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -220,14 +220,19 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         );
       }
 
-      // Write to Firestore using uid already created in Step 2
+      // Write to Firestore using uid already created in Step 2.
       try {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(widget.uid)
             .set(userData);
       } catch (e) {
-        debugPrint('CreateAccountStep3: Firestore set users failed: $e. Proceeding gracefully with mock layer.');
+        debugPrint('CreateAccountStep3: Firestore set users failed: $e');
+        if (!mounted) return;
+        _showSnackBar(
+          "We couldn't save your profile. Please check your connection and try again.",
+        );
+        return;
       }
 
       if (!mounted) return;
@@ -238,11 +243,9 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
       );
     } catch (e) {
       if (!mounted) return;
-      debugPrint('CreateAccountStep3: Error during save profile: $e. Redirecting anyway.');
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => AddCarScreen(uid: widget.uid)),
-        (route) => false,
+      debugPrint('CreateAccountStep3: Error during save profile: $e');
+      _showSnackBar(
+        'Something went wrong while saving your profile. Please try again.',
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);

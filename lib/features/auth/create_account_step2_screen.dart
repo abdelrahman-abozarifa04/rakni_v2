@@ -1,9 +1,10 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/create_account_step3_screen.dart';
+import 'package:rakni_v2/core/utils/firebase_error_mapper.dart';
 
 class CreateAccountStep2Screen extends StatefulWidget {
   final String fullName;
@@ -92,9 +93,13 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
   /// the verification e-mail and begins polling.
   Future<void> _createUserAndSendLink() async {
     setState(() => _isSending = true);
-    try {
-      UserCredential? cred;
 
+    UserCredential? cred;
+
+    // Step A — create (or recover) the Firebase Auth account. Any failure
+    // here means no usable account exists yet, so it's safe to pop back to
+    // Step 1.
+    try {
       try {
         cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: widget.email,
@@ -103,33 +108,71 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
         await cred.user?.updateDisplayName(widget.fullName);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
-          // User exists — sign them in so we can resend the link.
-          cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: widget.email,
-            password: widget.password,
-          );
+          // Account already exists — try to sign in with the same password
+          // so the user can resume verification without re-entering anything.
+          try {
+            cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: widget.email,
+              password: widget.password,
+            );
+          } on FirebaseAuthException {
+            if (!mounted) return;
+            _showSnackBar(
+              'An account with this email already exists with a different '
+              'password. Please go back and sign in instead.',
+            );
+            Navigator.pop(context);
+            if (mounted) setState(() => _isSending = false);
+            return;
+          }
         } else {
           rethrow;
         }
       }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      _showSnackBar(FirebaseErrorMapper.mapAuthError(e));
+      Navigator.pop(context);
+      if (mounted) setState(() => _isSending = false);
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      _showSnackBar('Could not create your account. Please try again.');
+      Navigator.pop(context);
+      if (mounted) setState(() => _isSending = false);
+      return;
+    }
 
-      _uid = cred.user?.uid;
+    _uid = cred.user?.uid;
 
-      // If already verified somehow, skip straight to Step 3.
-      if (cred.user?.emailVerified == true) {
-        _navigateToStep3();
-        return;
-      }
+    // If already verified somehow, skip straight to Step 3.
+    if (cred.user?.emailVerified == true) {
+      if (mounted) setState(() => _isSending = false);
+      _navigateToStep3();
+      return;
+    }
 
-      await _sendVerificationEmail(cred.user);
+    // Step B — the account now exists, so from here on we NEVER pop this
+    // screen on failure. Losing the account reference would force the user
+    // all the way back to Step 1 for no reason — instead we stay here and
+    // let them retry sending the email.
+    await _sendVerificationEmailWithFeedback();
+  }
+
+  /// Sends the verification email and reports the result inline on THIS
+  /// screen instead of bubbling a generic error and popping back to Step 1.
+  Future<void> _sendVerificationEmailWithFeedback() async {
+    try {
+      await _sendVerificationEmail(FirebaseAuth.instance.currentUser);
       _startCooldown();
       _startPolling();
-    } on FirebaseAuthException catch (e) {
-      _showSnackBar(e.message ?? 'Failed to initialise account.');
-      if (mounted) Navigator.pop(context);
-    } catch (_) {
-      _showSnackBar('An unexpected error occurred.');
-      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      _showSnackBar(e.toString().replaceFirst('Exception: ', ''));
+      // Make the "Resend" button available immediately — don't leave the
+      // user stuck behind a frozen 60s cooldown when nothing was actually
+      // sent.
+      setState(() => _resendCooldown = 0);
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
@@ -180,16 +223,15 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        _showSnackBar('Session expired. Please go back and try again.');
+        _showSnackBar('Your session expired. Please go back and sign up again.');
         return;
       }
       await _sendVerificationEmail(user);
       _startCooldown();
-      _showSnackBar('Verification email sent!', isError: false);
-    } on FirebaseAuthException catch (e) {
-      _showSnackBar(e.message ?? 'Could not send email. Try again later.');
-    } catch (_) {
-      _showSnackBar('Could not send email. Try again later.');
+      _showSnackBar('Verification email sent! Please check your inbox.', isError: false);
+    } catch (e) {
+      if (!mounted) return;
+      _showSnackBar(e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _isSending = false);
     }

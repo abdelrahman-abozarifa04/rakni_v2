@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rakni_v2/core/utils/firebase_error_mapper.dart';
 
 /// Singleton service that wraps [FirebaseAuth] and [GoogleSignIn].
 ///
@@ -36,27 +37,7 @@ class AuthService {
   /// Maps common [FirebaseAuthException] error codes to readable messages and
   /// rethrows as a plain [Exception] so callers don't need to import firebase_auth.
   Exception _handleAuthError(FirebaseAuthException e) {
-    final String message;
-    switch (e.code) {
-      case 'user-not-found':
-        message = 'No account found for this email address.';
-        break;
-      case 'wrong-password':
-        message = 'Incorrect password. Please try again.';
-        break;
-      case 'email-already-in-use':
-        message = 'An account with this email already exists.';
-        break;
-      case 'invalid-email':
-        message = 'The email address is not valid.';
-        break;
-      case 'email-not-verified':
-        message = 'Please verify your email before signing in.';
-        break;
-      default:
-        message = e.message ?? 'An authentication error occurred.';
-    }
-    return Exception(message);
+    return Exception(FirebaseErrorMapper.mapAuthError(e));
   }
 
   // ---------------------------------------------------------------------------
@@ -102,7 +83,7 @@ class AuthService {
         'uid': user.uid,
       });
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(e.message ?? 'Failed to send verification email.');
+      throw Exception(FirebaseErrorMapper.mapFunctionsError(e));
     }
   }
 
@@ -138,7 +119,7 @@ class AuthService {
         'email': email,
       });
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(e.message ?? 'Failed to send password reset email.');
+      throw Exception(FirebaseErrorMapper.mapFunctionsError(e));
     }
   }
 

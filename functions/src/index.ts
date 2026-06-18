@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import * as sgMail from "@sendgrid/mail";
+import sgMail from "@sendgrid/mail";
 import * as crypto from "crypto";
 
 // ---------------------------------------------------------------------------
@@ -480,7 +480,14 @@ async function sendOtpEmail(
     categories: ["transactional", "otp", type],
   };
 
-  await sgMail.send(msg);
+  try {
+    await sgMail.send(msg);
+  } catch (error: any) {
+    if (error.response && error.response.body) {
+      console.error("[SendGrid] sendOtpEmail API error response body:", JSON.stringify(error.response.body));
+    }
+    throw error;
+  }
 }
 
 async function sendActionEmail(
@@ -526,7 +533,14 @@ async function sendActionEmail(
     categories: ["transactional", "auth", type],
   };
 
-  await sgMail.send(msg);
+  try {
+    await sgMail.send(msg);
+  } catch (error: any) {
+    if (error.response && error.response.body) {
+      console.error("[SendGrid] sendActionEmail API error response body:", JSON.stringify(error.response.body));
+    }
+    throw error;
+  }
 }
 
 // ===========================================================================
@@ -668,8 +682,9 @@ export const sendVerificationEmailLink = functions
       const actionUrl = buildActionUrl(rawLink, "verifyEmail");
 
       await sendActionEmail(email, actionUrl, "verification");
-    } catch (error) {
-      console.error("[SendGrid] Verification link email failed:", error);
+      console.log(`[Auth] Verification link sent successfully to ${email}`);
+    } catch (error: any) {
+      console.error("[SendGrid] Verification link email failed for email:", email, "error:", error?.message || error);
       throw new functions.https.HttpsError(
         "internal",
         "Failed to send verification email."
@@ -708,12 +723,14 @@ export const sendPasswordResetEmailLink = functions
       const actionUrl = buildActionUrl(rawLink, "resetPassword");
 
       await sendActionEmail(email, actionUrl, "password_reset");
+      console.log(`[Auth] Password reset link sent successfully to ${email}`);
     } catch (error: any) {
       if (error.code === "auth/user-not-found") {
+        console.log(`[Auth] Password reset requested for non-existent email: ${email}`);
         // Avoid leaking whether the account exists.
         return { success: true };
       }
-      console.error("[SendGrid] Password reset email failed:", error);
+      console.error("[SendGrid] Password reset email failed for email:", email, "error:", error?.message || error);
       throw new functions.https.HttpsError(
         "internal",
         "Failed to send password reset email."

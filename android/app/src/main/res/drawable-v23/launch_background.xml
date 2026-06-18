@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Custom launch screen for Android 6.0 (API 23) to Android 11 (API 30), and Flutter handover on Android 12+ -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launch_background_color" />
+    <item
+        android:drawable="@mipmap/ic_launcher"
+        android:gravity="center"
+        android:width="108dp"
+        android:height="108dp" />
+</layer-list>

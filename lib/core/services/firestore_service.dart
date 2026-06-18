@@ -179,6 +179,10 @@ class FirestoreService {
   }
 
   /// Streams vehicles for a specific user.
+  ///
+  /// IMPORTANT: emits a REAL empty list when the user has no vehicles —
+  /// never fabricate placeholder cars. An empty list is the signal the UI
+  /// uses to block booking and prompt the user to add a real vehicle.
   Stream<List<VehicleModel>> streamVehicles(String uid) {
     late final StreamController<List<VehicleModel>> controller;
     StreamSubscription? subscription;
@@ -192,21 +196,20 @@ class FirestoreService {
                 final list = snapshot.docs
                     .map((doc) => VehicleModel.fromFirestore(doc))
                     .toList();
-                if (list.isEmpty) {
-                  controller.add(_getMockVehicles());
-                } else {
-                  controller.add(list);
-                }
+                controller.add(list);
               } catch (e) {
-                controller.add(_getMockVehicles());
+                debugPrint('[FirestoreService] Error mapping streamVehicles: $e');
+                controller.add(const []);
               }
             },
             onError: (error) {
-              controller.add(_getMockVehicles());
+              debugPrint('[FirestoreService] streamVehicles onError: $error');
+              controller.add(const []);
             },
           );
         } catch (e) {
-          controller.add(_getMockVehicles());
+          debugPrint('[FirestoreService] streamVehicles onListen catch: $e');
+          controller.add(const []);
         }
       },
       onCancel: () {
@@ -215,27 +218,6 @@ class FirestoreService {
     );
 
     return controller.stream;
-  }
-
-  List<VehicleModel> _getMockVehicles() {
-    return [
-      VehicleModel(
-        id: 'mock_car_1',
-        brand: 'BMW',
-        model: 'M4 Coupe',
-        plateNumber: 'أ ج د 5432',
-        color: 'Black',
-        isDefault: true,
-      ),
-      VehicleModel(
-        id: 'mock_car_2',
-        brand: 'Mercedes',
-        model: 'C200',
-        plateNumber: 'ر ق م 9876',
-        color: 'White',
-        isDefault: false,
-      ),
-    ];
   }
 
   /// Deletes a vehicle from `users/{uid}/vehicles/{vehicleId}`.

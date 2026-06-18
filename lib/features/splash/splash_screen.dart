@@ -71,6 +71,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final logoAsset = isDark
+        ? 'assets/images/rakni_logo_dark.svg'
+        : 'assets/images/Rakni_logo_white.svg';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       // Using a Stack instead of deeply nested containers is better for performance and readability
@@ -130,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             ScaleTransition(
               scale: _logoScale,
               child: SvgPicture.asset(
-                'assets/images/Rakni_logo_dark.svg',
+                logoAsset,
                 width: 90, 
                 fit: BoxFit.contain,
               ),

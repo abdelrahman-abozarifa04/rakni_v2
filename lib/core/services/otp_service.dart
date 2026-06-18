@@ -1,4 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:rakni_v2/core/utils/firebase_error_mapper.dart';
 
 enum OtpType { signupVerification, passwordReset }
 
@@ -25,7 +26,7 @@ class OtpService {
         'uid': uid,
       });
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(e.message ?? 'Failed to send verification OTP');
+      throw Exception(FirebaseErrorMapper.mapFunctionsError(e));
     } catch (e) {
       throw Exception('An unexpected error occurred while sending OTP');
     }
@@ -37,7 +38,7 @@ class OtpService {
         'email': email,
       });
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(e.message ?? 'Failed to send password reset OTP');
+      throw Exception(FirebaseErrorMapper.mapFunctionsError(e));
     } catch (e) {
       throw Exception('An unexpected error occurred while sending OTP');
     }
@@ -62,7 +63,10 @@ class OtpService {
 
       return OtpVerificationResult(success: success, error: error);
     } on FirebaseFunctionsException catch (e) {
-      return OtpVerificationResult(success: false, error: e.message);
+      return OtpVerificationResult(
+        success: false,
+        error: FirebaseErrorMapper.mapFunctionsError(e),
+      );
     } catch (e) {
       return OtpVerificationResult(
         success: false,
@@ -81,9 +85,10 @@ class OtpService {
         'newPassword': newPassword,
       });
     } on FirebaseFunctionsException catch (e) {
-      throw Exception(e.message ?? 'Failed to reset password');
+      throw Exception(FirebaseErrorMapper.mapFunctionsError(e));
     } catch (e) {
       throw Exception('An unexpected error occurred while resetting password');
     }
   }
 }
+
