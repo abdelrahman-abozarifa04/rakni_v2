@@ -9,6 +9,10 @@ class ImageUtils {
 
   static Future<String> xFileToBase64(XFile file) async {
     final bytes = await file.readAsBytes();
+    return bytesToBase64(bytes);
+  }
+
+  static String bytesToBase64(Uint8List bytes) {
     final base64String = base64Encode(bytes);
     return 'data:image/jpeg;base64,$base64String';
   }
@@ -19,6 +23,18 @@ class ImageUtils {
     String contentType = 'image/jpeg',
   }) async {
     final bytes = await file.readAsBytes();
+    return uploadBytesToStorage(
+      bytes: bytes,
+      path: path,
+      contentType: contentType,
+    );
+  }
+
+  static Future<String> uploadBytesToStorage({
+    required Uint8List bytes,
+    required String path,
+    String contentType = 'image/jpeg',
+  }) async {
     final ref = FirebaseStorage.instance.ref(path);
 
     // Web cannot use dart:io File handles, so always upload bytes with putData.

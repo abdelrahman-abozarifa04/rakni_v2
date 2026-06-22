@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/services/geocoding_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -23,6 +24,7 @@ import 'package:rakni_v2/features/booking/active_session_screen.dart';
 import 'package:rakni_v2/features/notifications/notifications_screen.dart';
 import 'package:rakni_v2/core/models/notification_model.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
+import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,12 +37,58 @@ class _HomeScreenState extends State<HomeScreen> {
   String _locationText = 'Getting location...';
   bool _locationLoading = true;
   FilterConfig? _activeFilter;
+  int? _apiAvailableSlots;
+  Timer? _apiPollTimer;
+
+  // Notification stream cached here so a new Firestore stream is NOT opened
+  // on every parent rebuild (PERF-003 fix). The stream is opened once and
+  // the StreamBuilder reuses the same subscription for the widget's lifetime.
+  late final Stream<List<NotificationModel>?> _notifStream;
 
   @override
   void initState() {
     super.initState();
     _fetchLocation();
+    _startApiPolling();
+    // Initialize the notification stream once. If user is not signed in we
+    // emit a single null value so the bell badge shows 0 unread.
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      _notifStream = FirestoreService.instance
+          .streamNotifications(uid)
+          .map<List<NotificationModel>?>((list) => list);
+    } else {
+      _notifStream = Stream<List<NotificationModel>?>.value(null);
+    }
   }
+
+  @override
+  void dispose() {
+    _apiPollTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startApiPolling() {
+    _pollApiAvailableSlots();
+    _apiPollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _pollApiAvailableSlots();
+    });
+  }
+
+  Future<void> _pollApiAvailableSlots() async {
+    try {
+      final slots = await ParkingHardwareApiService.instance.fetchSlots();
+      final count = slots.where((s) => s.isAvailable).length;
+      if (mounted) {
+        setState(() {
+          _apiAvailableSlots = count;
+        });
+      }
+    } catch (e) {
+      debugPrint('[HomeScreen] Error polling API slots: $e');
+    }
+  }
+
 
   Future<void> _fetchLocation() async {
     if (mounted) {
@@ -51,6 +99,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final locationServicesEnabled = prefs.getBool('setting_location_services') ?? true;
+      if (!locationServicesEnabled) {
+        _setLocation('Location services disabled');
+        return;
+      }
+
       // Geolocator works on web through the browser Geolocation API. It needs
       // HTTPS in production, while localhost is allowed during development.
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -217,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: _NearbyParkingCard(
                             name: lot.name,
                             distance: '—',
-                            available: lot.availableSlots,
+                            available: _apiAvailableSlots ?? lot.availableSlots,
                             price:
                                 'EGP ${lot.pricePerHour.toStringAsFixed(0)}/hr',
                             imagePath: lot.imageUrl ??
@@ -423,16 +478,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           // ── Notification bell ─────────────────────────────────────────────
+          // Uses the stream cached in initState — NOT re-created on every build
+          // (PERF-003 fix).
           StreamBuilder<List<NotificationModel>?>(
-            stream: () {
-              final uid = FirebaseAuth.instance.currentUser?.uid;
-              if (uid == null) {
-                return Stream<List<NotificationModel>?>.value(null);
-              }
-              return FirestoreService.instance
-                  .streamNotifications(uid)
-                  .map<List<NotificationModel>?>((list) => list);
-            }(),
+            stream: _notifStream,
             builder: (ctx, snap) {
               final unreadCount = snap.data
                   ?.where((n) => !n.isRead)

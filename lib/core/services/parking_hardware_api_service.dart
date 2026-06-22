@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
+import 'package:rakni_v2/core/models/blacklist_model.dart';
+import 'package:rakni_v2/core/models/subscription_model.dart';
 
 /// Talks directly to the Django REST hardware/sensor backend that tracks
 /// real-time occupancy of physical parking slots (camera + sensor driven).
@@ -22,7 +24,7 @@ class ParkingHardwareApiService {
 
   static const String _authToken = String.fromEnvironment(
     'PARKING_API_TOKEN',
-    defaultValue: '',
+    defaultValue: 'fce4336478734603aafb704eaf243dcbdc5dd79d',
   );
 
   static const String _slotsPath = '/api/v1/parking-slots/';
@@ -160,4 +162,243 @@ class ParkingHardwareApiService {
       level: '',
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // BLACKLIST INTEGRATION
+  // ---------------------------------------------------------------------------
+
+  String _normalizeNumerals(String input) {
+    const easternToWestern = {
+      '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+      '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+    };
+    String result = input;
+    easternToWestern.forEach((eastern, western) {
+      result = result.replaceAll(eastern, western);
+    });
+    return result;
+  }
+
+  String _normalizeArabicLetters(String input) {
+    return input
+        .replaceAll(RegExp(r'[أإآ]'), 'ا')
+        .replaceAll('ة', 'ه')
+        .replaceAll('ى', 'ي');
+  }
+
+  /// Helper to check if two plates match, normalizing spaces, casing,
+  /// Eastern/Western Arabic numerals, and Arabic character variations,
+  /// comparing digit and letter parts independently of their sequence order.
+  bool _platesMatch(String a, String b) {
+    final normA = _normalizeArabicLetters(_normalizeNumerals(a))
+        .replaceAll(RegExp(r'\s+'), '')
+        .toLowerCase();
+    final normB = _normalizeArabicLetters(_normalizeNumerals(b))
+        .replaceAll(RegExp(r'\s+'), '')
+        .toLowerCase();
+
+    // Extract digits only
+    final digitsA = normA.replaceAll(RegExp(r'[^0-9]'), '');
+    final digitsB = normB.replaceAll(RegExp(r'[^0-9]'), '');
+
+    // Extract letters only (non-digits)
+    final lettersA = normA.replaceAll(RegExp(r'[0-9]'), '');
+    final lettersB = normB.replaceAll(RegExp(r'[0-9]'), '');
+
+    return digitsA == digitsB && lettersA == lettersB;
+  }
+
+  /// Exposes the plate matching helper publicly.
+  bool platesMatch(String a, String b) => _platesMatch(a, b);
+
+  // ---------------------------------------------------------------------------
+  // LIVE ENTRY / EXIT SCAN ENDPOINTS
+  // ---------------------------------------------------------------------------
+
+  /// Fetches the last entry event from the Django backend.
+  Future<Map<String, dynamic>?> fetchLastEntry() async {
+    final uri = Uri.parse('$_baseUrl/api/mobile/last-entry/');
+    try {
+      final response = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[HardwareAPI] fetchLastEntry error: $e');
+      return null;
+    }
+  }
+
+  /// Fetches the last exit event from the Django backend.
+  Future<Map<String, dynamic>?> fetchLastExit() async {
+    final uri = Uri.parse('$_baseUrl/api/mobile/last-exit/');
+    try {
+      final response = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[HardwareAPI] fetchLastExit error: $e');
+      return null;
+    }
+  }
+
+  /// Fetches all active blacklist entries from the Django backend.
+  Future<List<BlacklistStatus>> fetchActiveBlacklist() async {
+    final uri = Uri.parse('$_baseUrl/api/v1/blacklist/active/');
+    try {
+      final response = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200) {
+        throw Exception('API returned ${response.statusCode}: ${response.body}');
+      }
+
+      final dynamic decoded = jsonDecode(response.body);
+      final List<dynamic> rawList = decoded is Map<String, dynamic>
+          ? (decoded['entries'] as List<dynamic>? ?? const [])
+          : (decoded as List<dynamic>);
+
+      return rawList
+          .map((json) => BlacklistStatus.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('[HardwareAPI] fetchActiveBlacklist error: $e');
+      rethrow;
+    }
+  }
+
+  /// Checks if any of the user's plate numbers are active in the blacklist.
+  ///
+  /// Returns the matching [BlacklistStatus] if blacklisted, otherwise null.
+  Future<BlacklistStatus?> checkBlacklist(List<String> plateNumbers) async {
+    if (plateNumbers.isEmpty) return null;
+    try {
+      final activeList = await fetchActiveBlacklist();
+      for (final blacklisted in activeList) {
+        if (blacklisted.isActive) {
+          for (final plate in plateNumbers) {
+            if (_platesMatch(blacklisted.plateNumber, plate)) {
+              return blacklisted;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[HardwareAPI] checkBlacklist check failed: $e');
+      // Gracefully continue: do not block the user if API is down
+    }
+    return null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // SUBSCRIPTION INTEGRATION
+  // ---------------------------------------------------------------------------
+
+  /// Fetches all active subscriptions from the Django backend.
+  Future<List<Subscription>> fetchActiveSubscriptions() async {
+    final uri = Uri.parse('$_baseUrl/api/v1/subscriptions/active/');
+    try {
+      final response = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200) {
+        throw Exception('API returned ${response.statusCode}: ${response.body}');
+      }
+
+      final dynamic decoded = jsonDecode(response.body);
+      final List<dynamic> rawList = decoded is Map<String, dynamic>
+          ? (decoded['subscriptions'] as List<dynamic>? ?? const [])
+          : (decoded as List<dynamic>);
+
+      return rawList
+          .map((json) => Subscription.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('[HardwareAPI] fetchActiveSubscriptions error: $e');
+      rethrow;
+    }
+  }
+
+  /// Checks if any of the user's plate numbers have an active subscription.
+  ///
+  /// Returns the matching [Subscription] if active, otherwise null.
+  Future<Subscription?> checkActiveSubscription(List<String> plateNumbers) async {
+    if (plateNumbers.isEmpty) return null;
+    try {
+      final activeSubs = await fetchActiveSubscriptions();
+      for (final sub in activeSubs) {
+        if (sub.isActive && sub.isValid) {
+          for (final plate in plateNumbers) {
+            if (_platesMatch(sub.plateNumber, plate)) {
+              return sub;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[HardwareAPI] checkActiveSubscription failed: $e');
+    }
+    return null;
+  }
+
+  /// Creates a new subscription on the Django backend.
+  Future<Subscription> createSubscription(Subscription subscription) async {
+    final uri = Uri.parse('$_baseUrl/api/v1/subscriptions/');
+    try {
+      final response = await http
+          .post(
+            uri,
+            headers: _headers,
+            body: jsonEncode(subscription.toJson()),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        return Subscription.fromJson(data);
+      } else {
+        throw Exception('API returned ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('[HardwareAPI] createSubscription error: $e');
+      rethrow;
+    }
+  }
+
+  /// Cancels/Deletes a subscription on the Django backend.
+  Future<bool> cancelSubscription(int subscriptionId) async {
+    final uri = Uri.parse('$_baseUrl/api/v1/subscriptions/$subscriptionId/');
+    try {
+      final response = await http
+          .delete(
+            uri,
+            headers: _headers,
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        debugPrint('[HardwareAPI] Subscription $subscriptionId deleted ✓');
+        return true;
+      }
+      debugPrint(
+        '[HardwareAPI] cancelSubscription ${response.statusCode}: ${response.body}',
+      );
+      return false;
+    } catch (e) {
+      debugPrint('[HardwareAPI] cancelSubscription error: $e');
+      return false;
+    }
+  }
 }
+

@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/user_model.dart';
@@ -16,6 +18,11 @@ import 'package:rakni_v2/features/bookings/bookings_screen.dart';
 import 'package:rakni_v2/features/wallet/wallet_screen.dart';
 import 'package:rakni_v2/features/transactions/transaction_history_screen.dart';
 import 'package:rakni_v2/core/services/auth_gate.dart';
+import 'package:rakni_v2/features/profile/image_crop_screen.dart';
+import 'package:rakni_v2/core/models/subscription_model.dart';
+import 'package:rakni_v2/core/models/vehicle_model.dart';
+import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
+import 'package:rakni_v2/features/profile/subscription_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -29,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _bookingCount = 0;
   bool _isLoading = true;
   bool _isUploading = false;
+  Subscription? _activeSubscription;
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
@@ -47,10 +55,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         FirestoreService.instance.getUserModel(currentUser!.uid),
         BookingService.instance.getUserBookingCount(currentUser!.uid),
       ]);
+      
+      Subscription? activeSub;
+      try {
+        final vehiclesSnap = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('vehicles')
+            .get();
+        final vehicles = vehiclesSnap.docs
+            .map((doc) => VehicleModel.fromFirestore(doc))
+            .toList();
+        final plates = vehicles.map((v) => v.plateNumber).toList();
+        activeSub = await ParkingHardwareApiService.instance
+            .checkActiveSubscription(plates);
+      } catch (e) {
+        debugPrint('[ProfileScreen] failed to load subscription status: $e');
+      }
+
       if (!mounted) return;
       setState(() {
         _userModel = results[0] as UserModel?;
         _bookingCount = results[1] as int;
+        _activeSubscription = activeSub;
         _isLoading = false;
       });
     } catch (e) {
@@ -62,19 +89,127 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _pickImage() async {
     if (currentUser == null) return;
 
+    // Show source picker bottom sheet matching the app design
+    final ImageSource? source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Profile Photo',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context, ImageSource.camera),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.camera_alt, color: AppColors.secondary, size: 28),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Camera',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context, ImageSource.gallery),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.photo_library, color: AppColors.secondary, size: 28),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Gallery',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (source == null) return;
+
     final picker = ImagePicker();
     final XFile? image = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 70,
+      source: source,
+      imageQuality: 85, // Get a high-resolution image first
     );
 
     if (image == null) return;
 
+    // Navigate to Crop Screen and wait for the resulting Uint8List JPEG bytes
+    if (!mounted) return;
+    final croppedBytes = await Navigator.push<Uint8List>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageCropScreen(imageFile: image),
+      ),
+    );
+
+    if (croppedBytes == null) return;
+
     setState(() => _isUploading = true);
 
     try {
-      final photoUrl = await ImageUtils.xFileToBase64(image);
+      // Convert cropped image bytes directly to Base64 (since Firebase Storage is not enabled/set up on the project 'rakni-v2')
+      final photoUrl = ImageUtils.bytesToBase64(croppedBytes);
 
+      // Save the public download URL (Base64 data URI) in Firestore
       await FirestoreService.instance.saveUserData(currentUser!.uid, {
         'photoUrl': photoUrl,
       });
@@ -346,6 +481,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   _buildProfileOption(
+                    icon: Icons.card_membership_outlined,
+                    title: 'My Subscription',
+                    subtitle: _activeSubscription != null
+                        ? const Text(
+                            'Active',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          )
+                        : Text(
+                            'Inactive',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SubscriptionScreen(),
+                      ),
+                    ).then((_) => _loadUser()),
+                  ),
+                  _buildProfileOption(
                     icon: Icons.history_outlined,
                     title: 'Transaction History',
                     onTap: () => Navigator.push(
@@ -426,6 +587,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Color? textColor,
     Color? iconColor,
     bool showTrailing = true,
+    Widget? subtitle,
   }) {
     final effectiveTextColor = textColor ?? AppColors.white;
     final effectiveIconColor = iconColor ?? AppColors.white;
@@ -454,6 +616,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        subtitle: subtitle,
         trailing: showTrailing
             ? Icon(
                 Icons.arrow_forward_ios,

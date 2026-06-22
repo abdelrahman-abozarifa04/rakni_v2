@@ -7,6 +7,7 @@ import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/widgets/egyptian_license_plate.dart';
 
 class FinalPaymentDetailsScreen extends StatefulWidget {
   final BookingModel booking;
@@ -34,6 +35,8 @@ class _FinalPaymentDetailsScreenState
   String _selectedPayment = 'wallet';
   bool _paying = false;
   double _walletBalance = 0;
+  bool _hasActiveSubscription = false;
+
 
   static const double _serviceFee = 5.0;
 
@@ -41,10 +44,24 @@ class _FinalPaymentDetailsScreenState
   void initState() {
     super.initState();
     _loadWallet();
+    _checkSubscription();
     // Pre-select booking's original payment method
     _selectedPayment = widget.booking.paymentMethod.isNotEmpty
         ? widget.booking.paymentMethod
         : 'wallet';
+  }
+
+  Future<void> _checkSubscription() async {
+    try {
+      final sub = await ParkingHardwareApiService.instance.checkActiveSubscription([widget.vehicle.plateNumber]);
+      if (mounted) {
+        setState(() {
+          _hasActiveSubscription = sub != null;
+        });
+      }
+    } catch (e) {
+      debugPrint('[FinalPaymentDetails] Error checking subscription: $e');
+    }
   }
 
   Future<void> _loadWallet() async {
@@ -69,7 +86,11 @@ class _FinalPaymentDetailsScreenState
     return 0;
   }
 
-  double get _total => widget.totalCost + _overstayFee + _serviceFee;
+  double get _total {
+    if (_hasActiveSubscription) return 0;
+    return widget.totalCost + _overstayFee + _serviceFee;
+  }
+
 
   String _formatTime(DateTime dt) {
     return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
@@ -134,6 +155,15 @@ class _FinalPaymentDetailsScreenState
         status: 'success',
       );
       await FirestoreService.instance.recordTransaction(tx);
+
+      // Trigger notification
+      await FirestoreService.instance.sendAppNotification(
+        uid,
+        title: 'Session Completed',
+        body: 'Your parking session for ${widget.vehicle.plateNumber} at ${widget.parkingLot.name} has ended. Total cost: EGP ${_total.toStringAsFixed(2)}.',
+        type: 'payment_success',
+        settingKey: 'setting_push_notifications',
+      );
 
       if (!mounted) return;
       _showSuccessDialog();
@@ -288,8 +318,10 @@ class _FinalPaymentDetailsScreenState
                               strokeWidth: 2, color: Colors.black),
                         )
                       : Text(
-                          'Pay EGP ${_total.toStringAsFixed(2)}',
-                          style: TextStyle(
+                          _hasActiveSubscription
+                              ? 'Complete Session (Premium)'
+                              : 'Pay EGP ${_total.toStringAsFixed(2)}',
+                          style: const TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -327,23 +359,11 @@ class _FinalPaymentDetailsScreenState
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Text(
-              widget.vehicle.plateNumber,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  letterSpacing: 3),
-            ),
+          EgyptianLicensePlate(
+            plateNumber: widget.vehicle.plateNumber,
+            width: 140,
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

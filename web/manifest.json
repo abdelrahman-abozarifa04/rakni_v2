@@ -1,5 +1,5 @@
 {
-  "name": "Rakni - Cairo Parking",
+  "name": "Rakni — Smart Parking",
   "short_name": "Rakni",
   "description": "Find, reserve, and manage parking across Cairo.",
   "start_url": ".",
@@ -7,7 +7,7 @@
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#2A2A2B",
-  "theme_color": "#BDE500",
+  "theme_color": "#2A2A2B",
   "prefer_related_applications": false,
   "icons": [
     {

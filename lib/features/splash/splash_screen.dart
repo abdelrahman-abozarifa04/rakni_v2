@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/services/auth_gate.dart';
+import 'package:rakni_v2/features/onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final bool navigate;
+  const SplashScreen({super.key, this.navigate = false});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -19,8 +23,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    // Removed navigation logic from here to prevent loops with AuthGate.
-    // Navigation is now handled by the AuthGate stream.
     
     // 1. Initialize the Animation Controller
     _controller = AnimationController(
@@ -60,6 +62,37 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     // Start the animation
     _controller.forward();
+    if (widget.navigate) {
+      _controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _handleNavigation();
+        }
+      });
+    }
+  }
+
+  Future<void> _handleNavigation() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => onboardingCompleted ? const AuthGate() : const OnboardingScreen(),
+        ),
+      );
+    } catch (e) {
+      debugPrint('SplashScreen navigation error: $e');
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+        );
+      }
+    }
   }
 
   @override
@@ -73,8 +106,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final logoAsset = isDark
-        ? 'assets/images/rakni_logo_dark.svg'
-        : 'assets/images/Rakni_logo_white.svg';
+        ? 'assets/images/Rakni_logo_dark.svg'
+        : 'assets/images/rakni_logo_white.svg';
 
     return Scaffold(
       backgroundColor: AppColors.background,

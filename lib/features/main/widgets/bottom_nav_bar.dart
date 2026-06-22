@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rakni_v2/core/localization/app_strings.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
 /// A bottom navigation bar with a floating "bump" effect on the active item.
 /// The active icon elevates above the bar inside a colored circle, with a
 /// smooth notch carved into the bar beneath it.
+///
+/// Supports both LTR (English) and RTL (Arabic) layouts by computing a
+/// visual index that mirrors the slot positions in RTL mode.
 class RakniBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -15,12 +19,12 @@ class RakniBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _items = [
-    _NavItemData(svgPath: 'assets/images/home_Icon.svg', label: 'Home'),
-    _NavItemData(svgPath: 'assets/images/map_Icon.svg', label: 'Map'),
-    _NavItemData(svgPath: 'assets/images/booking_Icon.svg', label: 'Bookings'),
-    _NavItemData(svgPath: 'assets/images/vehicle.svg', label: 'vehicles'),
-    _NavItemData(svgPath: 'assets/images/profile_Icon.svg', label: 'Profile'),
+  static const _svgPaths = [
+    'assets/images/home_Icon.svg',
+    'assets/images/map_Icon.svg',
+    'assets/images/booking_Icon.svg',
+    'assets/images/vehicle.svg',
+    'assets/images/profile_Icon.svg',
   ];
 
   @override
@@ -28,6 +32,23 @@ class RakniBottomNavBar extends StatelessWidget {
     const double barHeight = 64;
     const double bubbleSize = 56;
     const double bubbleLift = 24; // how far the bubble protrudes above the bar
+
+    // Localized labels — read at build time so they update on locale change.
+    final labels = [
+      AppStrings.navHome,
+      AppStrings.navMap,
+      AppStrings.navBookings,
+      AppStrings.navVehicles,
+      AppStrings.navProfile,
+    ];
+
+    final itemCount = _svgPaths.length;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    // In RTL the visual order of slots is reversed: slot 0 appears on the
+    // right. We must mirror the active index so the notch and bubble are
+    // drawn at the correct physical x position.
+    final visualActiveIndex = isRtl ? (itemCount - 1 - currentIndex) : currentIndex;
 
     return SizedBox(
       height: barHeight + bubbleLift + MediaQuery.of(context).padding.bottom,
@@ -41,8 +62,8 @@ class RakniBottomNavBar extends StatelessWidget {
             bottom: 0,
             child: CustomPaint(
               painter: _NotchedBarPainter(
-                activeIndex: currentIndex,
-                itemCount: _items.length,
+                activeIndex: visualActiveIndex,
+                itemCount: itemCount,
                 notchRadius: (bubbleSize / 2) + 8,
                 barColor: AppColors.navBarBackground,
                 barHeight: barHeight + MediaQuery.of(context).padding.bottom,
@@ -61,7 +82,7 @@ class RakniBottomNavBar extends StatelessWidget {
             child: SizedBox(
               height: barHeight,
               child: Row(
-                children: List.generate(_items.length, (i) {
+                children: List.generate(itemCount, (i) {
                   final isActive = i == currentIndex;
                   return Expanded(
                     child: GestureDetector(
@@ -74,16 +95,16 @@ class RakniBottomNavBar extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              _items[i].svgPath,
+                              _svgPaths[i],
                               height: 20,
                               colorFilter: ColorFilter.mode(
                                 AppColors.textSecondary,
                                 BlendMode.srcIn,
                               ),
                             ),
-                            SizedBox(height: 3),
+                            const SizedBox(height: 3),
                             Text(
-                              _items[i].label,
+                              labels[i],
                               style: TextStyle(
                                 fontSize: 10,
                                 color: AppColors.textSecondary,
@@ -100,13 +121,13 @@ class RakniBottomNavBar extends StatelessWidget {
           ),
 
           // ── Floating active bubble ─────────────────────────────────────────
+          // Use visualActiveIndex so the bubble appears on the correct side in RTL.
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutBack,
-            // x-centre of the active slot
-            left: (currentIndex / _items.length) *
+            left: (visualActiveIndex / itemCount) *
                     MediaQuery.of(context).size.width +
-                (MediaQuery.of(context).size.width / _items.length / 2) -
+                (MediaQuery.of(context).size.width / itemCount / 2) -
                 bubbleSize / 2,
             bottom:
                 MediaQuery.of(context).padding.bottom + barHeight - bubbleLift - bubbleSize / 2 + 12,
@@ -128,7 +149,7 @@ class RakniBottomNavBar extends StatelessWidget {
                 ),
                 child: Center(
                   child: SvgPicture.asset(
-                    _items[currentIndex].svgPath,
+                    _svgPaths[currentIndex],
                     height: 26,
                     colorFilter: ColorFilter.mode(
                       AppColors.black,
@@ -143,16 +164,6 @@ class RakniBottomNavBar extends StatelessWidget {
       ),
     );
   }
-}
-
-// ---------------------------------------------------------------------------
-// Data model
-// ---------------------------------------------------------------------------
-
-class _NavItemData {
-  final String svgPath;
-  final String label;
-  const _NavItemData({required this.svgPath, required this.label});
 }
 
 // ---------------------------------------------------------------------------
@@ -183,7 +194,7 @@ class _NotchedBarPainter extends CustomPainter {
     final slotWidth = size.width / itemCount;
     final notchCenterX = slotWidth * activeIndex + slotWidth / 2;
     const notchDepth = 18.0; // how deep the notch dips into the bar
-    final notchTop = 0.0;
+    const notchTop = 0.0;
 
     final path = Path();
     path.moveTo(0, notchTop);
@@ -257,3 +268,4 @@ class _NotchedBarPainter extends CustomPainter {
       old.notchRadius != notchRadius ||
       old.barColor != barColor;
 }
+

@@ -10,8 +10,10 @@ import 'package:rakni_v2/core/localization/locale_service.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/firebase_options.dart';
+import 'package:rakni_v2/core/services/notification_service.dart';
 
-import 'core/services/auth_gate.dart';
+import 'features/splash/splash_screen.dart';
+import 'package:rakni_v2/core/services/auth_gate.dart';
 
 /// Global [FirebaseAnalytics] instance — used across the app to log events.
 final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
@@ -31,15 +33,19 @@ Future<void> main() async {
         // ── Crashlytics ──────────────────────────────────────────────────────
         // Catch Flutter framework errors (widget build failures, etc.)
         FlutterError.onError = (errorDetails) {
-          try {
-            FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-          } catch (_) {}
+          if (!kIsWeb) {
+            try {
+              FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+            } catch (_) {}
+          }
           FlutterError.dumpErrorToConsole(errorDetails);
         };
 
-        // Disable Crashlytics in debug mode so it doesn't pollute the console.
-        await FirebaseCrashlytics.instance
-            .setCrashlyticsCollectionEnabled(!kDebugMode);
+        if (!kIsWeb) {
+          // Disable Crashlytics in debug mode so it doesn't pollute the console.
+          await FirebaseCrashlytics.instance
+              .setCrashlyticsCollectionEnabled(!kDebugMode);
+        }
       } catch (e) {
         debugPrint('Firebase initialization error: $e');
       }
@@ -49,13 +55,16 @@ Future<void> main() async {
       // hardcoded SystemChrome.setSystemUIOverlayStyle is no longer needed.
       await ThemeService.instance.init();
       await LocaleService.instance.init();
+      await LocalNotificationService.init();
 
       runApp(const MyApp());
     },
     // Catch asynchronous Dart errors that escape the widget tree.
     (error, stack) {
       debugPrint('Unhandled error: $error\n$stack');
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      if (!kIsWeb) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
     },
   );
 }
@@ -77,6 +86,11 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Rakni',
           debugShowCheckedModeBanner: false,
+
+          builder: (context, child) {
+            final appChild = ThemeRebuilder(child: child!);
+            return kIsWeb ? _WebShell(child: appChild) : appChild;
+          },
 
           // ── Localization ─────────────────────────────────────────────────
           locale: LocaleService.instance.flutterLocale,
@@ -107,9 +121,83 @@ class MyApp extends StatelessWidget {
             ),
           ),
 
-          home: AuthGate(),
+          home: kIsWeb ? const AuthGate() : const SplashScreen(navigate: true),
         );
       },
     );
   }
 }
+
+/// A widget that listens to ThemeService changes and recursively marks
+/// all active elements below it as needing a rebuild. This is necessary because
+/// the app uses a static AppColors utility class to resolve colors instead of
+/// Theme.of(context), meaning Flutter doesn't automatically track color dependencies
+/// to rebuild widgets when the theme changes.
+class ThemeRebuilder extends StatefulWidget {
+  final Widget child;
+  const ThemeRebuilder({super.key, required this.child});
+
+  @override
+  State<ThemeRebuilder> createState() => _ThemeRebuilderState();
+}
+
+class _ThemeRebuilderState extends State<ThemeRebuilder> {
+  @override
+  void initState() {
+    super.initState();
+    ThemeService.instance.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeService.instance.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    // setState() alone is sufficient — Flutter's standard dirty-marking
+    // propagates rebuilds down to all descendants that depend on inherited
+    // widgets changed by this rebuild. The previous recursive Element walk
+    // was O(n) over the entire app tree and caused full-app jank on every
+    // theme toggle (PERF-001 fix).
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
+/// A shell wrapper for Flutter Web to center the mobile app within a 430px boundary.
+class _WebShell extends StatelessWidget {
+  final Widget child;
+  const _WebShell({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = ThemeService.instance.isDark;
+    // AppColors.background darkened slightly for outside app frame
+    final shellBg = isDark ? const Color(0xFF1E1E1F) : const Color(0xFFE2E3E5);
+
+    return Scaffold(
+      backgroundColor: shellBg,
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 430),
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+

@@ -68,7 +68,7 @@ class GeocodingService {
 
     // Native fallback (try/catch to avoid crash, but avoid on debug emulator if possible)
     try {
-      if (!kDebugMode) {
+      if (!kIsWeb && !kDebugMode) {
         final placemarks = await placemarkFromCoordinates(latitude, longitude)
             .timeout(const Duration(seconds: 3));
         if (placemarks.isNotEmpty) {
@@ -126,7 +126,7 @@ class GeocodingService {
 
     // Native fallback (avoid on debug emulator)
     try {
-      if (!kDebugMode) {
+      if (!kIsWeb && !kDebugMode) {
         final locations = await locationFromAddress('$query, Cairo, Egypt')
             .timeout(const Duration(seconds: 4));
         final results = <LocationSearchResult>[];

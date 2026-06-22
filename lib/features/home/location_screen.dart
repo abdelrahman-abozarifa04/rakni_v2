@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/services/geocoding_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -121,6 +122,13 @@ class _LocationScreenState extends State<LocationScreen> {
     });
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final locationServicesEnabled = prefs.getBool('setting_location_services') ?? true;
+      if (!locationServicesEnabled) {
+        _setCurrentStatus('Location services are disabled in settings');
+        return;
+      }
+
       // Geolocator works on web through the browser Geolocation API. It needs
       // HTTPS in production, while localhost is allowed during development.
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();

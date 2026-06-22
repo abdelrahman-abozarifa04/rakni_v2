@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -171,6 +172,15 @@ class _MapScreenState extends State<MapScreen> {
   // ── location ────────────────────────────────────────────────────
   Future<void> _initLocation() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final locationServicesEnabled = prefs.getBool('setting_location_services') ?? true;
+      if (!locationServicesEnabled) {
+        _showBar('Location services are disabled in settings.');
+        await _rebuildGarageMarkers();
+        if (mounted) setState(() => _locationLoading = false);
+        return;
+      }
+
       // Geolocator supports web through the browser Geolocation API. The user
       // will see the normal browser permission prompt on HTTPS/localhost.
       final serviceOn = await Geolocator.isLocationServiceEnabled();

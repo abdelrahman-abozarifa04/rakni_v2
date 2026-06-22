@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
@@ -19,6 +21,9 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
   List<ParkingLotModel> _allResults = [];
   bool _isLoading = false;
   FilterConfig? _activeFilter;
+  // Debounce timer — cancels the previous search if the user types again
+  // within 300 ms, preventing one Firestore read per keystroke (PERF-010 fix).
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -28,6 +33,7 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -152,7 +158,13 @@ class _ParkingSearchScreenState extends State<ParkingSearchScreen> {
                       ),
                       onChanged: (v) {
                         setState(() => _query = v);
-                        _search(v);
+                        // Cancel the previous pending search and schedule a
+                        // new one 300 ms from now (PERF-010 debounce fix).
+                        _debounce?.cancel();
+                        _debounce = Timer(
+                          const Duration(milliseconds: 300),
+                          () => _search(v),
+                        );
                       },
                     ),
                   ),

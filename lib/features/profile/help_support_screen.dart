@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,7 +72,7 @@ class HelpSupportScreen extends StatelessWidget {
                   label: 'Live Chat',
                   onTap: () => _launchUrl(
                     context,
-                    'https://wa.me/+201000000000',
+                    'https://wa.me/201097457086',
                   ),
                 ),
               ),
@@ -84,7 +84,7 @@ class HelpSupportScreen extends StatelessWidget {
                   label: 'Email Us',
                   onTap: () => _launchUrl(
                     context,
-                    'mailto:support@rakni.app',
+                    'mailto:as0144549@gmail.com',
                   ),
                 ),
               ),
@@ -96,7 +96,7 @@ class HelpSupportScreen extends StatelessWidget {
                   label: 'Call Us',
                   onTap: () => _launchUrl(
                     context,
-                    'tel:+201000000000',
+                    'tel:+201097457086',
                   ),
                 ),
               ),

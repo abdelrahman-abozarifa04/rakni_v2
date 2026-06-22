@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
-import 'package:rakni_v2/features/auth/sign_in_screen.dart';
+import 'package:rakni_v2/core/services/auth_gate.dart';
 import 'package:rakni_v2/features/legal/terms_screen.dart';
 import 'package:rakni_v2/features/legal/privacy_policy_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
+
+  Future<void> _completeOnboarding(BuildContext context) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_completed', true);
+    } catch (e) {
+      debugPrint('OnboardingScreen: failed to save flag: $e');
+    }
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const AuthGate()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +85,7 @@ class OnboardingScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SignInScreen()),
-                        );
-                      },
+                      onPressed: () => _completeOnboarding(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.secondary,
                         shape: RoundedRectangleBorder(
@@ -102,12 +114,7 @@ class OnboardingScreen extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const SignInScreen()),
-                          );
-                        },
+                        onTap: () => _completeOnboarding(context),
                         child: Text(
                           'Sign In',
                           style: TextStyle(

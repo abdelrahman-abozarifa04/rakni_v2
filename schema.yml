@@ -1,0 +1,3283 @@
+﻿openapi: 3.0.3
+info:
+  title: Car Garage API
+  version: 1.0.0
+  description: API for car garage management system
+paths:
+  /api-token-auth/:
+    post:
+      operationId: api_token_auth_create
+      tags:
+      - api-token-auth
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/ai/predict/:
+    post:
+      operationId: api_ai_predict_create
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/token/:
+    post:
+      operationId: api_token_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/v1/blacklist/:
+    get:
+      operationId: api_v1_blacklist_list
+      description: API endpoints for blocked vehicles.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBlacklistList'
+          description: ''
+    post:
+      operationId: api_v1_blacklist_create
+      description: API endpoints for blocked vehicles.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blacklist'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Blacklist'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Blacklist'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blacklist'
+          description: ''
+  /api/v1/blacklist/{id}/:
+    get:
+      operationId: api_v1_blacklist_retrieve
+      description: API endpoints for blocked vehicles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ blacklist.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blacklist'
+          description: ''
+    put:
+      operationId: api_v1_blacklist_update
+      description: API endpoints for blocked vehicles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ blacklist.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blacklist'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Blacklist'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Blacklist'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blacklist'
+          description: ''
+    patch:
+      operationId: api_v1_blacklist_partial_update
+      description: API endpoints for blocked vehicles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ blacklist.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBlacklist'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBlacklist'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBlacklist'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blacklist'
+          description: ''
+    delete:
+      operationId: api_v1_blacklist_destroy
+      description: API endpoints for blocked vehicles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ blacklist.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/blacklist/active/:
+    get:
+      operationId: api_v1_blacklist_active_retrieve
+      description: API endpoints for blocked vehicles.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blacklist'
+          description: ''
+  /api/v1/cars/:
+    get:
+      operationId: api_v1_cars_list
+      description: API endpoints for vehicles currently tracked by the garage.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCarList'
+          description: ''
+    post:
+      operationId: api_v1_cars_create
+      description: API endpoints for vehicles currently tracked by the garage.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Car'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+  /api/v1/cars/{id}/:
+    get:
+      operationId: api_v1_cars_retrieve
+      description: API endpoints for vehicles currently tracked by the garage.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ car.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+    put:
+      operationId: api_v1_cars_update
+      description: API endpoints for vehicles currently tracked by the garage.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ car.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Car'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+    patch:
+      operationId: api_v1_cars_partial_update
+      description: API endpoints for vehicles currently tracked by the garage.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ car.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCar'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCar'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCar'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+    delete:
+      operationId: api_v1_cars_destroy
+      description: API endpoints for vehicles currently tracked by the garage.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ car.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/cars/active_cars/:
+    get:
+      operationId: api_v1_cars_active_cars_retrieve
+      description: API endpoints for vehicles currently tracked by the garage.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+  /api/v1/cars/stats/:
+    get:
+      operationId: api_v1_cars_stats_retrieve
+      description: API endpoints for vehicles currently tracked by the garage.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+          description: ''
+  /api/v1/config/:
+    get:
+      operationId: api_v1_config_list
+      description: API endpoints for garage configuration.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGarageConfigList'
+          description: ''
+    post:
+      operationId: api_v1_config_create
+      description: API endpoints for garage configuration.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageConfig'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageConfig'
+          description: ''
+  /api/v1/config/{id}/:
+    get:
+      operationId: api_v1_config_retrieve
+      description: API endpoints for garage configuration.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage config.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageConfig'
+          description: ''
+    put:
+      operationId: api_v1_config_update
+      description: API endpoints for garage configuration.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage config.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageConfig'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageConfig'
+          description: ''
+    patch:
+      operationId: api_v1_config_partial_update
+      description: API endpoints for garage configuration.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage config.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageConfig'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageConfig'
+          description: ''
+    delete:
+      operationId: api_v1_config_destroy
+      description: API endpoints for garage configuration.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage config.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/config/current/:
+    get:
+      operationId: api_v1_config_current_retrieve
+      description: API endpoints for garage configuration.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageConfig'
+          description: ''
+  /api/v1/employees/:
+    get:
+      operationId: api_v1_employees_list
+      description: API endpoints for employee accounts.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGarageEmployeeList'
+          description: ''
+    post:
+      operationId: api_v1_employees_create
+      description: API endpoints for employee accounts.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageEmployee'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageEmployee'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageEmployee'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageEmployee'
+          description: ''
+  /api/v1/employees/{id}/:
+    get:
+      operationId: api_v1_employees_retrieve
+      description: API endpoints for employee accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage employee.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageEmployee'
+          description: ''
+    put:
+      operationId: api_v1_employees_update
+      description: API endpoints for employee accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage employee.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageEmployee'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageEmployee'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageEmployee'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageEmployee'
+          description: ''
+    patch:
+      operationId: api_v1_employees_partial_update
+      description: API endpoints for employee accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage employee.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageEmployee'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageEmployee'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageEmployee'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageEmployee'
+          description: ''
+    delete:
+      operationId: api_v1_employees_destroy
+      description: API endpoints for employee accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage employee.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/employees/active/:
+    get:
+      operationId: api_v1_employees_active_retrieve
+      description: API endpoints for employee accounts.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageEmployee'
+          description: ''
+  /api/v1/equipment/:
+    get:
+      operationId: api_v1_equipment_list
+      description: API endpoints for garage equipment.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEquipmentList'
+          description: ''
+    post:
+      operationId: api_v1_equipment_create
+      description: API endpoints for garage equipment.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+  /api/v1/equipment/{id}/:
+    get:
+      operationId: api_v1_equipment_retrieve
+      description: API endpoints for garage equipment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ equipment.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    put:
+      operationId: api_v1_equipment_update
+      description: API endpoints for garage equipment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ equipment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    patch:
+      operationId: api_v1_equipment_partial_update
+      description: API endpoints for garage equipment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ equipment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    delete:
+      operationId: api_v1_equipment_destroy
+      description: API endpoints for garage equipment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ equipment.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/equipment/by_status/:
+    get:
+      operationId: api_v1_equipment_by_status_retrieve
+      description: API endpoints for garage equipment.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+  /api/v1/equipment/stats/:
+    get:
+      operationId: api_v1_equipment_stats_retrieve
+      description: API endpoints for garage equipment.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+  /api/v1/notifications/:
+    get:
+      operationId: api_v1_notifications_list
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGarageNotificationList'
+          description: ''
+    post:
+      operationId: api_v1_notifications_create
+      description: Full CRUD + soft-delete + archive for system notifications.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/notifications/{id}/:
+    get:
+      operationId: api_v1_notifications_retrieve
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage notification.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+    put:
+      operationId: api_v1_notifications_update
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage notification.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+    patch:
+      operationId: api_v1_notifications_partial_update
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage notification.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGarageNotification'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+    delete:
+      operationId: api_v1_notifications_destroy
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage notification.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/notifications/{id}/archive/:
+    post:
+      operationId: api_v1_notifications_archive_create
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage notification.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/notifications/{id}/soft_delete/:
+    delete:
+      operationId: api_v1_notifications_soft_delete_destroy
+      description: Full CRUD + soft-delete + archive for system notifications.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ garage notification.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/notifications/archived/:
+    get:
+      operationId: api_v1_notifications_archived_retrieve
+      description: Full CRUD + soft-delete + archive for system notifications.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/notifications/bulk_delete/:
+    post:
+      operationId: api_v1_notifications_bulk_delete_create
+      description: Full CRUD + soft-delete + archive for system notifications.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/notifications/permanent_delete/:
+    post:
+      operationId: api_v1_notifications_permanent_delete_create
+      description: Full CRUD + soft-delete + archive for system notifications.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GarageNotification'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/notifications/recent/:
+    get:
+      operationId: api_v1_notifications_recent_retrieve
+      description: Full CRUD + soft-delete + archive for system notifications.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/notifications/stats/:
+    get:
+      operationId: api_v1_notifications_stats_retrieve
+      description: Full CRUD + soft-delete + archive for system notifications.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GarageNotification'
+          description: ''
+  /api/v1/parking-logs/:
+    get:
+      operationId: api_v1_parking_logs_list
+      description: API endpoints for parking history records.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedParkingLogList'
+          description: ''
+    post:
+      operationId: api_v1_parking_logs_create
+      description: API endpoints for parking history records.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+  /api/v1/parking-logs/{id}/:
+    get:
+      operationId: api_v1_parking_logs_retrieve
+      description: API endpoints for parking history records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking log.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+    put:
+      operationId: api_v1_parking_logs_update
+      description: API endpoints for parking history records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking log.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+    patch:
+      operationId: api_v1_parking_logs_partial_update
+      description: API endpoints for parking history records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking log.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedParkingLog'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedParkingLog'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedParkingLog'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+    delete:
+      operationId: api_v1_parking_logs_destroy
+      description: API endpoints for parking history records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking log.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/parking-logs/{id}/archive/:
+    post:
+      operationId: api_v1_parking_logs_archive_create
+      description: API endpoints for parking history records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking log.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+  /api/v1/parking-logs/archived/:
+    get:
+      operationId: api_v1_parking_logs_archived_retrieve
+      description: API endpoints for parking history records.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+  /api/v1/parking-logs/permanent_delete/:
+    post:
+      operationId: api_v1_parking_logs_permanent_delete_create
+      description: API endpoints for parking history records.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingLog'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+  /api/v1/parking-logs/stats/:
+    get:
+      operationId: api_v1_parking_logs_stats_retrieve
+      description: API endpoints for parking history records.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLog'
+          description: ''
+  /api/v1/parking-slots/:
+    get:
+      operationId: api_v1_parking_slots_list
+      description: API endpoints for parking slots.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedParkingSlotList'
+          description: ''
+    post:
+      operationId: api_v1_parking_slots_create
+      description: API endpoints for parking slots.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+  /api/v1/parking-slots/{id}/:
+    get:
+      operationId: api_v1_parking_slots_retrieve
+      description: API endpoints for parking slots.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking slot.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+    put:
+      operationId: api_v1_parking_slots_update
+      description: API endpoints for parking slots.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking slot.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+    patch:
+      operationId: api_v1_parking_slots_partial_update
+      description: API endpoints for parking slots.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking slot.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedParkingSlot'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedParkingSlot'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedParkingSlot'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+    delete:
+      operationId: api_v1_parking_slots_destroy
+      description: API endpoints for parking slots.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ parking slot.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/parking-slots/available/:
+    get:
+      operationId: api_v1_parking_slots_available_retrieve
+      description: API endpoints for parking slots.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+  /api/v1/parking-slots/generate/:
+    post:
+      operationId: api_v1_parking_slots_generate_create
+      description: 'API Endpoint: POST /api/v1/parking-slots/generate/'
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+  /api/v1/parking-slots/reserve/:
+    post:
+      operationId: api_v1_parking_slots_reserve_create
+      description: 'API Endpoint for mobile: POST /api/v1/parking-slots/reserve/'
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ParkingSlot'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+  /api/v1/parking-slots/stats/:
+    get:
+      operationId: api_v1_parking_slots_stats_retrieve
+      description: API endpoints for parking slots.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSlot'
+          description: ''
+  /api/v1/subscriptions/:
+    get:
+      operationId: api_v1_subscriptions_list
+      description: API endpoints for customer subscription plans.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Ø£ÙŠ Ø­Ù‚Ù„ ÙŠØ¬Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ø¹Ù†Ø¯ ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø© Ø¶Ù…Ù† Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ù…Ù‚Ø³Ù…Ø©.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Ù…ØµØ·Ù„Ø­ Ø§Ù„Ø¨Ø­Ø«.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSubscriptionList'
+          description: ''
+    post:
+      operationId: api_v1_subscriptions_create
+      description: API endpoints for customer subscription plans.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+  /api/v1/subscriptions/{id}/:
+    get:
+      operationId: api_v1_subscriptions_retrieve
+      description: API endpoints for customer subscription plans.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ subscription.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    put:
+      operationId: api_v1_subscriptions_update
+      description: API endpoints for customer subscription plans.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ subscription.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    patch:
+      operationId: api_v1_subscriptions_partial_update
+      description: API endpoints for customer subscription plans.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ subscription.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubscription'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    delete:
+      operationId: api_v1_subscriptions_destroy
+      description: API endpoints for customer subscription plans.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Ù†ÙˆØ¹ Ø±Ù‚Ù… ØµØ­ÙŠØ­ ÙØ±ÙŠØ¯ ÙŠØ­Ø¯Ø¯ Ù‡Ø°Ø§ subscription.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/subscriptions/active/:
+    get:
+      operationId: api_v1_subscriptions_active_retrieve
+      description: API endpoints for customer subscription plans.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+  /api/vehicle/entry/:
+    post:
+      operationId: api_vehicle_entry_create
+      description: Validates a plate number, checks the blacklist and subscription,
+        updates gate status in DB to OPEN, and creates a parking log.
+      summary: Process vehicle entry
+      tags:
+      - Vehicle Entry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_VehicleEntryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/_VehicleEntryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/_VehicleEntryRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleEntryResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleEntryResponse'
+          description: ''
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleEntryResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleEntryResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleEntryResponse'
+          description: ''
+  /api/vehicle/exit/:
+    post:
+      operationId: api_vehicle_exit_create
+      description: Validates an exiting plate number, calculates parking duration
+        and total cost, frees the parking slot, updates the log, and changes DB gate
+        status to OPEN.
+      summary: Process vehicle exit
+      tags:
+      - Vehicle Exit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_VehicleExitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/_VehicleExitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/_VehicleExitRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleExitResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleExitResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleExitResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_VehicleExitResponse'
+          description: ''
+  /api/vehicle/gate-status/{gate_id}/:
+    get:
+      operationId: api_vehicle_gate_status_retrieve
+      description: ESP32 requests this endpoint every second to check if it should
+        open
+      summary: Get gate status (ESP32 Polling)
+      parameters:
+      - in: path
+        name: gate_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Hardware Integration
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_vehicle_gate_status_create
+      description: ESP32 sends a request here after the gate opens and the vehicle
+        passes to close the gate in the database
+      summary: Update gate status (ESP32 callback)
+      parameters:
+      - in: path
+        name: gate_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Hardware Integration
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    ActionEnum:
+      enum:
+      - ACCEPT
+      - REJECT
+      - ERROR
+      type: string
+      description: |-
+        * `ACCEPT` - ACCEPT
+        * `REJECT` - REJECT
+        * `ERROR` - ERROR
+    AlertTypeEnum:
+      enum:
+      - CAPACITY
+      - BLACKLIST
+      - MAINTENANCE
+      - SYSTEM
+      type: string
+      description: |-
+        * `CAPACITY` - Capacity Alert
+        * `BLACKLIST` - Blacklist Alert
+        * `MAINTENANCE` - Maintenance Alert
+        * `SYSTEM` - System Alert
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          title: Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+        password:
+          type: string
+          writeOnly: true
+          title: ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±
+        token:
+          type: string
+          readOnly: true
+          title: Ø§Ù„Ø±Ù…Ø²
+      required:
+      - password
+      - token
+      - username
+    Blacklist:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        plate_number:
+          type: string
+          maxLength: 20
+        reason:
+          type: string
+          maxLength: 255
+        added_date:
+          type: string
+          format: date-time
+          readOnly: true
+        added_by:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - added_by
+      - added_date
+      - created_at
+      - id
+      - plate_number
+      - reason
+    Car:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        plate_number:
+          type: string
+          maxLength: 20
+        image:
+          type: string
+          format: uri
+          nullable: true
+        entry_time:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/CarStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        current_slot:
+          type: integer
+          nullable: true
+        slot_number:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - entry_time
+      - id
+      - plate_number
+      - slot_number
+      - updated_at
+    CarStatusEnum:
+      enum:
+      - IN
+      - OUT
+      type: string
+      description: |-
+        * `IN` - In Garage
+        * `OUT` - Left Garage
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        equipment_type:
+          type: string
+          maxLength: 50
+        serial_number:
+          type: string
+          maxLength: 100
+        location:
+          type: string
+          maxLength: 200
+        status:
+          $ref: '#/components/schemas/EquipmentStatusEnum'
+        purchase_date:
+          type: string
+          format: date
+        last_maintenance:
+          type: string
+          format: date
+          nullable: true
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - equipment_type
+      - id
+      - location
+      - name
+      - purchase_date
+      - serial_number
+      - updated_at
+    EquipmentStatusEnum:
+      enum:
+      - ACTIVE
+      - MAINTENANCE
+      - INACTIVE
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `MAINTENANCE` - Under Maintenance
+        * `INACTIVE` - Inactive
+    GarageConfig:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        total_capacity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        hourly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        daily_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        monthly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        ai_sensitivity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: 0-100, higher = more sensitive
+        plate_recognition_accuracy:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Percentage (0-100)
+        enable_capacity_alerts:
+          type: boolean
+        capacity_alert_threshold:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Alert when occupied > X%
+        enable_blacklist_alerts:
+          type: boolean
+        enable_email_notifications:
+          type: boolean
+        notification_email:
+          type: string
+          format: email
+          maxLength: 254
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - updated_at
+    GarageEmployee:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        full_name:
+          type: string
+          maxLength: 200
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        can_view_dashboard:
+          type: boolean
+        can_manage_cars:
+          type: boolean
+        can_manage_equipment:
+          type: boolean
+        can_manage_blacklist:
+          type: boolean
+        can_view_analytics:
+          type: boolean
+        can_manage_settings:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - full_name
+      - id
+      - username
+    GarageNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        alert_type:
+          $ref: '#/components/schemas/AlertTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        plate_number:
+          type: string
+          maxLength: 20
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        sent_to_email:
+          type: boolean
+        sent_to_admin:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_archived:
+          type: boolean
+      required:
+      - alert_type
+      - created_at
+      - id
+      - message
+      - title
+    LanguageEnum:
+      enum:
+      - en
+      - ar
+      type: string
+      description: |-
+        * `en` - English
+        * `ar` - Arabic
+    PaginatedBlacklistList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Blacklist'
+    PaginatedCarList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Car'
+    PaginatedEquipmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
+    PaginatedGarageConfigList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GarageConfig'
+    PaginatedGarageEmployeeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GarageEmployee'
+    PaginatedGarageNotificationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GarageNotification'
+    PaginatedParkingLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParkingLog'
+    PaginatedParkingSlotList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParkingSlot'
+    PaginatedSubscriptionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+    ParkingLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        ai_predicted_plate:
+          type: string
+          maxLength: 20
+        final_plate:
+          type: string
+          nullable: true
+          maxLength: 20
+        is_verified:
+          type: boolean
+        is_corrected:
+          type: boolean
+        is_archived:
+          type: boolean
+        entry_time:
+          type: string
+          format: date-time
+          readOnly: true
+        exit_time:
+          type: string
+          format: date-time
+          nullable: true
+        duration_minutes:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - ai_predicted_plate
+      - duration_minutes
+      - entry_time
+      - id
+    ParkingSlot:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slot_number:
+          type: string
+          maxLength: 10
+        is_occupied:
+          type: boolean
+        sensor_id:
+          type: string
+          nullable: true
+          maxLength: 50
+        occupied_by_plate:
+          type: string
+          readOnly: true
+        occupied_by_car_id:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - occupied_by_car_id
+      - occupied_by_plate
+      - slot_number
+    PatchedBlacklist:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        plate_number:
+          type: string
+          maxLength: 20
+        reason:
+          type: string
+          maxLength: 255
+        added_date:
+          type: string
+          format: date-time
+          readOnly: true
+        added_by:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedCar:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        plate_number:
+          type: string
+          maxLength: 20
+        image:
+          type: string
+          format: uri
+          nullable: true
+        entry_time:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/CarStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        current_slot:
+          type: integer
+          nullable: true
+        slot_number:
+          type: string
+          readOnly: true
+    PatchedEquipment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        equipment_type:
+          type: string
+          maxLength: 50
+        serial_number:
+          type: string
+          maxLength: 100
+        location:
+          type: string
+          maxLength: 200
+        status:
+          $ref: '#/components/schemas/EquipmentStatusEnum'
+        purchase_date:
+          type: string
+          format: date
+        last_maintenance:
+          type: string
+          format: date
+          nullable: true
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedGarageConfig:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        total_capacity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        hourly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        daily_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        monthly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        ai_sensitivity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: 0-100, higher = more sensitive
+        plate_recognition_accuracy:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Percentage (0-100)
+        enable_capacity_alerts:
+          type: boolean
+        capacity_alert_threshold:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Alert when occupied > X%
+        enable_blacklist_alerts:
+          type: boolean
+        enable_email_notifications:
+          type: boolean
+        notification_email:
+          type: string
+          format: email
+          maxLength: 254
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedGarageEmployee:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        full_name:
+          type: string
+          maxLength: 200
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        can_view_dashboard:
+          type: boolean
+        can_manage_cars:
+          type: boolean
+        can_manage_equipment:
+          type: boolean
+        can_manage_blacklist:
+          type: boolean
+        can_view_analytics:
+          type: boolean
+        can_manage_settings:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedGarageNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        alert_type:
+          $ref: '#/components/schemas/AlertTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        plate_number:
+          type: string
+          maxLength: 20
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        sent_to_email:
+          type: boolean
+        sent_to_admin:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_archived:
+          type: boolean
+    PatchedParkingLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        ai_predicted_plate:
+          type: string
+          maxLength: 20
+        final_plate:
+          type: string
+          nullable: true
+          maxLength: 20
+        is_verified:
+          type: boolean
+        is_corrected:
+          type: boolean
+        is_archived:
+          type: boolean
+        entry_time:
+          type: string
+          format: date-time
+          readOnly: true
+        exit_time:
+          type: string
+          format: date-time
+          nullable: true
+        duration_minutes:
+          type: integer
+          readOnly: true
+          nullable: true
+    PatchedParkingSlot:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slot_number:
+          type: string
+          maxLength: 10
+        is_occupied:
+          type: boolean
+        sensor_id:
+          type: string
+          nullable: true
+          maxLength: 50
+        occupied_by_plate:
+          type: string
+          readOnly: true
+        occupied_by_car_id:
+          type: string
+          readOnly: true
+    PatchedSubscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        plate_number:
+          type: string
+          maxLength: 20
+        customer_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        subscription_type:
+          $ref: '#/components/schemas/SubscriptionTypeEnum'
+        unlimited_entries:
+          type: boolean
+        monthly_limit:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        monthly_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        is_active:
+          type: boolean
+        is_valid:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    RoleEnum:
+      enum:
+      - ADMIN
+      - MANAGER
+      - VIEWER
+      - OPERATOR
+      type: string
+      description: |-
+        * `ADMIN` - Administrator
+        * `MANAGER` - Manager
+        * `VIEWER` - Viewer (Read-only)
+        * `OPERATOR` - Operator
+    SeverityEnum:
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      - CRITICAL
+      type: string
+      description: |-
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+        * `CRITICAL` - Critical
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        plate_number:
+          type: string
+          maxLength: 20
+        customer_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        subscription_type:
+          $ref: '#/components/schemas/SubscriptionTypeEnum'
+        unlimited_entries:
+          type: boolean
+        monthly_limit:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        monthly_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        is_active:
+          type: boolean
+        is_valid:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - customer_name
+      - end_date
+      - id
+      - is_valid
+      - monthly_fee
+      - plate_number
+      - start_date
+      - subscription_type
+    SubscriptionTypeEnum:
+      enum:
+      - MONTHLY
+      - QUARTERLY
+      - YEARLY
+      type: string
+      description: |-
+        * `MONTHLY` - Monthly
+        * `QUARTERLY` - Quarterly
+        * `YEARLY` - Yearly
+    _VehicleEntryRequest:
+      type: object
+      properties:
+        plate_number:
+          type: string
+          description: Vehicle plate number to validate and admit (e.g. ABC-1234)
+          maxLength: 20
+      required:
+      - plate_number
+    _VehicleEntryResponse:
+      type: object
+      properties:
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        reason:
+          type: string
+        customer:
+          type: string
+        message:
+          type: string
+        parking_log_id:
+          type: integer
+        firebase_status:
+          type: string
+      required:
+      - action
+    _VehicleExitRequest:
+      type: object
+      properties:
+        plate_number:
+          type: string
+          description: Vehicle plate number exiting the garage (e.g. ABC-1234)
+          maxLength: 20
+      required:
+      - plate_number
+    _VehicleExitResponse:
+      type: object
+      properties:
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        reason:
+          type: string
+        duration_minutes:
+          type: integer
+        total_cost:
+          type: number
+          format: double
+        message:
+          type: string
+        firebase_status:
+          type: string
+      required:
+      - action
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

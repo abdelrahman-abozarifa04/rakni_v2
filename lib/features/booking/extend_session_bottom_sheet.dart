@@ -6,6 +6,7 @@ import 'package:rakni_v2/core/models/transaction_model.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 
 class ExtendSessionBottomSheet extends StatefulWidget {
   final BookingModel booking;
@@ -32,13 +33,29 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
   String _selectedPayment = 'wallet';
   bool _loading = false;
   double _walletBalance = 0;
+  bool _hasActiveSubscription = false;
 
   static const double _serviceFee = 5.0;
+
 
   @override
   void initState() {
     super.initState();
     _loadWallet();
+    _checkSubscription();
+  }
+
+  Future<void> _checkSubscription() async {
+    try {
+      final sub = await ParkingHardwareApiService.instance.checkActiveSubscription([widget.vehicle.plateNumber]);
+      if (mounted) {
+        setState(() {
+          _hasActiveSubscription = sub != null;
+        });
+      }
+    } catch (e) {
+      debugPrint('[ExtendSession] Error checking subscription: $e');
+    }
   }
 
   Future<void> _loadWallet() async {
@@ -49,11 +66,16 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
   }
 
   double get _extensionFee {
+    if (_hasActiveSubscription) return 0;
     return widget.booking.pricePerHour *
         (_extendHours + _extendMinutes / 60.0);
   }
 
-  double get _total => _extensionFee + _serviceFee;
+  double get _total {
+    if (_hasActiveSubscription) return 0;
+    return _extensionFee + _serviceFee;
+  }
+
 
   DateTime get _newEndTime {
     final current = widget.booking.endTime ?? DateTime.now();
@@ -97,6 +119,15 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
         status: 'success',
       );
       await FirestoreService.instance.recordTransaction(tx);
+
+      // Trigger notification
+      await FirestoreService.instance.sendAppNotification(
+        uid,
+        title: 'Session Extended',
+        body: 'Your parking session for ${widget.vehicle.plateNumber} has been extended to ${_formatTime(_newEndTime)}.',
+        type: 'session_extension',
+        settingKey: 'setting_parking_reminders',
+      );
 
       final updated = widget.booking.copyWith(endTime: _newEndTime);
       if (!mounted) return;
@@ -204,8 +235,10 @@ class _ExtendSessionBottomSheetState extends State<ExtendSessionBottomSheet> {
                             strokeWidth: 2, color: Colors.black),
                       )
                     : Text(
-                        'Confirm & Pay — EGP ${_total.toStringAsFixed(2)}',
-                        style: TextStyle(
+                        _hasActiveSubscription
+                            ? 'Confirm Extension (Premium)'
+                            : 'Confirm & Pay — EGP ${_total.toStringAsFixed(2)}',
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold),
                       ),
               ),

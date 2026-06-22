@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/auth/create_account_step3_screen.dart';
+import 'package:rakni_v2/features/auth/sign_in_screen.dart';
 import 'package:rakni_v2/core/utils/firebase_error_mapper.dart';
 
 class CreateAccountStep2Screen extends StatefulWidget {
@@ -15,7 +16,7 @@ class CreateAccountStep2Screen extends StatefulWidget {
     super.key,
     required this.fullName,
     required this.email,
-    required this.password,
+    this.password = '',
   });
 
   @override
@@ -93,6 +94,18 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
   /// the verification e-mail and begins polling.
   Future<void> _createUserAndSendLink() async {
     setState(() => _isSending = true);
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null && currentUser.email == widget.email && widget.password.isEmpty) {
+      _uid = currentUser.uid;
+      if (currentUser.emailVerified) {
+        if (mounted) setState(() => _isSending = false);
+        _navigateToStep3();
+        return;
+      }
+      await _sendVerificationEmailWithFeedback();
+      return;
+    }
 
     UserCredential? cred;
 
@@ -256,7 +269,19 @@ class _CreateAccountStep2ScreenState extends State<CreateAccountStep2Screen> {
         elevation: 0,
         leadingWidth: 100,
         leading: TextButton.icon(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () async {
+            await AuthService.instance.signOut();
+            if (!context.mounted) return;
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const SignInScreen()),
+                (route) => false,
+              );
+            }
+          },
           icon: Icon(
             Icons.arrow_back,
             color: AppColors.textSecondary,

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/utils/image_utils.dart';
+import 'package:rakni_v2/core/widgets/egyptian_license_plate.dart';
 import 'package:rakni_v2/features/main/main_shell.dart';
 
 class MyVehiclesScreen extends StatefulWidget {
@@ -705,11 +705,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                     child: pickedImage != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(15),
-                            child: Image.file(
-                              File(pickedImage!.path),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
+                            child: _PickedImagePreview(file: pickedImage!),
                           )
                         : vehicle.imageUrl != null
                         ? ClipRRect(
@@ -1213,46 +1209,13 @@ class _VehicleCard extends StatelessWidget {
                 ),
 
                 // ── Plate Number Badge ──
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 16),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.accent.withAlpha(120),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Center(
-                            child: Text('🅿', style: TextStyle(fontSize: 11)),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          vehicle.plateNumber,
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.5,
-                          ),
-                        ),
-                      ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Center(
+                    child: EgyptianLicensePlate(
+                      plateNumber: vehicle.plateNumber,
+                      useThemeColors: true,
+                      width: 180,
                     ),
                   ),
                 ),

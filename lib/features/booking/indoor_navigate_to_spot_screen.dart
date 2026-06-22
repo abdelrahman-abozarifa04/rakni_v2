@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
@@ -178,7 +178,7 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
             _buildInstructionCard(),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
                 child: AnimatedBuilder(
                   animation: _pathAnim,
                   builder: (context, _) => ParkingSpotMap(
@@ -211,12 +211,12 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
             ),
             onPressed: () => Navigator.pop(context),
           ),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
                   'Navigate to $_spotLabel',
                   maxLines: 1,
@@ -227,7 +227,7 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
                     fontSize: 20,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Row(
                   children: [
                     Expanded(
@@ -261,12 +261,22 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
 
   Widget _buildInstructionCard() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF202020),
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.fieldStroke.withValues(alpha: 0.35),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -275,11 +285,11 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
               height: 50,
               decoration: BoxDecoration(
                 color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(_turnIcon, color: Colors.black, size: 30),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,7 +304,7 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
                       fontSize: 18,
                     ),
                   ),
-                  SizedBox(height: 3),
+                  const SizedBox(height: 3),
                   Text(
                     'In ${_distanceMeters}m',
                     style: TextStyle(
@@ -313,42 +323,42 @@ class _IndoorNavigateToSpotScreenState extends State<IndoorNavigateToSpotScreen>
 
   Widget _buildBottomActions() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       child: Row(
         children: [
           SizedBox(
-            height: 42,
+            height: 44,
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.white,
                 side: BorderSide(color: AppColors.fieldStroke),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
               ),
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: SizedBox(
-              height: 42,
+              height: 44,
               child: ElevatedButton(
                 onPressed: _onDone,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
-                child: Text(
+                child: const Text(
                   'Done',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                 ),

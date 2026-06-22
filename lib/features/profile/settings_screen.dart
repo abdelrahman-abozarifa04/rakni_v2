@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rakni_v2/core/localization/app_strings.dart';
 import 'package:rakni_v2/core/localization/locale_service.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
@@ -63,193 +66,200 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.white,
-            size: 20,
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        ThemeService.instance,
+        LocaleService.instance,
+      ]),
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: AppColors.background,
+            elevation: 0,
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                color: AppColors.white,
+                size: 20,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              AppStrings.settings,
+              style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+            ),
           ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Settings',
-          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: ListView(
+          body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // Notifications Section
-          _sectionTitle('Notifications'),
-          SizedBox(height: 12),
-          _buildToggle(
-            icon: Icons.notifications_outlined,
-            title: 'Push Notifications',
-            subtitle: 'Receive push alerts on your device',
-            value: _pushNotifications,
-            onChanged: (v) {
-              setState(() => _pushNotifications = v);
-              _saveBool(_keyPush, v);
-            },
-          ),
-          SizedBox(height: 8),
-          _buildToggle(
-            icon: Icons.email_outlined,
-            title: 'Email Notifications',
-            subtitle: 'Get booking updates via email',
-            value: _emailNotifications,
-            onChanged: (v) {
-              setState(() => _emailNotifications = v);
-              _saveBool(_keyEmail, v);
-            },
-          ),
-          SizedBox(height: 8),
-          _buildToggle(
-            icon: Icons.alarm_outlined,
-            title: 'Parking Reminders',
-            subtitle: 'Alert before parking session ends',
-            value: _parkingReminders,
-            onChanged: (v) {
-              setState(() => _parkingReminders = v);
-              _saveBool(_keyReminders, v);
-            },
-          ),
-          SizedBox(height: 8),
-          _buildToggle(
-            icon: Icons.local_offer_outlined,
-            title: 'Promotions & Offers',
-            subtitle: 'Receive special deals and discounts',
-            value: _promotions,
-            onChanged: (v) {
-              setState(() => _promotions = v);
-              _saveBool(_keyPromo, v);
-            },
-          ),
-          SizedBox(height: 24),
-
-          // Privacy & Security Section
-          _sectionTitle('Privacy & Security'),
-          SizedBox(height: 12),
-          _buildToggle(
-            icon: Icons.location_on_outlined,
-            title: 'Location Services',
-            subtitle: 'Allow app to access your location',
-            value: _locationServices,
-            onChanged: (v) {
-              setState(() => _locationServices = v);
-              _saveBool(_keyLocation, v);
-            },
-          ),
-          SizedBox(height: 8),
-          _buildNavItem(
-            icon: Icons.lock_outline,
-            title: 'Change Password',
-            onTap: () => _showChangePasswordDialog(),
-          ),
-          SizedBox(height: 8),
-          _buildNavItem(
-            icon: Icons.security_outlined,
-            title: 'Two-Factor Authentication',
-            onTap: () {},
-          ),
-          SizedBox(height: 8),
-          _buildNavItem(
-            icon: Icons.history_outlined,
-            title: 'Login Activity',
-            onTap: () {},
-          ),
-          SizedBox(height: 24),
-
-          // Appearance Section
-          _sectionTitle('Appearance'),
-          SizedBox(height: 12),
-          _buildToggle(
-            icon: Icons.dark_mode_outlined,
-            title: 'Dark Mode',
-            subtitle: 'Use dark theme throughout the app',
-            value: ThemeService.instance.isDark,
-            onChanged: (v) {
-              ThemeService.instance.setDark(v);
-              setState(() {});
-            },
-          ),
-          SizedBox(height: 24),
-
-          // Regional Section
-          _sectionTitle('Regional'),
-          SizedBox(height: 12),
-          _buildDropdown(
-            icon: Icons.language_outlined,
-            title: 'Language',
-            value: _language,
-            items: const ['English', 'العربية'],
-            onChanged: (v) {
-              if (v == null) return;
-              setState(() => _language = v);
-              LocaleService.instance.setLocale(
-                v == 'العربية' ? AppLocale.ar : AppLocale.en,
-              );
-            },
-          ),
-          SizedBox(height: 8),
-          _buildDropdown(
-            icon: Icons.attach_money_outlined,
-            title: 'Currency',
-            value: _currency,
-            items: ['EGP', 'USD', 'EUR', 'SAR', 'AED'],
-            onChanged: (v) {
-              if (v == null) return;
-              setState(() => _currency = v);
-              _saveString(_keyCurrency, v);
-            },
-          ),
-          SizedBox(height: 24),
-
-          // Legal
-          _sectionTitle('Legal'),
-          SizedBox(height: 12),
-          _buildNavItem(
-            icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PrivacyPolicyScreen(),
+              // Notifications Section
+              _sectionTitle(AppStrings.notifications),
+              const SizedBox(height: 12),
+              _buildToggle(
+                icon: Icons.notifications_outlined,
+                title: AppStrings.pushNotifications,
+                subtitle: AppStrings.pushNotificationsSubtitle,
+                value: _pushNotifications,
+                onChanged: (v) {
+                  setState(() => _pushNotifications = v);
+                  _saveBool(_keyPush, v);
+                },
               ),
-            ),
-          ),
-          SizedBox(height: 8),
-          _buildNavItem(
-            icon: Icons.description_outlined,
-            title: 'Terms of Service',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const TermsScreen(),
+              const SizedBox(height: 8),
+              _buildToggle(
+                icon: Icons.email_outlined,
+                title: AppStrings.emailNotifications,
+                subtitle: AppStrings.emailNotificationsSubtitle,
+                value: _emailNotifications,
+                onChanged: (v) {
+                  setState(() => _emailNotifications = v);
+                  _saveBool(_keyEmail, v);
+                },
               ),
-            ),
-          ),
-          SizedBox(height: 24),
+              const SizedBox(height: 8),
+              _buildToggle(
+                icon: Icons.alarm_outlined,
+                title: AppStrings.parkingReminders,
+                subtitle: AppStrings.parkingRemindersSubtitle,
+                value: _parkingReminders,
+                onChanged: (v) {
+                  setState(() => _parkingReminders = v);
+                  _saveBool(_keyReminders, v);
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildToggle(
+                icon: Icons.local_offer_outlined,
+                title: AppStrings.promotions,
+                subtitle: AppStrings.promotionsSubtitle,
+                value: _promotions,
+                onChanged: (v) {
+                  setState(() => _promotions = v);
+                  _saveBool(_keyPromo, v);
+                },
+              ),
+              const SizedBox(height: 24),
 
-          // Danger Zone
-          _sectionTitle('Account'),
-          SizedBox(height: 12),
-          _buildNavItem(
-            icon: Icons.delete_outline,
-            title: 'Delete Account',
-            textColor: AppColors.error,
-            iconColor: AppColors.error,
-            onTap: () => _showDeleteAccountDialog(),
+              // Privacy & Security Section
+              _sectionTitle(AppStrings.privacySecurity),
+              const SizedBox(height: 12),
+              _buildToggle(
+                icon: Icons.location_on_outlined,
+                title: AppStrings.locationServices,
+                subtitle: AppStrings.locationServicesSubtitle,
+                value: _locationServices,
+                onChanged: (v) {
+                  setState(() => _locationServices = v);
+                  _saveBool(_keyLocation, v);
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildNavItem(
+                icon: Icons.lock_outline,
+                title: AppStrings.changePassword,
+                onTap: () => _showChangePasswordDialog(),
+              ),
+              const SizedBox(height: 8),
+              _buildNavItem(
+                icon: Icons.security_outlined,
+                title: AppStrings.twoFactorAuth,
+                onTap: () => _showComingSoonDialog(AppStrings.twoFactorAuth),
+              ),
+              const SizedBox(height: 8),
+              _buildNavItem(
+                icon: Icons.history_outlined,
+                title: AppStrings.loginActivity,
+                onTap: () => _showComingSoonDialog(AppStrings.loginActivity),
+              ),
+              const SizedBox(height: 24),
+
+              // Appearance Section
+              _sectionTitle(AppStrings.appearance),
+              const SizedBox(height: 12),
+              _buildToggle(
+                icon: Icons.dark_mode_outlined,
+                title: AppStrings.darkMode,
+                subtitle: AppStrings.darkModeSubtitle,
+                value: ThemeService.instance.isDark,
+                onChanged: (v) {
+                  ThemeService.instance.setDark(v);
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // Regional Section
+              _sectionTitle(AppStrings.regional),
+              const SizedBox(height: 12),
+              _buildDropdown(
+                icon: Icons.language_outlined,
+                title: AppStrings.language,
+                value: _language,
+                items: const ['English', 'العربية'],
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() => _language = v);
+                  LocaleService.instance.setLocale(
+                    v == 'العربية' ? AppLocale.ar : AppLocale.en,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildDropdown(
+                icon: Icons.attach_money_outlined,
+                title: AppStrings.currency,
+                value: _currency,
+                items: const ['EGP', 'USD', 'EUR', 'SAR', 'AED'],
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() => _currency = v);
+                  _saveString(_keyCurrency, v);
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // Legal
+              _sectionTitle(AppStrings.legal),
+              const SizedBox(height: 12),
+              _buildNavItem(
+                icon: Icons.privacy_tip_outlined,
+                title: AppStrings.privacyPolicy,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PrivacyPolicyScreen(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildNavItem(
+                icon: Icons.description_outlined,
+                title: AppStrings.termsOfService,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TermsScreen(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Danger Zone
+              _sectionTitle(AppStrings.account),
+              const SizedBox(height: 12),
+              _buildNavItem(
+                icon: Icons.delete_outline,
+                title: AppStrings.deleteAccount,
+                textColor: AppColors.error,
+                iconColor: AppColors.error,
+                onTap: () => _showDeleteAccountDialog(),
+              ),
+              const SizedBox(height: 32),
+            ],
           ),
-          SizedBox(height: 32),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -441,24 +451,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text(
-          'Change Password',
+          AppStrings.changePassword,
           style: TextStyle(color: AppColors.white),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _dialogField(currentCtrl, 'Current Password', obscure: true),
-            SizedBox(height: 12),
-            _dialogField(newCtrl, 'New Password', obscure: true),
-            SizedBox(height: 12),
-            _dialogField(confirmCtrl, 'Confirm New Password', obscure: true),
+            _dialogField(currentCtrl, AppStrings.currentPassword, obscure: true),
+            const SizedBox(height: 12),
+            _dialogField(newCtrl, AppStrings.newPasswordLabel, obscure: true),
+            const SizedBox(height: 12),
+            _dialogField(confirmCtrl, AppStrings.confirmNewPassword, obscure: true),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              'Cancel',
+              AppStrings.cancel,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -467,16 +477,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: AppColors.secondary,
               foregroundColor: Colors.black,
             ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Password changed!'),
-                  backgroundColor: AppColors.secondary,
+            onPressed: () async {
+              final newPassword = newCtrl.text.trim();
+              final confirmPassword = confirmCtrl.text.trim();
+              if (newPassword.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password cannot be empty'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+                return;
+              }
+              if (newPassword != confirmPassword) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Passwords do not match'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+                return;
+              }
+
+              Navigator.pop(ctx); // pop the dialog
+
+              // Show loading overlay
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (loadingCtx) => const Center(
+                  child: CircularProgressIndicator(color: AppColors.secondary),
                 ),
               );
+
+              try {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  await user.updatePassword(newPassword);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(AppStrings.passwordChanged),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                    );
+                  }
+                } else {
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('No user is currently signed in.'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e.toString().contains('requires-recent-login')
+                            ? 'Please log out and log back in, then try again.'
+                            : 'Error updating password: $e',
+                      ),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
             },
-            child: Text('Update'),
+            child: Text(AppStrings.update),
           ),
         ],
       ),
@@ -507,24 +581,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showComingSoonDialog(String featureName) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: AppColors.secondary, size: 24),
+            const SizedBox(width: 8),
+            const Text(
+              'Coming Soon',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          '$featureName is currently under development and will be available in a future update.',
+          style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'OK',
+              style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDeleteAccountDialog() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Delete Account',
+          AppStrings.deleteAccount,
           style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'This action is permanent and cannot be undone. All your data will be deleted.',
+          AppStrings.deleteAccountContent,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              'Cancel',
+              AppStrings.cancel,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -532,12 +640,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              // TODO: Implement account deletion logic
+              // Show loading overlay
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (loadingCtx) => const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.secondary,
+                  ),
+                ),
+              );
+              try {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  final uid = user.uid;
+                  // 1. Delete user document from Firestore
+                  await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+
+                  // 2. Delete user account from Firebase Authentication
+                  await user.delete();
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Account deleted successfully.'),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                    );
+                  }
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.pop(context);
+                  debugPrint('Error deleting account: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e.toString().contains('requires-recent-login')
+                            ? 'Please log out and log back in to delete your account for security reasons.'
+                            : 'Failed to delete account: $e',
+                      ),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
             },
-            child: Text('Delete'),
+            child: Text(AppStrings.delete, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

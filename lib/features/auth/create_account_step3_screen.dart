@@ -8,7 +8,9 @@ import 'package:rakni_v2/core/services/license_ocr_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/utils/image_utils.dart';
 import 'package:rakni_v2/core/utils/validators.dart';
+import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/features/auth/add_car_screen.dart';
+import 'package:rakni_v2/features/auth/sign_in_screen.dart';
 
 class CreateAccountStep3Screen extends StatefulWidget {
   final String fullName;
@@ -261,7 +263,21 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         elevation: 0,
         leadingWidth: 100,
         leading: TextButton.icon(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          onPressed: _isLoading
+              ? null
+              : () async {
+                  await AuthService.instance.signOut();
+                  if (!context.mounted) return;
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SignInScreen()),
+                      (route) => false,
+                    );
+                  }
+                },
           icon: Icon(
             Icons.arrow_back,
             color: AppColors.textSecondary,

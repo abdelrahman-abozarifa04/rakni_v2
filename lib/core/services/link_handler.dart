@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:app_links/app_links.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
 
@@ -10,6 +11,8 @@ class LinkHandler {
   StreamSubscription<Uri>? _linkSubscription;
 
   void init() {
+    if (kIsWeb) return;
+
     // 1. Handle deep link when the app is already open
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       _handleLink(uri);

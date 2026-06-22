@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rakni_v2/core/localization/locale_service.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/features/home/home_screen.dart';
 import 'package:rakni_v2/features/map/map_screen.dart';
@@ -8,10 +10,11 @@ import 'package:rakni_v2/features/profile/profile_screen.dart';
 import 'package:rakni_v2/features/profile/my_vehicles_screen.dart';
 import 'package:rakni_v2/features/bookings/bookings_screen.dart';
 
-
-
 /// ──────────────────────────────────────────────────────────────────
 /// Main shell — keeps the selected tab index and swaps pages.
+/// Listens to ThemeService and LocaleService so that both dark/light
+/// mode toggles and language switches immediately rebuild the entire
+/// Scaffold including the bottom nav bar.
 /// ──────────────────────────────────────────────────────────────────
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -27,6 +30,24 @@ class MainShellState extends State<MainShell> {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeService.instance.addListener(_onStateChanged);
+    LocaleService.instance.addListener(_onStateChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeService.instance.removeListener(_onStateChanged);
+    LocaleService.instance.removeListener(_onStateChanged);
+    super.dispose();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
   }
 
   static const List<Widget> _pages = [

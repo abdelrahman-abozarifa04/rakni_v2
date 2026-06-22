@@ -1,6 +1,7 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -8,6 +9,7 @@ import 'package:rakni_v2/core/models/booking_model.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'gate_entry_scan_screen.dart';
 
@@ -44,6 +46,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
   double _distanceRemaining = 0.0;
   int _durationRemainingMinutes = 0;
   Timer? _simulationTimer;
+  StreamSubscription<Position>? _positionStreamSubscription;
 
   final List<String> _instructions = [
     'Turn right onto Main St.',
@@ -56,6 +59,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
   @override
   void initState() {
     super.initState();
+    ThemeService.instance.addListener(_onThemeChanged);
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -74,10 +78,16 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
 
   @override
   void dispose() {
+    ThemeService.instance.removeListener(_onThemeChanged);
     _simulationTimer?.cancel();
+    _positionStreamSubscription?.cancel();
     _pulseController.dispose();
     _mapController?.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   LatLng get _destination => LatLng(
@@ -126,23 +136,137 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
 
   double _rad(double d) => d * math.pi / 180;
 
+  void _updateRouteForUserLocation(LatLng userLoc, double? heading) {
+    final dest = _destination;
+    
+    // 1. حساب المسافة المباشرة للوجهة النهائية
+    final distanceToDest = _distKm(userLoc, dest);
+    if (distanceToDest < 0.02) { // أقل من 20 متر = وصلنا
+      _positionStreamSubscription?.cancel();
+      setState(() {
+        _hasArrived = true;
+        _isNavigating = false;
+        _userLocation = dest;
+        _routePoints = [];
+      });
+      return;
+    }
+
+    // 2. تطبيق منطق الـ Map Matching / Snapping to Route
+    LatLng snappedLocation = userLoc; // القيمة الافتراضية لو ملقيناش خط قريب
+    int closestSegmentIndex = 0;
+    double minDistanceToSegment = double.maxFinite;
+
+    if (_routePoints.length > 1) {
+      // نلف على كل القطع المستقيمة في المسار المتبقي
+      for (int i = 0; i < _routePoints.length - 1; i++) {
+        final p1 = _routePoints[i];
+        final p2 = _routePoints[i + 1];
+        
+        // حساب النقطة المسقطة (Projected Point) على القطعة المستقيمة
+        final projected = _findNearestPointOnSegment(userLoc, p1, p2);
+        final dist = _distKm(userLoc, projected);
+        
+        if (dist < minDistanceToSegment) {
+          minDistanceToSegment = dist;
+          snappedLocation = projected;
+          closestSegmentIndex = i;
+        }
+      }
+    }
+
+    // حد الأمان (Threshold): لو الإشارة الحقيقية بعيدة أكتر من 25 متر عن المسار، 
+    // ده معناه إن المستخدم غالباً غير مساره (Off-Route)، ساعتها مش هنعمل Snap وهنسيب الإحداثيات خام
+    if (minDistanceToSegment > 0.025) { 
+      snappedLocation = userLoc;
+      closestSegmentIndex = 0; // إعادة ضبط أو ترك المسار كما هو
+    }
+
+    setState(() {
+      // السهم هيتحرك على النقطة المربوطة بالطريق بالظبط!
+      _userLocation = snappedLocation; 
+      
+      // تقليم (Pruning) النقط اللي عديناها بناءً على القطعة المستقيمة الأقرب
+      if (_routePoints.isNotEmpty && closestSegmentIndex < _routePoints.length) {
+        _routePoints = [snappedLocation, ..._routePoints.sublist(closestSegmentIndex + 1)];
+      }
+
+      _distanceRemaining = _distKm(snappedLocation, dest);
+      _durationRemainingMinutes = (_distanceRemaining * 2.0).round();
+      if (_durationRemainingMinutes < 1) _durationRemainingMinutes = 1;
+
+      // تحديث الإرشادات ديناميكياً
+      final remaining = _routePoints.length;
+      if (remaining > 10) {
+        _currentInstruction = 0;
+      } else if (remaining > 6) {
+        _currentInstruction = 1;
+      } else if (remaining > 3) {
+        _currentInstruction = 2;
+      } else {
+        _currentInstruction = 3;
+      }
+    });
+
+    // 3. تحريك الكاميرا بسلاسة نحو النقطة المربوطة بالطريق
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: snappedLocation,
+          zoom: 17,
+          bearing: heading ?? 45,
+          tilt: 45,
+        ),
+      ),
+    );
+  }
+
+  /// دالة رياضية لحساب أقرب نقطة على قطعة مستقيمة (بين p1 و p2) من نقطة خارجية (point)
+  LatLng _findNearestPointOnSegment(LatLng point, LatLng p1, LatLng p2) {
+    final double x = point.latitude;
+    final double y = point.longitude;
+    final double x1 = p1.latitude;
+    final double y1 = p1.longitude;
+    final double x2 = p2.latitude;
+    final double y2 = p2.longitude;
+
+    final double dx = x2 - x1;
+    final double dy = y2 - y1;
+
+    if (dx == 0 && dy == 0) return p1;
+
+    // حساب معامل الإسقاط (Projection factor)
+    double t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
+
+    // حصر النقطة داخل حدود القطعة المستقيمة (بين p1 و p2)
+    if (t < 0) t = 0;
+    if (t > 1) t = 1;
+
+    return LatLng(x1 + t * dx, y1 + t * dy);
+  }
+
+
   Future<void> _startNavigation() async {
     // 1. Request location permission and get current position
     Position? pos;
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (serviceEnabled) {
-        var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-        }
-        if (permission == LocationPermission.whileInUse ||
-            permission == LocationPermission.always) {
-          pos = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.high,
-            ),
-          );
+      final prefs = await SharedPreferences.getInstance();
+      final locationServicesEnabled = prefs.getBool('setting_location_services') ?? true;
+      if (locationServicesEnabled) {
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (serviceEnabled) {
+          var permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.denied) {
+            permission = await Geolocator.requestPermission();
+          }
+          if (permission == LocationPermission.whileInUse ||
+              permission == LocationPermission.always) {
+            pos = await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.high,
+              ),
+            );
+          }
         }
       }
     } catch (e) {
@@ -194,66 +318,37 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
       _generateSimulatedRoute(startLoc, dest);
     }
 
-    // 3. Animate camera to focus on the user
+    // 3. Animate camera to focus on the user initial location
     if (_mapController != null && _userLocation != null) {
       _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: _userLocation!,
             zoom: 17,
-            bearing: 45,
+            bearing: pos?.heading ?? 45,
             tilt: 45,
           ),
         ),
       );
     }
 
-    // 4. Start periodic simulation updates
+    // 4. Cancel any running subscriptions/simulations
+    _positionStreamSubscription?.cancel();
     _simulationTimer?.cancel();
-    _simulationTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
-      if (_routePoints.length <= 1) {
-        timer.cancel();
-        setState(() {
-          _hasArrived = true;
-          _isNavigating = false;
-          _userLocation = dest;
-        });
-        return;
-      }
 
-      // Move marker to the next point
-      final nextLoc = _routePoints[1];
-
-      setState(() {
-        _userLocation = nextLoc;
-        _routePoints = _routePoints.sublist(1);
-        _distanceRemaining = _distKm(nextLoc, dest);
-        _durationRemainingMinutes = (_distanceRemaining * 2.0).round();
-        if (_durationRemainingMinutes < 1) _durationRemainingMinutes = 1;
-
-        // Dynamic instructions based on remaining path points
-        final remaining = _routePoints.length;
-        if (remaining > 10) {
-          _currentInstruction = 0;
-        } else if (remaining > 6) {
-          _currentInstruction = 1;
-        } else if (remaining > 3) {
-          _currentInstruction = 2;
-        } else {
-          _currentInstruction = 3;
-        }
-      });
-
-      _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: nextLoc,
-            zoom: 17,
-            bearing: 45,
-            tilt: 45,
-          ),
-        ),
-      );
+    // 5. Start real GPS tracking using getPositionStream
+    const locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 1, // trigger updates on 1 meter movements
+    );
+    
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((Position position) {
+      final currentLatLng = LatLng(position.latitude, position.longitude);
+      _updateRouteForUserLocation(currentLatLng, position.heading);
+    }, onError: (err) {
+      debugPrint('Geolocator stream error: $err');
     });
   }
 
@@ -292,7 +387,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
-            style: _darkMapStyle,
+            style: ThemeService.instance.isDark ? _darkMapStyle : _lightMapStyle,
           ),
           // Top instruction bar
           if (_isNavigating && !_hasArrived)
@@ -679,6 +774,28 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
   {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#000000"}]},
   {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#1a1a2e"}]},
   {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#2f3948"}]}
+]
+''';
+
+  static const String _lightMapStyle = '''
+[
+  {"elementType": "geometry", "stylers": [{"color": "#F6F7F4"}]},
+  {"elementType": "labels.text.fill", "stylers": [{"color": "#4A5568"}]},
+  {"elementType": "labels.text.stroke", "stylers": [{"color": "#FFFFFF"}]},
+  {"featureType": "landscape", "elementType": "geometry", "stylers": [{"color": "#EAECEE"}]},
+  {"featureType": "landscape.natural", "elementType": "geometry", "stylers": [{"color": "#D8EDCD"}]},
+  {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#D8EDCD"}]},
+  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#718096"}]},
+  {"featureType": "poi.park", "elementType": "geometry", "stylers": [{"color": "#BEDFB3"}]},
+  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#FFFFFF"}]},
+  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#D1D5DB"}]},
+  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#4A5568"}]},
+  {"featureType": "road.highway", "elementType": "geometry", "stylers": [{"color": "#F7FAFC"}]},
+  {"featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{"color": "#2D3748"}]},
+  {"featureType": "transit", "elementType": "labels.text.fill", "stylers": [{"color": "#718096"}]},
+  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#BEE3F8"}]},
+  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#2B6CB0"}]},
+  {"featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{"color": "#718096"}]}
 ]
 ''';
 }

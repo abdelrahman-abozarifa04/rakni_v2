@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
@@ -198,7 +198,7 @@ class _BookingSpotSelectionScreenState
   Widget _buildStatusBar() {
     final secondsAgo = DateTime.now().difference(_lastUpdated).inSeconds;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 2, 32, 12),
+      padding: const EdgeInsets.fromLTRB(20, 2, 20, 12),
       child: Row(
         children: [
           Container(
@@ -282,7 +282,7 @@ class _BookingSpotSelectionScreenState
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: ParkingSpotMap(
         slots: _slots,
         selectedSlotId: _selectedSlot?.id,
@@ -293,18 +293,25 @@ class _BookingSpotSelectionScreenState
 
   Widget _buildSelectionBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 10, 32, 18),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 18),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF202020),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppColors.secondary.withValues(alpha: 0.35),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -325,7 +332,7 @@ class _BookingSpotSelectionScreenState
                       fontSize: 11,
                     ),
                   ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
                   _selectedSlot!.slotNumber,
                   style: TextStyle(
@@ -337,7 +344,7 @@ class _BookingSpotSelectionScreenState
               ],
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           SizedBox(
             height: 48,
             width: double.infinity,
@@ -347,12 +354,12 @@ class _BookingSpotSelectionScreenState
                 backgroundColor: AppColors.secondary,
                 foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 0,
               ),
               child: _confirming
-                  ? SizedBox(
+                  ? const SizedBox(
                       height: 22,
                       width: 22,
                       child: CircularProgressIndicator(
@@ -360,7 +367,7 @@ class _BookingSpotSelectionScreenState
                         color: Colors.black,
                       ),
                     )
-                  : Text(
+                  : const Text(
                       'Done',
                       style: TextStyle(
                         fontSize: 15,

@@ -41,6 +41,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   bool _loading = true;
   bool _confirming = false;
   String? _error;
+  bool _hasActiveSubscription = false;
 
   static const double _serviceFee = 5.0;
 
@@ -74,6 +75,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         _walletBalance = wallet?.balance ?? 0;
         _loading = false;
       });
+      if (_selectedVehicle != null) {
+        await _checkSubscription(_selectedVehicle);
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -83,12 +87,40 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     }
   }
 
+  Future<void> _checkSubscription(VehicleModel? vehicle) async {
+    if (vehicle == null) {
+      setState(() => _hasActiveSubscription = false);
+      return;
+    }
+    try {
+      final sub = await ParkingHardwareApiService.instance.checkActiveSubscription([vehicle.plateNumber]);
+      if (mounted) {
+        setState(() {
+          _hasActiveSubscription = sub != null;
+        });
+      }
+    } catch (e) {
+      debugPrint('[BookingDetails] Error checking subscription: $e');
+      if (mounted) {
+        setState(() {
+          _hasActiveSubscription = false;
+        });
+      }
+    }
+  }
+
+
   double get _subtotal {
+    if (_hasActiveSubscription) return 0;
     return widget.parkingLot.pricePerHour *
         (_durationHours + _durationMinutes / 60);
   }
 
-  double get _total => _subtotal + _serviceFee - _promoDiscount;
+  double get _total {
+    if (_hasActiveSubscription) return 0;
+    return _subtotal + _serviceFee - _promoDiscount;
+  }
+
 
   TimeOfDay get _toTime {
     final fromMinutes = _fromTime.hour * 60 + _fromTime.minute;
@@ -191,6 +223,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         paymentMethod: _selectedPayment,
         walletBalance: _walletBalance,
         promoDiscount: _promoDiscount,
+      );
+
+      // Trigger notification
+      await FirestoreService.instance.sendAppNotification(
+        uid,
+        title: 'Booking Confirmed',
+        body: 'Your spot ${_selectedSlot!.slotNumber} at ${widget.parkingLot.name} has been booked.',
+        type: 'booking_success',
+        settingKey: 'setting_push_notifications',
       );
 
       // Notify the Django hardware backend to flip the physical slot's
@@ -336,16 +377,18 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
-                child: _confirming
-                    ? SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                      )
-                    : Text(
-                        'Confirm & Pay — EGP ${_total.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                  child: _confirming
+                      ? SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : Text(
+                          _hasActiveSubscription
+                              ? 'Confirm Booking (Premium)'
+                              : 'Confirm & Pay — EGP ${_total.toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
               ),
             ),
           ),
@@ -480,7 +523,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             ),
           );
         }).toList(),
-        onChanged: (v) => setState(() => _selectedVehicle = v),
+        onChanged: (v) {
+          setState(() => _selectedVehicle = v);
+          _checkSubscription(v);
+        },
       ),
     );
   }

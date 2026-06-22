@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/services/favorites_service.dart';
+import 'package:rakni_v2/core/services/theme_service.dart';
 import 'package:rakni_v2/features/booking/booking_details_screen.dart';
+import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 
 class ParkingLotDetailScreen extends StatefulWidget {
   final String id, name, address, pricePerHour, imagePath;
@@ -28,10 +31,47 @@ class ParkingLotDetailScreen extends StatefulWidget {
 class _State extends State<ParkingLotDetailScreen> {
   bool _fav = false;
   String _slot = 'Regular';
+  int? _apiAvailableSlots;
+  Timer? _apiPollTimer;
+
   @override
   void initState() {
     super.initState();
+    ThemeService.instance.addListener(_onThemeChanged);
     _load();
+    _startApiPolling();
+  }
+
+  @override
+  void dispose() {
+    ThemeService.instance.removeListener(_onThemeChanged);
+    _apiPollTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startApiPolling() {
+    _pollApiAvailableSlots();
+    _apiPollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _pollApiAvailableSlots();
+    });
+  }
+
+  Future<void> _pollApiAvailableSlots() async {
+    try {
+      final slots = await ParkingHardwareApiService.instance.fetchSlots();
+      final count = slots.where((s) => s.isAvailable).length;
+      if (mounted) {
+        setState(() {
+          _apiAvailableSlots = count;
+        });
+      }
+    } catch (e) {
+      debugPrint('[ParkingLotDetailScreen] Error polling API slots: $e');
+    }
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _load() async {
@@ -198,7 +238,7 @@ class _State extends State<ParkingLotDetailScreen> {
           children: [
             _sc(
               Icons.local_parking,
-              '${widget.availableSlots}/${widget.totalSlots}',
+              '${_apiAvailableSlots ?? widget.availableSlots}/${widget.totalSlots}',
               'Available',
             ),
             SizedBox(width: 10),
@@ -340,6 +380,7 @@ class _State extends State<ParkingLotDetailScreen> {
               myLocationButtonEnabled: false,
               mapToolbarEnabled: false,
               liteModeEnabled: true,
+              style: ThemeService.instance.isDark ? _darkMapStyle : _lightMapStyle,
             ),
           ),
         ),
@@ -367,7 +408,7 @@ class _State extends State<ParkingLotDetailScreen> {
             latitude: widget.latitude,
             longitude: widget.longitude,
             totalSlots: widget.totalSlots,
-            availableSlots: widget.availableSlots,
+            availableSlots: _apiAvailableSlots ?? widget.availableSlots,
             pricePerHour: price,
             imageUrl: widget.imagePath,
           );
@@ -394,3 +435,49 @@ class _State extends State<ParkingLotDetailScreen> {
     ),
   );
 }
+
+// ─────────────────────────────────────────────────────────────────
+// Dark-mode map style JSON
+// ─────────────────────────────────────────────────────────────────
+const String _darkMapStyle = '''[
+  {"elementType":"geometry","stylers":[{"color":"#2A2A2B"}]},
+  {"elementType":"labels.text.fill","stylers":[{"color":"#99A1AF"}]},
+  {"elementType":"labels.text.stroke","stylers":[{"color":"#1A1A1B"}]},
+  {"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#2A2A2B"}]},
+  {"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#232B23"}]},
+  {"featureType":"poi","elementType":"geometry","stylers":[{"color":"#232B23"}]},
+  {"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#6A7282"}]},
+  {"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#232B23"}]},
+  {"featureType":"road","elementType":"geometry","stylers":[{"color":"#3D434C"}]},
+  {"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#212326"}]},
+  {"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#99A1AF"}]},
+  {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#48505C"}]},
+  {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#B0B8C4"}]},
+  {"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#6A7282"}]},
+  {"featureType":"water","elementType":"geometry","stylers":[{"color":"#1A1F2E"}]},
+  {"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#4B5B8B"}]},
+  {"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#64748B"}]}
+]''';
+
+// ─────────────────────────────────────────────────────────────────
+// Light-mode map style JSON
+// ─────────────────────────────────────────────────────────────────
+const String _lightMapStyle = '''[
+  {"elementType":"geometry","stylers":[{"color":"#F6F7F4"}]},
+  {"elementType":"labels.text.fill","stylers":[{"color":"#4A5568"}]},
+  {"elementType":"labels.text.stroke","stylers":[{"color":"#FFFFFF"}]},
+  {"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#EAECEE"}]},
+  {"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#D8EDCD"}]},
+  {"featureType":"poi","elementType":"geometry","stylers":[{"color":"#D8EDCD"}]},
+  {"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#718096"}]},
+  {"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#BEDFB3"}]},
+  {"featureType":"road","elementType":"geometry","stylers":[{"color":"#FFFFFF"}]},
+  {"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#D1D5DB"}]},
+  {"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#4A5568"}]},
+  {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#F7FAFC"}]},
+  {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#2D3748"}]},
+  {"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#718096"}]},
+  {"featureType":"water","elementType":"geometry","stylers":[{"color":"#BEE3F8"}]},
+  {"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#2B6CB0"}]},
+  {"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#718096"}]}
+]''';

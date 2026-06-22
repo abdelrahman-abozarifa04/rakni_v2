@@ -1,9 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/booking_model.dart';
 import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
+import 'package:rakni_v2/core/widgets/egyptian_license_plate.dart';
 import 'final_payment_details_screen.dart';
+import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 
 class GateExitScanScreen extends StatefulWidget {
   final BookingModel booking;
@@ -27,6 +30,10 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
     with TickerProviderStateMixin {
   bool _recognized = false;
   bool _navigating = false;
+  bool _isPolling = false;
+  double _exitCost = 0.0;
+  bool _showWarning = false;
+  Timer? _warningTimer;
 
   late final AnimationController _scanLineController;
   late final Animation<double> _scanLineAnim;
@@ -36,6 +43,7 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
   @override
   void initState() {
     super.initState();
+    _exitCost = widget.elapsedCost;
 
     _scanLineController = AnimationController(
       vsync: this,
@@ -53,21 +61,73 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Simulate ANPR recognition after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      setState(() => _recognized = true);
-      _scanLineController.stop();
-      // Auto-advance to payment after 3 more seconds
-      Future.delayed(const Duration(seconds: 3), _advanceToPayment);
-    });
+    _startPolling();
   }
 
   @override
   void dispose() {
+    _stopPolling();
+    _warningTimer?.cancel();
     _scanLineController.dispose();
     _pulseController.dispose();
     super.dispose();
+  }
+
+  void _startPolling() async {
+    if (_isPolling) return;
+    _isPolling = true;
+    while (_isPolling && mounted && !_recognized) {
+      try {
+        final data = await ParkingHardwareApiService.instance.fetchLastExit();
+        if (data != null && data['success'] == true) {
+          final apiPlate = data['plate'] as String?;
+          if (apiPlate != null) {
+            if (ParkingHardwareApiService.instance.platesMatch(apiPlate, widget.vehicle.plateNumber)) {
+              final apiCost = double.tryParse(data['total_cost']?.toString() ?? '');
+              _onPlateRecognized(apiCost);
+              break;
+            } else {
+              _triggerWarning();
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('Error polling exit: $e');
+      }
+      await Future.delayed(const Duration(seconds: 2));
+    }
+  }
+
+  void _triggerWarning() {
+    if (!mounted) return;
+    setState(() {
+      _showWarning = true;
+    });
+    _warningTimer?.cancel();
+    _warningTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() {
+          _showWarning = false;
+        });
+      }
+    });
+  }
+
+  void _onPlateRecognized(double? apiCost) {
+    if (!mounted) return;
+    setState(() {
+      _recognized = true;
+      if (apiCost != null) {
+        _exitCost = apiCost;
+      }
+    });
+    _scanLineController.stop();
+    // Auto-advance to payment after 3 more seconds
+    Future.delayed(const Duration(seconds: 3), _advanceToPayment);
+  }
+
+  void _stopPolling() {
+    _isPolling = false;
   }
 
   void _advanceToPayment() {
@@ -83,7 +143,7 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
           parkingLot: widget.parkingLot,
           vehicle: widget.vehicle,
           exitTime: exitTime,
-          totalCost: widget.elapsedCost,
+          totalCost: _exitCost,
         ),
       ),
     );
@@ -217,7 +277,7 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Fee: EGP ${widget.elapsedCost.toStringAsFixed(2)} — Calculating...',
+                                    'Fee: EGP ${_exitCost.toStringAsFixed(2)}',
                                     style: TextStyle(
                                         color: AppColors.secondary,
                                         fontSize: 12),
@@ -299,89 +359,122 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
   }
 
   Widget _buildScanningView() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A1A1A),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.directions_car,
-                      color: Color(0xFF444444), size: 80),
-                  SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: AppColors.secondary, width: 2),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text('PLATE',
-                        style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2)),
+    return GestureDetector(
+      onTap: _triggerWarning,
+      behavior: HitTestBehavior.opaque,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(12),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/Gemini_Generated_Image_isni0bisni0bisni.png'),
+                  fit: BoxFit.cover,
+                  opacity: 0.6,
+                ),
+              ),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: AppColors.secondary, width: 2),
+                    borderRadius: BorderRadius.circular(6),
+                    color: Colors.black.withValues(alpha: 0.5),
                   ),
+                  child: const Text('PLATE',
+                      style: TextStyle(
+                          color: AppColors.secondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2)),
+                ),
+              ),
+            ),
+            ..._buildCornerBrackets(AppColors.secondary),
+            Positioned(
+              top: 10,
+              left: 10,
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.green),
+                  ),
+                  const SizedBox(width: 6),
+                  Text('ANPR System enabled',
+                      style: TextStyle(color: AppColors.white, fontSize: 11)),
                 ],
               ),
             ),
-          ),
-          ..._buildCornerBrackets(AppColors.secondary),
-          Positioned(
-            top: 10,
-            left: 10,
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.green),
+            // Warning Alert
+            if (_showWarning)
+              Positioned(
+                top: 35,
+                left: 10,
+                right: 10,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: _showWarning ? 1.0 : 0.0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "You must be standing directly in front of the gate to proceed. Plate not recognized yet.",
+                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                SizedBox(width: 6),
-                Text('ANPR System enabled',
-                    style: TextStyle(color: AppColors.white, fontSize: 11)),
-              ],
-            ),
-          ),
-          AnimatedBuilder(
-            animation: _scanLineAnim,
-            builder: (ctx, _) => Positioned(
-              top: _scanLineAnim.value *
-                  (MediaQuery.of(ctx).size.width * 0.65),
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 2,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      AppColors.secondary.withValues(alpha: 0.7),
-                      AppColors.secondary,
-                      AppColors.secondary.withValues(alpha: 0.7),
-                      Colors.transparent,
+              ),
+            AnimatedBuilder(
+              animation: _scanLineAnim,
+              builder: (ctx, _) => Positioned(
+                top: _scanLineAnim.value *
+                    (MediaQuery.of(ctx).size.width * 0.65),
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        AppColors.secondary.withValues(alpha: 0.7),
+                        AppColors.secondary,
+                        AppColors.secondary.withValues(alpha: 0.7),
+                        Colors.transparent,
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.secondary.withValues(alpha: 0.5),
+                        blurRadius: 6,
+                      ),
                     ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.5),
-                      blurRadius: 6,
-                    ),
-                  ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -392,31 +485,18 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
       child: Stack(
         children: [
           Container(
-            color: const Color(0xFF1A1A1A),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A1A1A),
+              borderRadius: BorderRadius.circular(12),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/Gemini_Generated_Image_isni0bisni0bisni.png'),
+                fit: BoxFit.cover,
+                opacity: 0.6,
+              ),
+            ),
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.directions_car,
-                      color: Color(0xFF666666), size: 72),
-                  SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      widget.vehicle.plateNumber,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 3),
-                    ),
-                  ),
-                ],
+              child: EgyptianLicensePlate(
+                plateNumber: widget.vehicle.plateNumber,
               ),
             ),
           ),
@@ -426,9 +506,9 @@ class _GateExitScanScreenState extends State<GateExitScanScreen>
             right: 10,
             child: Container(
               padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Colors.green, shape: BoxShape.circle),
-              child: Icon(Icons.check, color: Colors.white, size: 16),
+              child: const Icon(Icons.check, color: Colors.white, size: 16),
             ),
           ),
         ],

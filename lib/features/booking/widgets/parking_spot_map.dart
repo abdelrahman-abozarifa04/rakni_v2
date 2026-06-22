@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
@@ -27,7 +27,7 @@ class ParkingSpotMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rows = math.max(4, (slots.length + 3) ~/ 4);
-    final naturalHeight = math.max(350.0, rows * 86.0 + 38.0);
+    final naturalHeight = math.max(360.0, rows * 68.0 + 64.0);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -35,51 +35,102 @@ class ParkingSpotMap extends StatelessWidget {
             constraints.maxHeight.isFinite && constraints.maxHeight > 0;
         final height = hasBoundedHeight ? constraints.maxHeight : naturalHeight;
 
-        return SizedBox(
+        return Container(
           height: height,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: const Color(0xFF343434),
-              borderRadius: BorderRadius.circular(12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.fieldStroke.withValues(alpha: 0.35),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Column(
-                      children: [
-                        for (int row = 0; row < rows; row++) ...[
-                          Expanded(
-                            child: _ParkingMapRow(
-                              slots: slots,
-                              row: row,
-                              selectedSlotId: selectedSlotId,
-                              targetSlotId: targetSlotId,
-                              onSlotTap: onSlotTap,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  child: Column(
+                    children: [
+                      for (int row = 0; row < rows; row++) ...[
+                        Expanded(
+                          child: _ParkingMapRow(
+                            slots: slots,
+                            row: row,
+                            selectedSlotId: selectedSlotId,
+                            targetSlotId: targetSlotId,
+                            onSlotTap: onSlotTap,
+                          ),
+                        ),
+                        if (row != rows - 1) const SizedBox(height: 10),
+                      ],
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.login_rounded,
+                            color: AppColors.accent,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'ENTRANCE',
+                            style: TextStyle(
+                              color: AppColors.accent,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.0,
                             ),
                           ),
-                          if (row != rows - 1) SizedBox(height: 12),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (showRoute && targetSlotId != null)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: CustomPaint(
-                          painter: _RoutePainter(
-                            slots: slots,
-                            targetSlotId: targetSlotId!,
-                            rows: rows,
-                            progress: routeProgress,
+                          const SizedBox(width: 16),
+                          Container(
+                            width: 1,
+                            height: 12,
+                            color: AppColors.white.withValues(alpha: 0.15),
                           ),
+                          const SizedBox(width: 16),
+                          const Icon(
+                            Icons.logout_rounded,
+                            color: AppColors.error,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'EXIT',
+                            style: TextStyle(
+                              color: AppColors.error,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (showRoute && targetSlotId != null)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: CustomPaint(
+                        painter: _RoutePainter(
+                          slots: slots,
+                          targetSlotId: targetSlotId!,
+                          rows: rows,
+                          progress: routeProgress,
                         ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         );
@@ -105,7 +156,7 @@ class _ParkingMapRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final aisleWidth = MediaQuery.sizeOf(context).width < 380 ? 34.0 : 48.0;
+    final aisleWidth = MediaQuery.sizeOf(context).width < 380 ? 44.0 : 64.0;
 
     return Row(
       children: [
@@ -175,50 +226,51 @@ class _SlotBay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isOccupied) {
-      return Center(
-        child: Image.asset(
-          ParkingSpotMap.carAsset,
-          width: 52,
-          fit: BoxFit.contain,
-        ),
-      );
-    }
-
     return CustomPaint(
       painter: _DashedBayPainter(
         color: isSelected
             ? AppColors.secondary
-            : AppColors.textSecondary.withValues(alpha: 0.75),
+            : AppColors.textSecondary.withValues(alpha: 0.35),
         fillColor: isSelected
-            ? AppColors.secondary.withValues(alpha: 0.14)
-            : null,
-        strokeWidth: isSelected ? 2 : 1,
+            ? AppColors.secondary.withValues(alpha: 0.08)
+            : AppColors.surface,
+        strokeWidth: isSelected ? 1.8 : 1,
       ),
       child: Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.secondary : Color(0xFF3F454C),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: isSelected
-                  ? AppColors.secondary
-                  : AppColors.textSecondary.withValues(alpha: 0.28),
-            ),
-          ),
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: isSelected ? Colors.black : AppColors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        child: isOccupied
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: Image.asset(
+                    ParkingSpotMap.carAsset,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              )
+            : AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.secondary : AppColors.background.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.secondary
+                        : AppColors.textSecondary.withValues(alpha: 0.12),
+                  ),
+                ),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isSelected ? Colors.black : AppColors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -237,7 +289,7 @@ class _DashedBayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 6, size.width, size.height - 12);
+    final rect = Rect.fromLTWH(0, 4, size.width, size.height - 8);
 
     if (fillColor != null) {
       canvas.drawRRect(
@@ -322,7 +374,7 @@ class _RoutePainter extends CustomPainter {
     const padding = 18.0;
     const rowGap = 12.0;
     const slotGap = 10.0;
-    final aisleWidth = size.width < 380 ? 34.0 : 48.0;
+    final aisleWidth = size.width < 380 ? 44.0 : 64.0;
     final contentW = size.width - padding * 2;
     final sideW = (contentW - aisleWidth) / 2;
     final slotW = (sideW - slotGap) / 2;
@@ -339,8 +391,8 @@ class _RoutePainter extends CustomPainter {
               slotW / 2;
     final targetY = padding + targetRow * (rowH + rowGap) + rowH / 2;
     final isLeft = targetX < size.width / 2;
-    final routeX = isLeft ? padding + 6 : size.width - padding - 6;
-    final startY = size.height - padding - 2;
+    final routeX = size.width / 2;
+    final startY = size.height - padding - 24.0;
     final bendRadius = 12.0;
 
     final path = Path()..moveTo(routeX, startY);
@@ -348,7 +400,7 @@ class _RoutePainter extends CustomPainter {
     path.quadraticBezierTo(
       routeX,
       targetY,
-      routeX + (isLeft ? bendRadius : -bendRadius),
+      routeX + (isLeft ? -bendRadius : bendRadius),
       targetY,
     );
     path.lineTo(targetX, targetY);
@@ -373,12 +425,12 @@ class _RoutePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawPath(activePath, routePaint);
 
-    final dotPaint = Paint()..color = const Color(0xFFDDE2E7);
+    final dotPaint = Paint()..color = AppColors.secondary.withValues(alpha: 0.35);
     canvas.drawCircle(Offset(routeX, targetY), 8, dotPaint);
     canvas.drawCircle(
       Offset(routeX, targetY),
       4,
-      Paint()..color = AppColors.white,
+      Paint()..color = AppColors.secondary,
     );
   }
 

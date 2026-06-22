@@ -190,7 +190,7 @@ function buildEmailHtml(
                       text-align:center;
                       margin-bottom:20px;
                     ">
-                      <img src="https://rakni-v2.web.app/rakni_logo_white.svg" alt="Rakni" width="174" height="52" style="display:block;width:174px;max-width:174px;height:auto;border:0;outline:none;text-decoration:none;"/>
+                      <img src="https://rakni-v2.web.app/rakni_logo_white.png" alt="Rakni" width="174" height="52" style="display:block;width:174px;max-width:174px;height:auto;border:0;outline:none;text-decoration:none;"/>
                     </div>
                   </td>
                 </tr>
@@ -374,7 +374,7 @@ function buildActionEmailHtml(
           <tr>
             <td align="center" style="padding:44px 48px 28px 48px;">
               <div style="width:174px;height:auto;display:inline-block;text-align:center;margin-bottom:18px;">
-                <img src="https://rakni-v2.web.app/rakni_logo_white.svg" alt="Rakni" width="174" height="52" style="display:block;width:174px;max-width:174px;height:auto;border:0;outline:none;text-decoration:none;"/>
+                <img src="https://rakni-v2.web.app/rakni_logo_white.png" alt="Rakni" width="174" height="52" style="display:block;width:174px;max-width:174px;height:auto;border:0;outline:none;text-decoration:none;"/>
               </div>
               <div style="font-size:13px;color:rgba(255,255,255,0.35);">Smart Parking</div>
             </td>
@@ -401,10 +401,7 @@ function buildActionEmailHtml(
                 </tr>
               </table>
 
-              <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;text-align:center;">
-                Or copy this link:<br/>
-                <a href="${safeActionUrl}" style="color:#BDE500;text-decoration:none;word-break:break-all;">${safeActionUrl}</a>
-              </p>
+
             </td>
           </tr>
 

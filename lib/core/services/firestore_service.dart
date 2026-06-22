@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
@@ -13,6 +14,7 @@ import '../models/notification_model.dart';
 import '../models/review_model.dart';
 import '../models/wallet_model.dart';
 import '../utils/image_utils.dart';
+
 
 /// Singleton service that provides a typed interface to Cloud Firestore.
 ///
@@ -82,24 +84,12 @@ class FirestoreService {
   Future<UserModel?> getUserModel(String uid) async {
     try {
       final snapshot = await _users.doc(uid).get();
-      if (!snapshot.exists) return _getMockUserModel(uid);
+      if (!snapshot.exists) return null;
       return UserModel.fromFirestore(snapshot);
     } catch (e) {
-      return _getMockUserModel(uid);
+      debugPrint('FirestoreService: error getting user model: $e');
+      return null;
     }
-  }
-
-  UserModel _getMockUserModel(String uid) {
-    return UserModel(
-      uid: uid,
-      fullName: 'Abdelrahman Abozarifa',
-      email: 'abdelrahman@rakni.com',
-      phoneNumber: '+20 101 234 5678',
-      age: '22',
-      gender: 'Male',
-      address: 'Nasr City, Cairo',
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-    );
   }
 
   // ---------------------------------------------------------------------------
@@ -120,21 +110,12 @@ class FirestoreService {
   Future<CarModel?> getCarModel(String uid) async {
     try {
       final snapshot = await _cars.doc(uid).get();
-      if (!snapshot.exists) return _getMockCarModel(uid);
+      if (!snapshot.exists) return null;
       return CarModel.fromFirestore(snapshot);
     } catch (e) {
-      return _getMockCarModel(uid);
+      debugPrint('FirestoreService: error getting car model: $e');
+      return null;
     }
-  }
-
-  CarModel _getMockCarModel(String uid) {
-    return CarModel(
-      uid: uid,
-      plateNumber: 'أ ج د 5432',
-      carModel: 'BMW M4 Coupe',
-      carColor: 'Black',
-      manufacturingYear: '2023',
-    );
   }
 
   // ---------------------------------------------------------------------------
@@ -846,6 +827,49 @@ class FirestoreService {
     } catch (e) {
       debugPrint('FirestoreService: error marking notification as read: $e');
     }
+  }
+
+  /// Adds a notification to Firestore and triggers a native system notification.
+  Future<void> addNotification(
+    String uid, {
+    required String title,
+    required String body,
+    required String type,
+  }) async {
+    try {
+      await _notifications.add({
+        'userId': uid,
+        'title': title,
+        'body': body,
+        'timestamp': Timestamp.now(),
+        'isRead': false,
+        'type': type,
+      });
+
+
+    } catch (e) {
+      debugPrint('[FirestoreService] Error adding notification: $e');
+    }
+  }
+
+  /// Sends a notification if the corresponding setting is enabled in SharedPreferences.
+  Future<void> sendAppNotification(
+    String uid, {
+    required String title,
+    required String body,
+    required String type,
+    String? settingKey,
+  }) async {
+    if (settingKey != null) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final enabled = prefs.getBool(settingKey) ?? true;
+        if (!enabled) return;
+      } catch (e) {
+        debugPrint('[FirestoreService] Error reading SharedPreferences: $e');
+      }
+    }
+    await addNotification(uid, title: title, body: body, type: type);
   }
 
   // ---------------------------------------------------------------------------
