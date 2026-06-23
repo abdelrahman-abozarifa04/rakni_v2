@@ -1,9 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/models/user_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/utils/validators.dart';
+import 'package:rakni_v2/core/utils/input_formatters.dart';
 
 class PersonalDetailsScreen extends StatefulWidget {
   final UserModel userModel;
@@ -166,6 +168,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                 controller: _licenseExpiryCtrl,
                 icon: Icons.calendar_today_outlined,
                 keyboardType: TextInputType.datetime,
+                inputFormatters: [DateInputFormatter()],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return null;
                   return Validators.validateLicenseExpiry(v);
@@ -276,6 +279,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
@@ -283,6 +287,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
+      inputFormatters: inputFormatters,
       style: TextStyle(
         color: readOnly ? AppColors.textSecondary : AppColors.white,
         fontSize: 15,

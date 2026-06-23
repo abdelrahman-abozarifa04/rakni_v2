@@ -239,7 +239,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       // on their next 5-second poll. Fire-and-forget — the Firestore booking
       // is already saved, so we never block confirmation on this call.
       ParkingHardwareApiService.instance
-          .reserveSlot(slotId: _selectedSlot!.id)
+          .reserveSlot(
+        slotId: _selectedSlot!.id,
+        plateNumber: _selectedVehicle!.plateNumber,
+      )
           .then((ok) {
         if (!ok) {
           debugPrint(

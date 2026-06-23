@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/core/services/auth_gate.dart';
@@ -154,6 +154,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   padding: const EdgeInsets.all(12.0),
                   child: SvgPicture.asset(
                     'assets/images/Email_Icon.svg',
+                    height: 20,
+                    width: 20,
                     colorFilter: ColorFilter.mode(AppColors.hintColor, BlendMode.srcIn),
                   ),
                 ),

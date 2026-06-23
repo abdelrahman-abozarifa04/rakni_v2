@@ -161,44 +161,16 @@ class FirestoreService {
 
   /// Streams vehicles for a specific user.
   ///
-  /// IMPORTANT: emits a REAL empty list when the user has no vehicles —
-  /// never fabricate placeholder cars. An empty list is the signal the UI
-  /// uses to block booking and prompt the user to add a real vehicle.
+  /// Returns the direct Firestore snapshot stream \u2014 no StreamController wrapper
+  /// (PERF-013 fix). Emits a REAL empty list when the user has no vehicles;
+  /// never fabricates placeholder cars. An empty list is the signal the UI uses
+  /// to block booking and prompt the user to add a real vehicle.
   Stream<List<VehicleModel>> streamVehicles(String uid) {
-    late final StreamController<List<VehicleModel>> controller;
-    StreamSubscription? subscription;
-
-    controller = StreamController<List<VehicleModel>>(
-      onListen: () {
-        try {
-          subscription = _users.doc(uid).collection('vehicles').snapshots().listen(
-            (snapshot) {
-              try {
-                final list = snapshot.docs
-                    .map((doc) => VehicleModel.fromFirestore(doc))
-                    .toList();
-                controller.add(list);
-              } catch (e) {
-                debugPrint('[FirestoreService] Error mapping streamVehicles: $e');
-                controller.add(const []);
-              }
-            },
-            onError: (error) {
-              debugPrint('[FirestoreService] streamVehicles onError: $error');
-              controller.add(const []);
-            },
-          );
-        } catch (e) {
-          debugPrint('[FirestoreService] streamVehicles onListen catch: $e');
-          controller.add(const []);
-        }
-      },
-      onCancel: () {
-        subscription?.cancel();
-      },
-    );
-
-    return controller.stream;
+    return _users
+        .doc(uid)
+        .collection('vehicles')
+        .snapshots()
+        .map((snap) => snap.docs.map(VehicleModel.fromFirestore).toList());
   }
 
   /// Deletes a vehicle from `users/{uid}/vehicles/{vehicleId}`.
@@ -297,284 +269,57 @@ class FirestoreService {
   // ---------------------------------------------------------------------------
 
   /// Retrieves all parking lots.
+  /// Returns an empty list if Firestore has no documents.
+  /// Throws on network/permission errors so the UI can show an error state.
+  /// NEVER returns mock data in production (PERF-004 fix).
   Future<List<ParkingLotModel>> getParkingLots() async {
-    try {
-      final snapshot = await _parkingLots.get();
-      if (snapshot.docs.isEmpty) return _getMockParkingLots();
-      return snapshot.docs
-          .map((doc) => ParkingLotModel.fromFirestore(doc))
-          .toList();
-    } catch (e) {
-      return _getMockParkingLots();
-    }
+    final snapshot = await _parkingLots.get();
+    return snapshot.docs
+        .map((doc) => ParkingLotModel.fromFirestore(doc))
+        .toList();
   }
 
-  List<ParkingLotModel> _getMockParkingLots() {
-    return [
-      ParkingLotModel(
-        id: 'mock_lot_1',
-        name: 'Heliopolis Plaza Parking',
-        address: '15 El-Ahram St, Heliopolis, Cairo',
-        latitude: 30.0912,
-        longitude: 31.3214,
-        totalSlots: 100,
-        availableSlots: 45,
-        pricePerHour: 20.0,
-        imageUrl: 'https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?auto=format&fit=crop&q=80&w=800',
-      ),
-      ParkingLotModel(
-        id: 'mock_lot_2',
-        name: 'City Stars Mall Garage',
-        address: 'Omar Ibn El-Khattab St, Nasr City, Cairo',
-        latitude: 30.0734,
-        longitude: 31.3456,
-        totalSlots: 250,
-        availableSlots: 87,
-        pricePerHour: 30.0,
-        imageUrl: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=800',
-      ),
-    ];
-  }
 
   /// Retrieves a single parking lot by ID.
+  /// Returns null when the document does not exist or on network error.
+  /// NEVER falls back to mock data (PERF-005 fix).
   Future<ParkingLotModel?> getParkingLot(String lotId) async {
     try {
       final doc = await _parkingLots.doc(lotId).get();
-      if (!doc.exists) {
-        final mockLots = _getMockParkingLots();
-        final match = mockLots.where((l) => l.id == lotId).toList();
-        return match.isNotEmpty ? match.first : mockLots.first;
-      }
+      if (!doc.exists) return null;
       return ParkingLotModel.fromFirestore(doc);
     } catch (e) {
-      final mockLots = _getMockParkingLots();
-      final match = mockLots.where((l) => l.id == lotId).toList();
-      return match.isNotEmpty ? match.first : mockLots.first;
+      debugPrint('[FirestoreService] getParkingLot error: $e');
+      return null;
     }
   }
 
   /// Retrieves slots for a specific lot.
+  /// Returns an empty list when the lot has no slots configured.
+  /// NEVER returns mock data (PERF-006 fix).
   Future<List<ParkingSlotModel>> getParkingSlots(String lotId) async {
     try {
-      final snapshot = await _parkingLots.doc(lotId).collection('slots').get();
-      if (snapshot.docs.isEmpty) return _getMockSlots(lotId);
+      final snapshot =
+          await _parkingLots.doc(lotId).collection('slots').get();
       return snapshot.docs
           .map((doc) => ParkingSlotModel.fromFirestore(doc))
           .toList();
     } catch (e) {
-      return _getMockSlots(lotId);
+      debugPrint('[FirestoreService] getParkingSlots error: $e');
+      rethrow;
     }
   }
 
   /// Streams parking slots for a specific lot in real-time.
+  /// Returns the direct Firestore stream — no StreamController wrapper,
+  /// no mock data fallback (PERF-006 + PERF-007 fix).
   Stream<List<ParkingSlotModel>> streamParkingSlots(String lotId) {
-    late final StreamController<List<ParkingSlotModel>> controller;
-    StreamSubscription? subscription;
-
-    controller = StreamController<List<ParkingSlotModel>>(
-      onListen: () {
-        try {
-          subscription = _parkingLots
-              .doc(lotId)
-              .collection('slots')
-              .snapshots()
-              .listen(
-            (snapshot) {
-              try {
-                final list = snapshot.docs
-                    .map((doc) => ParkingSlotModel.fromFirestore(doc))
-                    .toList();
-                if (list.isEmpty) {
-                  controller.add(_getMockSlots(lotId));
-                } else {
-                  controller.add(list);
-                }
-              } catch (e) {
-                controller.add(_getMockSlots(lotId));
-              }
-            },
-            onError: (error) {
-              controller.add(_getMockSlots(lotId));
-            },
-          );
-        } catch (e) {
-          controller.add(_getMockSlots(lotId));
-        }
-      },
-      onCancel: () {
-        subscription?.cancel();
-      },
-    );
-
-    return controller.stream;
-  }
-
-  List<ParkingSlotModel> _getMockSlots(String lotId) {
-    return [
-      // Level 1
-      ParkingSlotModel(
-        id: 'slot_1_1',
-        parkingLotId: lotId,
-        slotNumber: 'A-101',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_2',
-        parkingLotId: lotId,
-        slotNumber: 'A-102',
-        isAvailable: false,
-        type: 'regular',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_3',
-        parkingLotId: lotId,
-        slotNumber: 'A-103',
-        isAvailable: true,
-        type: 'ev',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_4',
-        parkingLotId: lotId,
-        slotNumber: 'A-104',
-        isAvailable: true,
-        type: 'disabled',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_5',
-        parkingLotId: lotId,
-        slotNumber: 'A-105',
-        isAvailable: false,
-        type: 'regular',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_6',
-        parkingLotId: lotId,
-        slotNumber: 'A-106',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_7',
-        parkingLotId: lotId,
-        slotNumber: 'A-107',
-        isAvailable: true,
-        type: 'ev',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_8',
-        parkingLotId: lotId,
-        slotNumber: 'A-108',
-        isAvailable: false,
-        type: 'disabled',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_9',
-        parkingLotId: lotId,
-        slotNumber: 'A-109',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 1',
-      ),
-      ParkingSlotModel(
-        id: 'slot_1_10',
-        parkingLotId: lotId,
-        slotNumber: 'A-110',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 1',
-      ),
-
-      // Level 2
-      ParkingSlotModel(
-        id: 'slot_2_1',
-        parkingLotId: lotId,
-        slotNumber: 'B-201',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_2',
-        parkingLotId: lotId,
-        slotNumber: 'B-202',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_3',
-        parkingLotId: lotId,
-        slotNumber: 'B-203',
-        isAvailable: false,
-        type: 'ev',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_4',
-        parkingLotId: lotId,
-        slotNumber: 'B-204',
-        isAvailable: true,
-        type: 'disabled',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_5',
-        parkingLotId: lotId,
-        slotNumber: 'B-205',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_6',
-        parkingLotId: lotId,
-        slotNumber: 'B-206',
-        isAvailable: false,
-        type: 'regular',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_7',
-        parkingLotId: lotId,
-        slotNumber: 'B-207',
-        isAvailable: true,
-        type: 'ev',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_8',
-        parkingLotId: lotId,
-        slotNumber: 'B-208',
-        isAvailable: true,
-        type: 'disabled',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_9',
-        parkingLotId: lotId,
-        slotNumber: 'B-209',
-        isAvailable: false,
-        type: 'regular',
-        level: 'Level 2',
-      ),
-      ParkingSlotModel(
-        id: 'slot_2_10',
-        parkingLotId: lotId,
-        slotNumber: 'B-210',
-        isAvailable: true,
-        type: 'regular',
-        level: 'Level 2',
-      ),
-    ];
+    return _parkingLots
+        .doc(lotId)
+        .collection('slots')
+        .snapshots()
+        .map((snap) =>
+            snap.docs.map(ParkingSlotModel.fromFirestore).toList());
   }
 
   // ---------------------------------------------------------------------------
@@ -582,13 +327,12 @@ class FirestoreService {
   // ---------------------------------------------------------------------------
 
   /// Creates a new booking.
+  /// Creates a new booking.
+  /// Throws on Firestore write failure — callers must catch and show error state.
+  /// NEVER returns a fake booking ID on error (production safety rule).
   Future<String> createBooking(BookingModel booking) async {
-    try {
-      final docRef = await _bookings.add(booking.toFirestore());
-      return docRef.id;
-    } catch (e) {
-      return 'mock_booking_${DateTime.now().millisecondsSinceEpoch}';
-    }
+    final docRef = await _bookings.add(booking.toFirestore());
+    return docRef.id;
   }
 
   /// Retrieves bookings for a specific user (one-time fetch).
@@ -607,48 +351,23 @@ class FirestoreService {
     }
   }
 
-  /// Streams bookings for a specific user in real-time.
-  /// Sorts client-side by startTime DESC to avoid requiring a Firestore composite index.
+  /// Streams the most recent 50 bookings for a specific user in real-time.
+  ///
+  /// Uses orderBy + limit to cap Firestore reads (PERF-014 fix).
+  /// Returns the direct Firestore stream — no StreamController wrapper.
+  ///
+  /// NOTE: requires a composite Firestore index on (userId ASC, startTime DESC).
+  /// The first run on a fresh project will log a console URL to create it.
   Stream<List<BookingModel>> streamUserBookings(String uid) {
-    late final StreamController<List<BookingModel>> controller;
-    StreamSubscription? subscription;
-
-    controller = StreamController<List<BookingModel>>(
-      onListen: () {
-        try {
-          subscription = _bookings
-              .where('userId', isEqualTo: uid)
-              .snapshots()
-              .listen(
-            (snapshot) {
-              try {
-                final list = snapshot.docs
-                    .map((doc) => BookingModel.fromFirestore(doc))
-                    .toList()
-                  ..sort((a, b) => b.startTime.compareTo(a.startTime));
-                controller.add(list);
-              } catch (e) {
-                debugPrint('[FirestoreService] Error mapping streamUserBookings: $e');
-                controller.add([]);
-              }
-            },
-            onError: (error) {
-              debugPrint('[FirestoreService] streamUserBookings onError: $error');
-              controller.add([]);
-            },
-          );
-        } catch (e) {
-          debugPrint('[FirestoreService] streamUserBookings onListen catch: $e');
-          controller.add([]);
-        }
-      },
-      onCancel: () {
-        subscription?.cancel();
-      },
-    );
-
-    return controller.stream;
+    return _bookings
+        .where('userId', isEqualTo: uid)
+        .orderBy('startTime', descending: true)
+        .limit(50)
+        .snapshots()
+        .map((snap) =>
+            snap.docs.map(BookingModel.fromFirestore).toList());
   }
+
 
 
   /// Streams the active booking for a user (status == 'active'), limit 1.

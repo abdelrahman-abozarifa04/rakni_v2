@@ -814,38 +814,8 @@ class _ActiveSessionCard extends StatefulWidget {
 }
 
 class _ActiveSessionCardState extends State<_ActiveSessionCard> {
-  Timer? _timer;
-  Duration _elapsed = Duration.zero;
   bool _isProcessing = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _calculateElapsed();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        setState(() {
-          _calculateElapsed();
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _calculateElapsed() {
-    _elapsed = DateTime.now().difference(widget.booking.startTime);
-    if (_elapsed.isNegative) _elapsed = Duration.zero;
-  }
-
-  double get _currentCost {
-    final hours = _elapsed.inSeconds / 3600.0;
-    return hours * widget.booking.pricePerHour;
-  }
 
   Future<void> _navigateToActiveSession() async {
     if (_isProcessing) return;
@@ -918,16 +888,8 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final elapsedMinutes = _elapsed.inMinutes;
-    String subtitle;
-    if (_elapsed.inHours > 0) {
-      subtitle = 'Started ${_elapsed.inHours}h ${(_elapsed.inMinutes % 60)}m ago  •  EGP ${_currentCost.toStringAsFixed(2)}';
-    } else {
-      subtitle = 'Started $elapsedMinutes min ago  •  EGP ${_currentCost.toStringAsFixed(2)}';
-    }
-
-    String displayName = widget.booking.lotName.isNotEmpty 
-        ? widget.booking.lotName 
+    String displayName = widget.booking.lotName.isNotEmpty
+        ? widget.booking.lotName
         : 'Parking Session';
     if (widget.booking.spotLabel.isNotEmpty) {
       displayName += ' - ${widget.booking.spotLabel}';
@@ -985,12 +947,10 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
+                  // Only this widget rebuilds every second (PERF-008 fix).
+                  _ElapsedText(
+                    startTime: widget.booking.startTime,
+                    pricePerHour: widget.booking.pricePerHour,
                   ),
                 ],
               ),
@@ -1016,6 +976,67 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// A lightweight widget that owns the 1-second timer for the active session card.
+///
+/// By isolating setState here, only this Text widget rebuilds every second
+/// instead of the entire _ActiveSessionCard tree (PERF-008 fix).
+class _ElapsedText extends StatefulWidget {
+  final DateTime startTime;
+  final double pricePerHour;
+  const _ElapsedText({required this.startTime, required this.pricePerHour});
+
+  @override
+  State<_ElapsedText> createState() => _ElapsedTextState();
+}
+
+class _ElapsedTextState extends State<_ElapsedText> {
+  Timer? _timer;
+  late Duration _elapsed;
+
+  @override
+  void initState() {
+    super.initState();
+    _elapsed = _calcElapsed();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _elapsed = _calcElapsed());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Duration _calcElapsed() {
+    final d = DateTime.now().difference(widget.startTime);
+    return d.isNegative ? Duration.zero : d;
+  }
+
+  double get _currentCost {
+    return (_elapsed.inSeconds / 3600.0) * widget.pricePerHour;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String subtitle;
+    if (_elapsed.inHours > 0) {
+      subtitle =
+          'Started ${_elapsed.inHours}h ${_elapsed.inMinutes % 60}m ago  \u2022  EGP ${_currentCost.toStringAsFixed(2)}';
+    } else {
+      subtitle =
+          'Started ${_elapsed.inMinutes} min ago  \u2022  EGP ${_currentCost.toStringAsFixed(2)}';
+    }
+    return Text(
+      subtitle,
+      style: TextStyle(
+        color: AppColors.textSecondary,
+        fontSize: 12,
       ),
     );
   }

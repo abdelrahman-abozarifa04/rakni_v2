@@ -115,6 +115,10 @@ class _MapScreenState extends State<MapScreen> {
   List<_Garage> _garages = [];
   StreamSubscription<dynamic>? _garagesSubscription;
 
+  // Debounce timer for map search — prevents marker rebuild on every keystroke
+  // (PERF-019 fix).
+  Timer? _searchDebounce;
+
   // ── lifecycle ───────────────────────────────────────────────────
   @override
   void initState() {
@@ -129,6 +133,7 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     ThemeService.instance.removeListener(_onThemeChanged);
     _garagesSubscription?.cancel();
+    _searchDebounce?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _mapController?.dispose();
@@ -136,6 +141,9 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _onThemeChanged() {
+    // Trigger a rebuild so GoogleMap picks up the updated style via its
+    // `style` parameter (see _buildMap). Using setMapStyle was deprecated
+    // in the google_maps_flutter 2.9+ API (PERF-012 fix + deprecation fix).
     if (mounted) setState(() {});
   }
 
@@ -165,8 +173,16 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _onSearchChanged() {
-    setState(() => _searchQuery = _searchController.text.toLowerCase().trim());
-    _rebuildGarageMarkers();
+    final query = _searchController.text.toLowerCase().trim();
+    setState(() => _searchQuery = query);
+    // Cancel previous pending marker rebuild and schedule a new one 300 ms
+    // from now. This prevents rebuilding all map markers per keystroke
+    // (PERF-019 fix).
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      _rebuildGarageMarkers,
+    );
   }
 
   // ── location ────────────────────────────────────────────────────

@@ -49,6 +49,11 @@
 
             <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI"/>
+
+        <!-- Default Firebase Messaging Notification Channel -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="rakni_channel_id" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

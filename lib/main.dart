@@ -155,12 +155,15 @@ class _ThemeRebuilderState extends State<ThemeRebuilder> {
   }
 
   void _onThemeChanged() {
-    // setState() alone is sufficient — Flutter's standard dirty-marking
-    // propagates rebuilds down to all descendants that depend on inherited
-    // widgets changed by this rebuild. The previous recursive Element walk
-    // was O(n) over the entire app tree and caused full-app jank on every
-    // theme toggle (PERF-001 fix).
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+      // Recursively mark all descendant elements as needing rebuild to support static AppColors
+      void rebuildElement(Element element) {
+        element.markNeedsBuild();
+        element.visitChildren(rebuildElement);
+      }
+      (context as Element).visitChildren(rebuildElement);
+    }
   }
 
   @override
@@ -172,7 +175,7 @@ class _ThemeRebuilderState extends State<ThemeRebuilder> {
 /// A shell wrapper for Flutter Web to center the mobile app within a 430px boundary.
 class _WebShell extends StatelessWidget {
   final Widget child;
-  const _WebShell({super.key, required this.child});
+  const _WebShell({required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +188,7 @@ class _WebShell extends StatelessWidget {
       body: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 430),
+          clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -200,4 +204,3 @@ class _WebShell extends StatelessWidget {
     );
   }
 }
-

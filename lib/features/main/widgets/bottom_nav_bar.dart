@@ -9,6 +9,12 @@ import 'package:rakni_v2/core/theme/app_colors.dart';
 ///
 /// Supports both LTR (English) and RTL (Arabic) layouts by computing a
 /// visual index that mirrors the slot positions in RTL mode.
+///
+/// IMPORTANT: Uses [LayoutBuilder] to get the actual rendered width of the
+/// widget, NOT [MediaQuery.of(context).size.width]. On web the app is
+/// constrained to 430 px inside _WebShell; MediaQuery would return the full
+/// browser window width (~1280 px+), causing the bubble to fly far outside
+/// the visible frame.
 class RakniBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -50,118 +56,128 @@ class RakniBottomNavBar extends StatelessWidget {
     // drawn at the correct physical x position.
     final visualActiveIndex = isRtl ? (itemCount - 1 - currentIndex) : currentIndex;
 
-    return SizedBox(
-      height: barHeight + bubbleLift + MediaQuery.of(context).padding.bottom,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // ── Bar background with notch ──────────────────────────────────────
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: CustomPaint(
-              painter: _NotchedBarPainter(
-                activeIndex: visualActiveIndex,
-                itemCount: itemCount,
-                notchRadius: (bubbleSize / 2) + 8,
-                barColor: AppColors.navBarBackground,
-                barHeight: barHeight + MediaQuery.of(context).padding.bottom,
-              ),
-              child: SizedBox(
-                height: barHeight + MediaQuery.of(context).padding.bottom,
-              ),
-            ),
-          ),
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-          // ── Tap areas + inactive icons ─────────────────────────────────────
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: MediaQuery.of(context).padding.bottom,
-            child: SizedBox(
-              height: barHeight,
-              child: Row(
-                children: List.generate(itemCount, (i) {
-                  final isActive = i == currentIndex;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => onTap(i),
-                      behavior: HitTestBehavior.opaque,
-                      child: AnimatedOpacity(
-                        opacity: isActive ? 0.0 : 1.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              _svgPaths[i],
-                              height: 20,
-                              colorFilter: ColorFilter.mode(
-                                AppColors.textSecondary,
-                                BlendMode.srcIn,
-                              ),
+    // LayoutBuilder gives us the actual rendered width of the nav bar widget,
+    // which is constrained to 430 px on web by _WebShell. This is the key fix
+    // for the bubble flying outside the frame on desktop browsers.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final containerWidth = constraints.maxWidth;
+
+        return SizedBox(
+          height: barHeight + bubbleLift + bottomPadding,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // ── Bar background with notch ──────────────────────────────────────
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: CustomPaint(
+                  painter: _NotchedBarPainter(
+                    activeIndex: visualActiveIndex,
+                    itemCount: itemCount,
+                    notchRadius: (bubbleSize / 2) + 8,
+                    barColor: AppColors.navBarBackground,
+                    barHeight: barHeight + bottomPadding,
+                  ),
+                  child: SizedBox(
+                    height: barHeight + bottomPadding,
+                  ),
+                ),
+              ),
+
+              // ── Tap areas + inactive icons ─────────────────────────────────────
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: bottomPadding,
+                child: SizedBox(
+                  height: barHeight,
+                  child: Row(
+                    children: List.generate(itemCount, (i) {
+                      final isActive = i == currentIndex;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => onTap(i),
+                          behavior: HitTestBehavior.opaque,
+                          child: AnimatedOpacity(
+                            opacity: isActive ? 0.0 : 1.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  _svgPaths[i],
+                                  height: 20,
+                                  colorFilter: ColorFilter.mode(
+                                    AppColors.textSecondary,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  labels[i],
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 3),
-                            Text(
-                              labels[i],
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+
+              // ── Floating active bubble ─────────────────────────────────────────
+              // Uses containerWidth from LayoutBuilder (actual widget width),
+              // NOT MediaQuery.of(context).size.width (full browser window width).
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                left: (visualActiveIndex / itemCount) * containerWidth +
+                    (containerWidth / itemCount / 2) -
+                    bubbleSize / 2,
+                bottom: bottomPadding + barHeight - bubbleLift - bubbleSize / 2 + 12,
+                child: GestureDetector(
+                  onTap: () => onTap(currentIndex),
+                  child: Container(
+                    width: bubbleSize,
+                    height: bubbleSize,
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.secondary.withValues(alpha: 0.45),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        _svgPaths[currentIndex],
+                        height: 26,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.black,
+                          BlendMode.srcIn,
                         ),
                       ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ),
-
-          // ── Floating active bubble ─────────────────────────────────────────
-          // Use visualActiveIndex so the bubble appears on the correct side in RTL.
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutBack,
-            left: (visualActiveIndex / itemCount) *
-                    MediaQuery.of(context).size.width +
-                (MediaQuery.of(context).size.width / itemCount / 2) -
-                bubbleSize / 2,
-            bottom:
-                MediaQuery.of(context).padding.bottom + barHeight - bubbleLift - bubbleSize / 2 + 12,
-            child: GestureDetector(
-              onTap: () => onTap(currentIndex),
-              child: Container(
-                width: bubbleSize,
-                height: bubbleSize,
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.45),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    _svgPaths[currentIndex],
-                    height: 26,
-                    colorFilter: ColorFilter.mode(
-                      AppColors.black,
-                      BlendMode.srcIn,
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -268,4 +284,3 @@ class _NotchedBarPainter extends CustomPainter {
       old.notchRadius != notchRadius ||
       old.barColor != barColor;
 }
-

@@ -21,6 +21,9 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+  <!-- Google Sign-In client ID — required by google_sign_in_web plugin -->
+  <meta name="google-signin-client_id" content="863311891829-1fmt6ipr4h6vo1efrbjp1j4vromn9gnj.apps.googleusercontent.com">
+
   <title>Rakni — Smart Parking</title>
 
   <style>
@@ -115,8 +118,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
-  <!-- Google Maps JavaScript API key placeholder. Replaced at build time. -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_MAPS_KEY"></script>
+
+  <!-- Google Sign-In Identity Services library — required by google_sign_in_web -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Google Maps JavaScript API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI"></script>
 
   <script>
     window.addEventListener('flutter-first-frame', function () {

@@ -21,10 +21,21 @@ class GeocodingService {
   GeocodingService._internal();
   static final GeocodingService instance = GeocodingService._internal();
 
+  // Session-level reverse geocode cache keyed by '${lat},${lon}' rounded to
+  // 4 decimal places (~11 m tolerance). Prevents repeat HTTP calls for the
+  // same location in the same app session (PERF-018 fix).
+  final Map<String, String> _reverseGeocodeCache = {};
+
   /// Safely reverse geocode coordinates without blocking the main thread.
+  /// Results are cached in memory for the current app session (PERF-018 fix).
   /// First attempts a pure HTTP call to OpenStreetMap's Nominatim.
-  /// If it fails, falls back to the native geocoding plugin (only if not in debug/emulator to avoid ANRs).
+  /// If it fails, falls back to the native geocoding plugin.
   Future<String> reverseGeocode(double latitude, double longitude) async {
+    final cacheKey =
+        '${latitude.toStringAsFixed(4)},${longitude.toStringAsFixed(4)}';
+    if (_reverseGeocodeCache.containsKey(cacheKey)) {
+      return _reverseGeocodeCache[cacheKey]!;
+    }
     try {
       final url = Uri.parse(
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1',
@@ -54,12 +65,16 @@ class GeocodingService {
               .where((p) => p.isNotEmpty)
               .toList();
           if (parts.isNotEmpty) {
-            return parts.join(', ');
+            final result = parts.join(', ');
+            _reverseGeocodeCache[cacheKey] = result;
+            return result;
           }
         }
         if (data['display_name'] != null) {
           final splitVal = data['display_name'].toString().split(',');
-          return splitVal.take(2).join(', ').trim();
+          final result = splitVal.take(2).join(', ').trim();
+          _reverseGeocodeCache[cacheKey] = result;
+          return result;
         }
       }
     } catch (e) {
@@ -84,13 +99,17 @@ class GeocodingService {
               .map((p) => p.trim())
               .where((p) => p.isNotEmpty)
               .toList();
-          return parts.isEmpty ? 'Cairo, Egypt' : parts.join(', ');
+          final result =
+              parts.isEmpty ? 'Cairo, Egypt' : parts.join(', ');
+          _reverseGeocodeCache[cacheKey] = result;
+          return result;
         }
       }
     } catch (e) {
       debugPrint('GeocodingService: Native fallback failed: $e');
     }
 
+    _reverseGeocodeCache[cacheKey] = 'Cairo, Egypt';
     return 'Cairo, Egypt';
   }
 

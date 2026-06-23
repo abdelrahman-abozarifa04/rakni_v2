@@ -93,14 +93,20 @@ class ParkingHardwareApiService {
   ///
   /// Returns true on success. On any failure, logs and returns false — the
   /// Firestore booking is already saved and must never be blocked by this.
-  Future<bool> reserveSlot({required String slotId}) async {
+  Future<bool> reserveSlot({
+    required String slotId,
+    required String plateNumber,
+  }) async {
     final uri = Uri.parse('$_baseUrl$_slotsPath$slotId/');
     try {
       final response = await http
           .patch(
             uri,
             headers: _headers,
-            body: jsonEncode({'is_occupied': true}),
+            body: jsonEncode({
+              'is_occupied': true,
+              'occupied_by_plate': plateNumber,
+            }),
           )
           .timeout(const Duration(seconds: 10));
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theme_service.dart';
 
@@ -55,6 +56,17 @@ class LocalNotificationService {
       debugPrint('[LocalNotificationService] Error requesting Android permission: $e');
     }
 
+    // Request FCM notification permissions
+    try {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (e) {
+      debugPrint('[LocalNotificationService] Error requesting FCM permission: $e');
+    }
+
     try {
       await _notificationsPlugin.initialize(
         settings: initializationSettings,
@@ -68,10 +80,41 @@ class LocalNotificationService {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         startListeningToNotifications(user.uid);
+        _setupFcmToken(user.uid);
       } else {
         stopListeningToNotifications();
       }
     });
+  }
+
+  /// Sets up FCM token retrieval and Firestore persistence
+  static Future<void> _setupFcmToken(String uid) async {
+    try {
+      if (kIsWeb) return;
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .set({'fcmToken': fcmToken}, SetOptions(merge: true));
+        debugPrint('[LocalNotificationService] FCM token saved to Firestore: $fcmToken');
+      }
+
+      // Listen to token refresh
+      FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .set({'fcmToken': token}, SetOptions(merge: true));
+          debugPrint('[LocalNotificationService] FCM token refreshed and saved');
+        } catch (e) {
+          debugPrint('[LocalNotificationService] Error updating refreshed FCM token: $e');
+        }
+      });
+    } catch (e) {
+      debugPrint('[LocalNotificationService] Error setting up FCM token: $e');
+    }
   }
 
   /// Starts listening to Firestore notifications for the logged-in user in real-time.
@@ -82,9 +125,8 @@ class LocalNotificationService {
     debugPrint('[LocalNotificationService] Started listening to notifications for $uid at $startTime');
 
     _notificationsSubscription = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
         .collection('notifications')
+        .where('userId', isEqualTo: uid)
         .snapshots()
         .listen((snapshot) async {
       for (var change in snapshot.docChanges) {

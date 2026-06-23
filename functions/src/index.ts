@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 import * as crypto from "crypto";
 
 // ---------------------------------------------------------------------------
@@ -11,47 +11,50 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // ---------------------------------------------------------------------------
-// SendGrid Configuration
+// Resend Configuration
 //
-// API Key is stored as a Firebase Secret:
-//   firebase functions:secrets:set SENDGRID_API_KEY
+// Resend is used instead of SendGrid because:
+//   1. Free tier: 3,000 emails/month, 100/day — no cost
+//   2. Can send from their shared trusted domain (onboarding@resend.dev)
+//      without needing your own domain
+//   3. Excellent deliverability — emails go to inbox, not spam
 //
-// Single Sender email must be verified in SendGrid dashboard.
+// Steps:
+//   1. Sign up free at https://resend.com
+//   2. Get your API key from the Resend dashboard
+//   3. Run: firebase functions:secrets:set RESEND_API_KEY
+//      Paste your Resend API key when prompted
+//   4. Deploy: firebase deploy --only functions
+//
+// FROM email options:
+//   - FREE (no domain needed): "onboarding@resend.dev"
+//   - With your own domain: "noreply@yourdomain.com" (after domain auth in Resend)
 // ---------------------------------------------------------------------------
 
-const SENDGRID_FROM_EMAIL =
-  process.env.SENDGRID_FROM_EMAIL ??
-  (functions.config().sendgrid as { from_email?: string } | undefined)
-    ?.from_email ??
-  "as0144549@gmail.com";
-const SENDGRID_FROM_NAME =
-  process.env.SENDGRID_FROM_NAME ??
-  (functions.config().sendgrid as { from_name?: string } | undefined)
-    ?.from_name ??
+// Use your verified custom domain rakni.xyz
+const RESEND_FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ??
+  "noreply@rakni.xyz";
+
+const RESEND_FROM_NAME =
+  process.env.RESEND_FROM_NAME ??
   "Rakni";
-// Reply-to a dedicated support alias for extra trust signals
-const REPLY_TO_EMAIL =
-  process.env.SENDGRID_REPLY_TO_EMAIL ??
-  (functions.config().sendgrid as { reply_to?: string } | undefined)?.reply_to ??
-  "as0144549@gmail.com";
 
 const ACTION_HANDLER_BASE_URL =
   process.env.AUTH_ACTION_HANDLER_URL ??
   (functions.config().auth as { action_url?: string } | undefined)?.action_url ??
   "https://rakni-v2.web.app";
 
-function configureSendGrid() {
-  // Prefer Secret Manager → fallback to legacy config
+function getResendClient(): Resend {
   const apiKey =
-    process.env.SENDGRID_API_KEY ??
-    (functions.config().sendgrid as { key?: string } | undefined)?.key;
+    process.env.RESEND_API_KEY ??
+    (functions.config().resend as { key?: string } | undefined)?.key;
 
   if (!apiKey) {
-    console.error("[SendGrid] SENDGRID_API_KEY is not set. Emails will fail.");
-    return false;
+    console.error("[Resend] RESEND_API_KEY is not set. Emails will fail.");
+    throw new Error("RESEND_API_KEY is not configured.");
   }
-  sgMail.setApiKey(apiKey);
-  return true;
+  return new Resend(apiKey);
 }
 
 // ---------------------------------------------------------------------------
@@ -423,7 +426,7 @@ function buildActionEmailHtml(
 }
 
 // ---------------------------------------------------------------------------
-// Shared SendGrid send helper
+// Shared Resend send helpers
 // ---------------------------------------------------------------------------
 
 async function sendOtpEmail(
@@ -431,59 +434,24 @@ async function sendOtpEmail(
   otp: string,
   type: "verification" | "password_reset"
 ): Promise<void> {
-  const ready = configureSendGrid();
-  if (!ready) throw new Error("SendGrid not configured");
-
+  const resend = getResendClient();
   const isVerification = type === "verification";
 
-  const msg: sgMail.MailDataRequired = {
-    to: toEmail,
-    from: {
-      email: SENDGRID_FROM_EMAIL,
-      name: SENDGRID_FROM_NAME,
-    },
-    replyTo: {
-      email: REPLY_TO_EMAIL,
-      name: "Rakni Support",
-    },
+  const { error } = await resend.emails.send({
+    from: `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`,
+    to: [toEmail],
     subject: isVerification
-      ? `[${otp}] Your Rakni verification code`
-      : `[${otp}] Your Rakni password reset code`,
+      ? `Your Rakni verification code: ${otp}`
+      : `Your Rakni password reset code: ${otp}`,
     html: buildEmailHtml(otp, type),
-    // Plain-text fallback — critical for spam filters
     text: isVerification
       ? `Your Rakni verification code is: ${otp}\n\nEnter this code in the app to verify your account. It expires in 10 minutes.\n\nIf you didn't request this, ignore this email.`
       : `Your Rakni password reset code is: ${otp}\n\nUse this code to reset your password. It expires in 10 minutes.\n\nIf you didn't request this, ignore this email.`,
-    // Headers that boost deliverability
-    headers: {
-      "X-Mailer": "Rakni-Mailer/1.0",
-      "X-Priority": "3",
-      "Precedence": "transactional",
-      "X-Auto-Response-Suppress": "OOF, AutoReply",
-    },
-    // Disable SendGrid click/open tracking to keep links clean
-    trackingSettings: {
-      clickTracking: { enable: false, enableText: false },
-      openTracking: { enable: false },
-      subscriptionTracking: { enable: false },
-    },
-    mailSettings: {
-      sandboxMode: { enable: false },
-    },
-    // Custom Unsubscribe (required for can-spam)
-    customArgs: {
-      rakni_type: type,
-    },
-    categories: ["transactional", "otp", type],
-  };
+  });
 
-  try {
-    await sgMail.send(msg);
-  } catch (error: any) {
-    if (error.response && error.response.body) {
-      console.error("[SendGrid] sendOtpEmail API error response body:", JSON.stringify(error.response.body));
-    }
-    throw error;
+  if (error) {
+    console.error("[Resend] sendOtpEmail error:", JSON.stringify(error));
+    throw new Error(`Resend error: ${error.message}`);
   }
 }
 
@@ -492,51 +460,23 @@ async function sendActionEmail(
   actionUrl: string,
   type: "verification" | "password_reset"
 ): Promise<void> {
-  const ready = configureSendGrid();
-  if (!ready) throw new Error("SendGrid not configured");
-
+  const resend = getResendClient();
   const isVerification = type === "verification";
   const subject = isVerification
     ? "Verify your Rakni account"
     : "Reset your Rakni password";
 
-  const msg: sgMail.MailDataRequired = {
-    to: toEmail,
-    from: {
-      email: SENDGRID_FROM_EMAIL,
-      name: SENDGRID_FROM_NAME,
-    },
-    replyTo: {
-      email: REPLY_TO_EMAIL,
-      name: "Rakni Support",
-    },
+  const { error } = await resend.emails.send({
+    from: `${RESEND_FROM_NAME} <${RESEND_FROM_EMAIL}>`,
+    to: [toEmail],
     subject,
     html: buildActionEmailHtml(actionUrl, type),
     text: `${subject}\n\nOpen this link: ${actionUrl}\n\nIf you did not request this, you can ignore this email.`,
-    headers: {
-      "X-Mailer": "Rakni-Mailer/1.0",
-      "X-Priority": "3",
-      "Precedence": "transactional",
-      "X-Auto-Response-Suppress": "OOF, AutoReply",
-    },
-    trackingSettings: {
-      clickTracking: { enable: false, enableText: false },
-      openTracking: { enable: false },
-      subscriptionTracking: { enable: false },
-    },
-    mailSettings: {
-      sandboxMode: { enable: false },
-    },
-    categories: ["transactional", "auth", type],
-  };
+  });
 
-  try {
-    await sgMail.send(msg);
-  } catch (error: any) {
-    if (error.response && error.response.body) {
-      console.error("[SendGrid] sendActionEmail API error response body:", JSON.stringify(error.response.body));
-    }
-    throw error;
+  if (error) {
+    console.error("[Resend] sendActionEmail error:", JSON.stringify(error));
+    throw new Error(`Resend error: ${error.message}`);
   }
 }
 
@@ -546,7 +486,7 @@ async function sendActionEmail(
 
 export const sendVerificationOTP = functions
   .region("europe-west1")
-  .runWith({ secrets: ["SENDGRID_API_KEY"] })
+  .runWith({ secrets: ["RESEND_API_KEY"] })
   .https.onCall(async (data: { email: string; uid: string }) => {
     const email: string = (data.email ?? "").trim().toLowerCase();
     const uid: string = (data.uid ?? "").trim();
@@ -574,7 +514,7 @@ export const sendVerificationOTP = functions
     try {
       await sendOtpEmail(email, code, "verification");
     } catch (error) {
-      console.error("[SendGrid] Verification email failed:", error);
+      console.error("[Resend] Verification email failed:", error);
       throw new functions.https.HttpsError(
         "internal",
         "Failed to send verification email. Please contact support."
@@ -590,7 +530,7 @@ export const sendVerificationOTP = functions
 
 export const sendPasswordResetOTP = functions
   .region("europe-west1")
-  .runWith({ secrets: ["SENDGRID_API_KEY"] })
+  .runWith({ secrets: ["RESEND_API_KEY"] })
   .https.onCall(async (data: { email: string }) => {
     const email: string = (data.email ?? "").trim().toLowerCase();
 
@@ -616,7 +556,7 @@ export const sendPasswordResetOTP = functions
     try {
       await sendOtpEmail(email, code, "password_reset");
     } catch (error) {
-      console.error("[SendGrid] Password reset email failed:", error);
+      console.error("[Resend] Password reset email failed:", error);
       throw new functions.https.HttpsError(
         "internal",
         "Failed to send password reset email. Please contact support."
@@ -632,7 +572,7 @@ export const sendPasswordResetOTP = functions
 
 export const sendVerificationEmailLink = functions
   .region("europe-west1")
-  .runWith({ secrets: ["SENDGRID_API_KEY"] })
+  .runWith({ secrets: ["RESEND_API_KEY"] })
   .https.onCall(async (data: { email: string; uid?: string }) => {
     const email: string = (data.email ?? "").trim().toLowerCase();
     const uid: string = (data.uid ?? "").trim();
@@ -681,7 +621,7 @@ export const sendVerificationEmailLink = functions
       await sendActionEmail(email, actionUrl, "verification");
       console.log(`[Auth] Verification link sent successfully to ${email}`);
     } catch (error: any) {
-      console.error("[SendGrid] Verification link email failed for email:", email, "error:", error?.message || error);
+      console.error("[Resend] Verification link email failed for email:", email, "error:", error?.message || error);
       throw new functions.https.HttpsError(
         "internal",
         "Failed to send verification email."
@@ -697,7 +637,7 @@ export const sendVerificationEmailLink = functions
 
 export const sendPasswordResetEmailLink = functions
   .region("europe-west1")
-  .runWith({ secrets: ["SENDGRID_API_KEY"] })
+  .runWith({ secrets: ["RESEND_API_KEY"] })
   .https.onCall(async (data: { email: string }) => {
     const email: string = (data.email ?? "").trim().toLowerCase();
 
@@ -727,7 +667,7 @@ export const sendPasswordResetEmailLink = functions
         // Avoid leaking whether the account exists.
         return { success: true };
       }
-      console.error("[SendGrid] Password reset email failed for email:", email, "error:", error?.message || error);
+      console.error("[Resend] Password reset email failed for email:", email, "error:", error?.message || error);
       throw new functions.https.HttpsError(
         "internal",
         "Failed to send password reset email."
@@ -900,3 +840,79 @@ export const resetPassword = functions
       return { success: true };
     }
   );
+
+// ===========================================================================
+// FUNCTION 5 — onNotificationCreated (FCM Trigger)
+// ===========================================================================
+
+export const onNotificationCreated = functions
+  .region("europe-west1")
+  .firestore.document("notifications/{notificationId}")
+  .onCreate(async (snapshot, context) => {
+    const data = snapshot.data();
+    if (!data) {
+      console.log("[FCM] Notification document is empty. Skipping.");
+      return;
+    }
+
+    const userId = data.userId;
+    const title = data.title;
+    const body = data.body;
+    const type = data.type ?? "default";
+
+    if (!userId || !title || !body) {
+      console.log(`[FCM] Missing userId (${userId}), title (${title}), or body (${body}). Skipping.`);
+      return;
+    }
+
+    try {
+      // Get the user document to retrieve the fcmToken
+      const userDoc = await db.collection("users").doc(userId).get();
+      if (!userDoc.exists) {
+        console.log(`[FCM] User ${userId} not found in Firestore.`);
+        return;
+      }
+
+      const userData = userDoc.data();
+      const fcmToken = userData?.fcmToken;
+
+      if (!fcmToken) {
+        console.log(`[FCM] No fcmToken registered for user ${userId}.`);
+        return;
+      }
+
+      // Construct FCM push message payload
+      const message: admin.messaging.Message = {
+        token: fcmToken,
+        notification: {
+          title: title,
+          body: body,
+        },
+        data: {
+          type: type,
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+        },
+        android: {
+          priority: "high",
+          notification: {
+            channelId: "rakni_channel_id",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: "default",
+              badge: 1,
+            },
+          },
+        },
+      };
+
+      // Send the push notification
+      const response = await admin.messaging().send(message);
+      console.log(`[FCM] Successfully sent push notification to user ${userId}. Message ID: ${response}`);
+    } catch (error) {
+      console.error(`[FCM] Error sending push notification to user ${userId}:`, error);
+    }
+  });
+

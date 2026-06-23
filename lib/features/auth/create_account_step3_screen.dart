@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rakni_v2/core/models/license_model.dart';
 import 'package:rakni_v2/core/services/license_ocr_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/utils/image_utils.dart';
 import 'package:rakni_v2/core/utils/validators.dart';
+import 'package:rakni_v2/core/utils/input_formatters.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
 import 'package:rakni_v2/features/auth/add_car_screen.dart';
 import 'package:rakni_v2/features/auth/sign_in_screen.dart';
@@ -475,6 +477,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                       controller: _licenseExpiryCtrl,
                       hintText: 'DD/MM/YYYY',
                       keyboardType: TextInputType.datetime,
+                      inputFormatters: [DateInputFormatter()],
                       prefixIcon: Icon(
                         Icons.calendar_today_outlined,
                         color: AppColors.textSecondary,
@@ -651,10 +654,12 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
     required String hintText,
     Widget? prefixIcon,
     TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: TextStyle(color: AppColors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: hintText,
