@@ -24,7 +24,7 @@ class ParkingHardwareApiService {
 
   static const String _authToken = String.fromEnvironment(
     'PARKING_API_TOKEN',
-    defaultValue: 'fce4336478734603aafb704eaf243dcbdc5dd79d',
+    defaultValue: '33f95afc9ead18b464c2d1aa52642e0c7cc62ecd',
   );
 
   static const String _slotsPath = '/api/v1/parking-slots/';

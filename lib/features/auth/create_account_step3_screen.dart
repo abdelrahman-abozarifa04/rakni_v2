@@ -1,13 +1,7 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:rakni_v2/core/models/license_model.dart';
-import 'package:rakni_v2/core/services/license_ocr_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
-import 'package:rakni_v2/core/utils/image_utils.dart';
 import 'package:rakni_v2/core/utils/validators.dart';
 import 'package:rakni_v2/core/utils/input_formatters.dart';
 import 'package:rakni_v2/core/services/auth_service.dart';
@@ -33,10 +27,7 @@ class CreateAccountStep3Screen extends StatefulWidget {
 
 class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
   String? _selectedGender;
-  String? _licenseBase64;
-  LicenseModel? _extractedLicense;
   bool _isLoading = false;
-  bool _isExtractingOcr = false;
 
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -68,99 +59,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
     );
   }
 
-  Future<void> _pickLicensePhoto() async {
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 12),
-            ListTile(
-              leading: Icon(
-                Icons.photo_library_rounded,
-                color: AppColors.secondary,
-              ),
-              title: Text(
-                'Choose from Gallery',
-                style: TextStyle(color: AppColors.white),
-              ),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.camera_alt_rounded,
-                color: AppColors.secondary,
-              ),
-              title: Text(
-                'Take a Photo',
-                style: TextStyle(color: AppColors.white),
-              ),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-    if (source == null || !mounted) return;
 
-    final file = await ImagePicker().pickImage(
-      source: source,
-      imageQuality: 90,
-      maxWidth: 1600,
-    );
-    if (file == null || !mounted) return;
-
-    final rawBytes = await file.readAsBytes();
-    final previewBase64 = 'data:image/jpeg;base64,${base64Encode(rawBytes)}';
-    setState(() {
-      _licenseBase64 = previewBase64;
-      _isExtractingOcr = true;
-      _licenseNumberCtrl.clear();
-      _licenseExpiryCtrl.clear();
-      _licenseCategoryCtrl.clear();
-      _extractedLicense = null;
-    });
-
-    final result = await LicenseOcrService.instance.extractFromBytes(rawBytes);
-    if (!mounted) return;
-    setState(() => _isExtractingOcr = false);
-
-    if (result.success && result.data != null) {
-      final license = result.data!;
-      setState(() {
-        _extractedLicense = license;
-        if (license.licenseNumber?.isNotEmpty == true) {
-          _licenseNumberCtrl.text = license.licenseNumber!;
-        }
-        if (license.expiryDate?.isNotEmpty == true) {
-          _licenseExpiryCtrl.text = license.expiryDate!;
-        }
-        if (license.categories?.isNotEmpty == true) {
-          _licenseCategoryCtrl.text = license.categories!;
-        }
-      });
-
-      if (license.isUsable) {
-        _showSnackBar('License scanned successfully.', isError: false);
-      } else {
-        _showSnackBar(
-          'Some fields could not be read. Please fill them in manually.',
-          isError: false,
-        );
-      }
-    } else {
-      _showSnackBar(
-        'Could not scan license automatically. Please fill in the details manually.',
-        isError: false,
-      );
-    }
-  }
 
   Future<void> _saveProfile() async {
     final age = _ageController.text.trim();
@@ -175,10 +74,6 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         address.isEmpty ||
         phone.isEmpty) {
       _showSnackBar('Please fill in all fields.');
-      return;
-    }
-    if (_licenseBase64 == null) {
-      _showSnackBar("Please upload your driver's license photo.");
       return;
     }
     if (licenseNumber.isEmpty) {
@@ -209,7 +104,6 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         'gender': _selectedGender,
         'address': address,
         'phoneNumber': phone,
-        'licenseImageBase64': _licenseBase64,
         'licenseNumber': licenseNumber,
         'licenseExpiry': licenseExpiry,
         'licenseCategory': licenseCategory,
@@ -217,12 +111,6 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
         'profileComplete': true,
         'createdAt': FieldValue.serverTimestamp(),
       };
-
-      if (_extractedLicense != null) {
-        userData.addAll(
-          _extractedLicense!.toFirestore()..remove('licenseVerified'),
-        );
-      }
 
       // Write to Firestore using uid already created in Step 2.
       try {
@@ -359,99 +247,7 @@ class _CreateAccountStep3ScreenState extends State<CreateAccountStep3Screen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 40),
-                    Text(
-                      "Driver's License",
-                      style: TextStyle(color: AppColors.white, fontSize: 14),
-                    ),
-                    SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: _isExtractingOcr ? null : _pickLicensePhoto,
-                      child: Container(
-                        height: 160,
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldColor,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _licenseBase64 != null
-                                ? AppColors.secondary
-                                : AppColors.fieldStroke,
-                            width: _licenseBase64 != null ? 1.5 : 1,
-                          ),
-                        ),
-                        child: _isExtractingOcr
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircularProgressIndicator(
-                                    color: AppColors.secondary,
-                                    strokeWidth: 2,
-                                  ),
-                                  SizedBox(height: 12),
-                                  Text(
-                                    'Scanning license...',
-                                    style: TextStyle(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : _licenseBase64 != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(11),
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.memory(
-                                      ImageUtils.base64ToBytes(_licenseBase64!),
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Container(
-                                      color: Colors.black26,
-                                      child: const Center(
-                                        child: Text(
-                                          'Tap to retake',
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.credit_card_rounded,
-                                    color: AppColors.textSecondary,
-                                    size: 40,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Upload Driver's License",
-                                    style: TextStyle(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Front side • Photo or from gallery',
-                                    style: TextStyle(
-                                      color: AppColors.hintColor,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 24),
                     Text(
                       'License Number',
                       style: TextStyle(color: AppColors.white, fontSize: 14),

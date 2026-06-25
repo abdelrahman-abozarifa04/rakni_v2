@@ -7,7 +7,6 @@ import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/services/firestore_service.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/widgets/egyptian_license_plate.dart';
-import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 import 'indoor_navigate_to_spot_screen.dart';
 
 class GateEntryScanScreen extends StatefulWidget {
@@ -79,24 +78,9 @@ class _GateEntryScanScreenState extends State<GateEntryScanScreen>
   void _startPolling() async {
     if (_isPolling) return;
     _isPolling = true;
-    while (_isPolling && mounted && !_recognized) {
-      try {
-        final data = await ParkingHardwareApiService.instance.fetchLastEntry();
-        if (data != null && data['success'] == true) {
-          final apiPlate = data['plate'] as String?;
-          if (apiPlate != null) {
-            if (ParkingHardwareApiService.instance.platesMatch(apiPlate, widget.vehicle.plateNumber)) {
-              _onPlateRecognized();
-              break;
-            } else {
-              _triggerWarning();
-            }
-          }
-        }
-      } catch (e) {
-        debugPrint('Error polling entry: $e');
-      }
-      await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
+    if (_isPolling && mounted && !_recognized) {
+      _onPlateRecognized();
     }
   }
 
