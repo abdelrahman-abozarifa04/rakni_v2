@@ -140,30 +140,51 @@ class AuthService {
   // Google Sign-In
   // ---------------------------------------------------------------------------
 
-  /// Performs a full Google Sign-In flow and authenticates with Firebase.
+  /// Performs a Google Sign-In flow and authenticates with Firebase.
+  ///
+  /// On **web**: uses [FirebaseAuth.signInWithPopup] with [GoogleAuthProvider]
+  /// — the standard Firebase Web SDK popup, which correctly respects the
+  /// Firebase Authorized Domains configuration.
+  ///
+  /// On **mobile** (Android / iOS): uses the [google_sign_in] package flow,
+  /// which goes through the native Google account picker.
   ///
   /// Returns the resulting [UserCredential] on success.
   Future<UserCredential> signInWithGoogle() async {
     try {
-      // 1. Open the Google account picker.
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // The user cancelled the sign-in dialog.
-        throw Exception('Google sign-in was cancelled by the user.');
+      if (kIsWeb) {
+        // ── Web: Firebase Web SDK popup ──────────────────────────────────────
+        // This is the recommended approach for Flutter Web. It correctly
+        // honours the Firebase Console "Authorized Domains" setting and
+        // works with the Cross-Origin-Opener-Policy header we set in
+        // vercel.json / web/vercel.json.
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+
+        return await _auth.signInWithPopup(googleProvider);
+      } else {
+        // ── Mobile: google_sign_in package ───────────────────────────────────
+        // 1. Open the native Google account picker.
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          // The user cancelled the sign-in dialog.
+          throw Exception('Google sign-in was cancelled by the user.');
+        }
+
+        // 2. Obtain auth tokens from the selected Google account.
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+
+        // 3. Build a Firebase credential from the Google tokens.
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        // 4. Sign in to Firebase with the Google credential.
+        return await _auth.signInWithCredential(credential);
       }
-
-      // 2. Obtain the auth tokens from the selected Google account.
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      // 3. Build a Firebase credential from the Google tokens.
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // 4. Sign in to Firebase with the Google credential.
-      return await _auth.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     }
