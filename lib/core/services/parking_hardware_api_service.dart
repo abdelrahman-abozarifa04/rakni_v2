@@ -10,21 +10,21 @@ import 'package:rakni_v2/core/models/subscription_model.dart';
 /// real-time occupancy of physical parking slots (camera + sensor driven).
 ///
 /// SECURITY: base URL and auth token are passed via --dart-define so the
-/// ngrok tunnel URL / token never get hardcoded into source control.
+/// API URL / token never get hardcoded into source control.
 /// Run with:
-///   flutter run --dart-define=PARKING_API_BASE_URL=https://... --dart-define=PARKING_API_TOKEN=yourtoken
+///   flutter run --dart-define=PARKING_API_BASE_URL=https://garage-api-system.onrender.com --dart-define=PARKING_API_TOKEN=yourtoken
 class ParkingHardwareApiService {
   ParkingHardwareApiService._();
   static final instance = ParkingHardwareApiService._();
 
   static const String _baseUrl = String.fromEnvironment(
     'PARKING_API_BASE_URL',
-    defaultValue: 'https://overfill-barley-confront.ngrok-free.dev',
+    defaultValue: 'https://garage-api-system.onrender.com',
   );
 
   static const String _authToken = String.fromEnvironment(
     'PARKING_API_TOKEN',
-    defaultValue: '33f95afc9ead18b464c2d1aa52642e0c7cc62ecd',
+    defaultValue: '60d24fae47991550e18a13dc1b75f3b6052ee1fa',
   );
 
   static const String _slotsPath = '/api/v1/parking-slots/';
@@ -36,10 +36,6 @@ class ParkingHardwareApiService {
 
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
-        // Required: ngrok's free-tier interceptor otherwise returns an
-        // HTML warning page for every request (not just browser ones)
-        // instead of JSON, breaking jsonDecode below.
-        'ngrok-skip-browser-warning': 'true',
         if (_authToken.isNotEmpty) 'Authorization': 'Token $_authToken',
       };
 
