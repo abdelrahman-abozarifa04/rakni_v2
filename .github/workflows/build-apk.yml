@@ -1,0 +1,62 @@
+# Builds a release APK on GitHub (no local Flutter/Windows needed).
+# Runs on every push to main, or manually from the Actions tab.
+# API keys come from repo secrets: Settings → Secrets and variables → Actions.
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.2'
+          channel: stable
+          cache: true
+
+      - name: Check secrets are set
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          PARKING_API_BASE_URL: ${{ secrets.PARKING_API_BASE_URL }}
+          PARKING_API_TOKEN: ${{ secrets.PARKING_API_TOKEN }}
+        run: |
+          missing=0
+          for v in GEMINI_API_KEY MAPS_API_KEY PARKING_API_BASE_URL PARKING_API_TOKEN; do
+            if [ -z "${!v}" ]; then echo "::error::Missing repo secret $v"; missing=1; fi
+          done
+          exit $missing
+
+      - run: flutter pub get
+
+      - name: Build release APK
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          PARKING_API_BASE_URL: ${{ secrets.PARKING_API_BASE_URL }}
+          PARKING_API_TOKEN: ${{ secrets.PARKING_API_TOKEN }}
+        run: |
+          flutter build apk --release \
+            --dart-define=GEMINI_API_KEY="$GEMINI_API_KEY" \
+            --dart-define=MAPS_API_KEY="$MAPS_API_KEY" \
+            --dart-define=PARKING_API_BASE_URL="$PARKING_API_BASE_URL" \
+            --dart-define=PARKING_API_TOKEN="$PARKING_API_TOKEN"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rakni-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
