@@ -123,7 +123,35 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- Google Maps JavaScript API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI"></script>
+  <script id="google-maps-js" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI9YS3MzCZju4NbBKa04NocCG8yA1J-LI"></script>
+  <script>
+    // Called from Dart (MapsReady) before building a GoogleMap. If the tag
+    // above failed or was blocked, reload the SDK once and wait for it.
+    window.rakniEnsureGoogleMaps = function () {
+      if (window.google && google.maps && google.maps.MapTypeId) {
+        return Promise.resolve(true);
+      }
+      if (window.__rakniMapsLoading) return window.__rakniMapsLoading;
+
+      window.__rakniMapsLoading = new Promise(function (resolve) {
+        var done = function (ok) {
+          window.__rakniMapsLoading = null;
+          resolve(ok);
+        };
+        window.__rakniMapsReady = function () {
+          done(!!(window.google && google.maps && google.maps.MapTypeId));
+        };
+        var src = document.getElementById('google-maps-js').src;
+        var s = document.createElement('script');
+        s.src = src + '&loading=async&callback=__rakniMapsReady';
+        s.async = true;
+        s.onerror = function () { done(false); };
+        document.head.appendChild(s);
+        setTimeout(function () { done(false); }, 15000);
+      });
+      return window.__rakniMapsLoading;
+    };
+  </script>
 
   <script>
     window.addEventListener('flutter-first-frame', function () {

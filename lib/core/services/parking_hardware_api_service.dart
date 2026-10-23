@@ -37,6 +37,9 @@ class ParkingHardwareApiService {
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         if (_authToken.isNotEmpty) 'Authorization': 'Token $_authToken',
+        // ngrok free tunnels answer browser requests with an HTML warning page
+        // (ERR_NGROK_6024) unless this header is present.
+        if (_baseUrl.contains('ngrok')) 'ngrok-skip-browser-warning': 'true',
       };
 
   // ---------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/models/parking_slot_model.dart';
 import 'package:rakni_v2/core/models/vehicle_model.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
+import 'package:rakni_v2/core/widgets/maps_ready.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'gate_entry_scan_screen.dart';
 
@@ -375,7 +376,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
       body: Stack(
         children: [
           // Map
-          GoogleMap(
+          MapsReady(child: GoogleMap(
             initialCameraPosition: CameraPosition(
               target: _userLocation ?? _destination,
               zoom: 14,
@@ -388,7 +389,7 @@ class _OutdoorNavigationScreenState extends State<OutdoorNavigationScreen>
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             style: ThemeService.instance.isDark ? _darkMapStyle : _lightMapStyle,
-          ),
+          )),
           // Top instruction bar
           if (_isNavigating && !_hasArrived)
             Positioned(

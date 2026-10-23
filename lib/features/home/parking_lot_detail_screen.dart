@@ -5,6 +5,7 @@ import 'package:rakni_v2/core/models/parking_lot_model.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 import 'package:rakni_v2/core/services/favorites_service.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
+import 'package:rakni_v2/core/widgets/maps_ready.dart';
 import 'package:rakni_v2/features/booking/booking_details_screen.dart';
 import 'package:rakni_v2/core/services/parking_hardware_api_service.dart';
 
@@ -365,7 +366,7 @@ class _State extends State<ParkingLotDetailScreen> {
         child: SizedBox(
           height: 200,
           child: AbsorbPointer(
-            child: GoogleMap(
+            child: MapsReady(child: GoogleMap(
               initialCameraPosition: CameraPosition(target: p, zoom: 15),
               markers: {
                 Marker(
@@ -381,7 +382,7 @@ class _State extends State<ParkingLotDetailScreen> {
               mapToolbarEnabled: false,
               liteModeEnabled: true,
               style: ThemeService.instance.isDark ? _darkMapStyle : _lightMapStyle,
-            ),
+            )),
           ),
         ),
       ),

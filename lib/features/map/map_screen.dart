@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rakni_v2/core/repositories/parking_lot_repository.dart';
 import 'package:rakni_v2/core/services/theme_service.dart';
+import 'package:rakni_v2/core/widgets/maps_ready.dart';
 import 'package:rakni_v2/core/theme/app_colors.dart';
 
 // ─────────────────────────────────────────────────────────────────
@@ -471,7 +472,7 @@ class _MapScreenState extends State<MapScreen> {
       body: Stack(
         children: [
           // ── Map ────────────────────────────────────────────────
-          GoogleMap(
+          MapsReady(child: GoogleMap(
             initialCameraPosition: const CameraPosition(
               target: LatLng(30.0219, 31.4997),
               zoom: 12,
@@ -489,7 +490,7 @@ class _MapScreenState extends State<MapScreen> {
             zoomControlsEnabled: false,
             compassEnabled: true,
             mapToolbarEnabled: false,
-          ),
+          )),
 
           // ── Search bar ─────────────────────────────────────────
           Positioned(
