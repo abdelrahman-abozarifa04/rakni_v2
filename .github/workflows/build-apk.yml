@@ -40,6 +40,10 @@ jobs:
           done
           exit $missing
 
+      # gradle.properties pins a Windows Android Studio JDK; use the runner's Java 17.
+      - name: Drop local JDK path
+        run: sed -i '/^org.gradle.java.home=/d' android/gradle.properties
+
       - run: flutter pub get
 
       - name: Build release APK
